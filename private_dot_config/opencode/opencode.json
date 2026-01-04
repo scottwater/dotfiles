@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "opencode-openai-codex-auth@4.2.0",
+    "opencode-gemini-auth@latest",
+    "@franlol/opencode-md-table-formatter@0.0.3"
+  ],
+  "agent": {
+    "build": {},
+    "plan": {}
+  },
+  "mcp": {
+    "kapture": {
+      "type": "local",
+      "command": ["npx", "-y", "kapture-mcp", "bridge"]
+    }
+  }
+}

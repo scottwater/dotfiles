@@ -1,0 +1,10 @@
+eval "$(/opt/homebrew/bin/brew shellenv)"
+export PATH="$HOME/.local/bin:/opt/homebrew/opt/libpq/bin:$HOME/.local/share/mise/shims:$PATH"
+export XDG_CONFIG_HOME="$HOME/.config"
+export RAILS_EDITOR="zed"
+
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  eval "$(mise activate zsh --shims)"
+else
+  eval "$(mise activate zsh)"
+fi

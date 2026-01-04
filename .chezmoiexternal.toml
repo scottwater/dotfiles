@@ -1,0 +1,11 @@
+# External files managed outside the main dotfiles repo
+# These are pulled during `chezmoi apply`
+
+# Dracula Pro themes - clones entire private repo to nvim location
+# Then a run_after script symlinks/copies to other locations
+[".config/nvim/dracula_pro"]
+    type = "git-repo"
+    url = "git@github.com:scottwater/dracula-pro-nvim.git"
+    refreshPeriod = "168h"
+    [".config/nvim/dracula_pro".pull]
+        args = ["--ff-only"]

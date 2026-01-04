@@ -1,0 +1,126 @@
+{
+  "env": {
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "32000",
+    "MAX_THINKING_TOKENS": "31999"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(bin/rubocop:*)",
+      "Bash(bundle exec rspec:*)",
+      "WebFetch(domain:*)",
+      "Bash(awk:*)",
+      "Bash(cat:*)",
+      "Bash(ruby:*)",
+      "Bash(echo \"Exit code: $?\")",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(bin/rails generate:*)",
+      "Bash(bin/rails:*)",
+      "Bash(bundle exec rspec:*)",
+      "Bash(gem list)",
+      "mcp__linear-server__get_issue",
+      "Bash(mkdir:*)",
+      "mcp__linear-server__list_projects",
+      "mcp__linear-server__get_project",
+      "mcp__linear-server__list_issues",
+      "Bash(python3:*)",
+      "mcp__gemini-cli__ask-gemini",
+      "Bash(bundle exec ruby:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'json=$(cat); message=$(echo \"$json\" | grep -o '\"message\"[[:space:]]*:[[:space:]]*\"[^\"]*\"' | sed 's/.*: *\"\\(.*\\)\"/\\1/'); $HOME/bin/notify_pushcut \"Claude Code\" \"${message:-Notification}\"'"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py Notification"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/atuin/claude-atuin-tracker"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/pushcut/notify \"Claude Code Finished\" \"Claude has completed your task\""
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py Stop"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/ccnotify/ccnotify.py UserPromptSubmit"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y @owloops/claude-powerline@latest --style=powerline"
+  },
+  "enabledPlugins": {
+    "bem-tailwind@Katalog": false,
+    "event-sourcing@Katalog": false,
+    "generate-docs@Katalog": false,
+    "git-commit@Katalog": true,
+    "meta@Katalog": false,
+    "research@Katalog": false,
+    "workflow@Katalog": true,
+    "agent-sdk-dev@claude-code-plugins": false,
+    "feature-dev@claude-code-plugins": false,
+    "plugin-dev@claude-code-plugins": false,
+    "ralph-wiggum@claude-code-plugins": true,
+    "code-review@claude-code-plugins": false,
+    "commit-commands@claude-code-plugins": false,
+    "pr-review-toolkit@claude-code-plugins": false,
+    "frontend-design@claude-code-plugins": true
+  }
+}

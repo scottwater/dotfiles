@@ -1,0 +1,60 @@
+#!/usr/bin/env zsh
+
+# =============================================================================
+# AUTO_COP - Standalone Rubocop Runner for Git-Modified Files
+# =============================================================================
+# Automatically runs rubocop with auto-correct on all git-modified Ruby files
+# (changed, staged, or untracked) in the current repository.
+#
+# Usage: auto_cop [additional rubocop options]
+# Examples:
+#   auto_cop                        # Run rubocop on all modified .rb files with auto-correct
+#   auto_cop --display-only-failed  # Run with additional rubocop options
+# =============================================================================
+
+# Get all git-modified Ruby files (changed, staged, or untracked)
+get_modified_ruby_files() {
+  # Get all changed, staged, and untracked files
+  local changed_files=$(git diff --name-only 2>/dev/null)
+  local staged_files=$(git diff --cached --name-only 2>/dev/null)
+  local untracked_files=$(git ls-files --others --exclude-standard 2>/dev/null)
+
+  # Combine all files, remove duplicates, and filter for .rb files
+  echo "$changed_files\n$staged_files\n$untracked_files" | \
+    sort -u | \
+    grep -v '^$' | \
+    grep "\.rb$"
+}
+
+# Main execution
+main() {
+  # Check if we're in a git repository
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: Not in a git repository"
+    exit 1
+  fi
+
+  # Get modified Ruby files
+  local ruby_files=$(get_modified_ruby_files)
+
+  if [ -n "$ruby_files" ]; then
+    echo "Running rubocop with auto-correct on modified .rb files:"
+    echo "$ruby_files" | sed 's/^/  /'
+    echo ""
+
+    # Check if bin/rubocop exists, otherwise use system rubocop
+    if [ -x "bin/rubocop" ]; then
+      bin/rubocop -f github -A $(echo "$ruby_files" | tr '\n' ' ') "$@"
+    elif command -v rubocop > /dev/null 2>&1; then
+      rubocop -f github -A $(echo "$ruby_files" | tr '\n' ' ') "$@"
+    else
+      echo "Error: rubocop not found. Please install rubocop or ensure bin/rubocop exists."
+      exit 1
+    fi
+  else
+    echo "No modified .rb files found."
+  fi
+}
+
+# Run the main function with all passed arguments
+main "$@"

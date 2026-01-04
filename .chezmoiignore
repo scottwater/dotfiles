@@ -1,0 +1,5 @@
+.config/zed/prompts/**
+.config/zed/conversations/**
+.config/opencode/temp/**
+.config/opencode/node_modules/**
+.config/opencode/bun.lock

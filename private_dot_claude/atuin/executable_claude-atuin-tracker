@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Claude Code hook to track Bash commands in atuin
+# Add to .claude/settings.json PostToolUse hooks for Bash tool
+# "PostToolUse": [
+#   {
+#     "hooks": [
+#       {
+#         "type": "command",
+#         "command": "claude-atuin-tracker"
+#       }
+#     ]
+#   }
+# ]
+# I didn't find a good way to handle duration yet... not all started commands via PreToolUse
+# will have an end and may run in parallel.
+# input:
+# {
+#   "session_id": "abc123",
+#   "transcript_path": "/Users/.../.claude/projects/.../00893aaf-19fa-41d2-8238-13269b9b3ca0.jsonl",
+#   "cwd": "/Users/...",
+#   "hook_event_name": "PostToolUse",
+#   "tool_name": "Write",
+#   "tool_input": {
+#     "file_path": "/path/to/file.txt",
+#     "content": "file content"
+#   },
+#   "tool_response": {
+#     "filePath": "/path/to/file.txt",
+#     "success": true
+#   }
+# }
+
+export ATUIN_HOST_USER="claude"
+
+# Read JSON from stdin
+json=$(cat)
+
+# Exit if no input
+if [[ -z "$json" ]]; then
+    exit 0
+fi
+
+# Validate JSON
+if ! echo "$json" | jq empty 2>/dev/null; then
+    echo "Invalid JSON input" >&2
+    exit 1
+fi
+
+# Parse hook data
+hook_event_name=$(echo "$json" | jq -r '.hook_event_name // ""')
+tool_name=$(echo "$json" | jq -r '.tool_name // ""')
+
+# Only process PostToolUse for Bash tool
+if [[ "$hook_event_name" != "PostToolUse" ]] || [[ "$tool_name" != "Bash" ]]; then
+    exit 0
+fi
+
+# Extract command details
+command=$(echo "$json" | jq -r '.tool_input.command // ""')
+cwd=$(echo "$json" | jq -r '.cwd // ""')
+description=$(echo "$json" | jq -r '.tool_input.description // ""')
+
+# Get exit code from tool response success field
+success=$(echo "$json" | jq -r '.tool_response.success // true')
+exit_code=0
+if [[ "$success" == "false" ]]; then
+    exit_code=1
+fi
+
+# Exit if no command
+if [[ -z "$command" ]]; then
+    exit 0
+fi
+
+# Change to the working directory where command was executed
+if [[ -n "$cwd" ]] && [[ -d "$cwd" ]]; then
+    cd "$cwd" || exit 0
+fi
+
+# Track in atuin
+# Start the history entry and capture the ID
+atuin_id=$(atuin history start -- "$command" 2>/dev/null | xargs)
+
+if [[ -z "$atuin_id" ]]; then
+    echo "Failed to start atuin history tracking" >&2
+    exit 0
+fi
+
+# End the history entry with exit code
+atuin history end --exit "$exit_code" -- "$atuin_id" 2>/dev/null

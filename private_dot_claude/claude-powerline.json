@@ -1,0 +1,46 @@
+{
+  "theme": "tokyo-night",
+  "display": {
+    "style": "powerline",
+    "lines": [
+      {
+        "segments": {
+          "directory": { "enabled": true, "showBasename": true },
+          "model": { "enabled": true },
+          "session": { "enabled": true, "type": "both" },
+          "today": { "enabled": true, "type": "both" }
+        }
+      },
+      {
+        "segments": {
+          "block": { "enabled": false, "type": "cost", "burnType": "cost" },
+          "version": { "enabled": false },
+          "metrics": {
+            "enabled": true,
+            "showResponseTime": true,
+            "showLastResponseTime": false,
+            "showDuration": true,
+            "showMessageCount": true
+          },
+          "context": { "enabled": true },
+          "tmux": { "enabled": false },
+          "git": {
+            "enabled": true,
+            "showSha": false,
+            "showWorkingTree": false,
+            "showOperation": true,
+            "showTag": false,
+            "showTimeSinceCommit": false,
+            "showStashCount": true,
+            "showUpstream": false,
+            "showRepoName": true
+          }
+        }
+      }
+    ]
+  },
+  "budget": {
+    "session": { "warningThreshold": 80 },
+    "today": { "amount": 5.0, "warningThreshold": 80 }
+  }
+}
