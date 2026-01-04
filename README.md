@@ -2,6 +2,15 @@
 
 Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 
+## Setup Instructions
+
+```bash
+chezmoi init scottwater/dotfiles
+chezmoi apply
+```
+
+**Reminder for Scott**: Dracula Pro themes will be pulled from private repo (See .chezmoiexternal.toml)
+
 ## Tools
 
 ### Shell & Terminal
