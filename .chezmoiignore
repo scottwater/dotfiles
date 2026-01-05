@@ -3,3 +3,7 @@
 .config/opencode/temp/**
 .config/opencode/node_modules/**
 .config/opencode/bun.lock
+
+# LazyVim auto-managed files
+.config/nvim/lazy-lock.json
+.config/nvim/.neoconf.json
