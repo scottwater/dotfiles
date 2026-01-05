@@ -3,6 +3,11 @@
 .config/opencode/temp/**
 .config/opencode/node_modules/**
 .config/opencode/bun.lock
+.config/opencode/package.json
+.config/opencode/package-lock.json
+.config/opencode/.gitignore
+.config/opencode/skills
+.config/opencode/themes/dracula-pro*
 
 # LazyVim auto-managed files
 .config/nvim/lazy-lock.json
