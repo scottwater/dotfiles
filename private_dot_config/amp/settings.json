@@ -1,12 +1,20 @@
 {
+  "amp.permissions": [
+    {
+      "tool": "Bash",
+      "action": "delegate",
+      "to": "amp-safety-net"
+    }
+  ],
   "amp.mcpServers": {
     "kapture": {
       "command": "npx",
-      "args": [
-        "-y",
-        "kapture-mcp",
-        "bridge"
-      ]
+      "args": ["-y", "kapture-mcp", "bridge"]
+    },
+    "linear": {
+      "source": "custom",
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
     }
   },
   "amp.dangerouslyAllowAll": true
