@@ -8,3 +8,5 @@ if [[ "$TERM_PROGRAM" == "vscode" ]]; then
 else
   eval "$(mise activate zsh)"
 fi
+
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
