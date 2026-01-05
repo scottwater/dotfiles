@@ -1,5 +1,10 @@
+# Zed auto-managed
 .config/zed/prompts/**
 .config/zed/conversations/**
+.config/zed/backup/**
+.config/zed/themes/**
+
+# OpenCode auto-managed
 .config/opencode/temp/**
 .config/opencode/node_modules/**
 .config/opencode/bun.lock
@@ -9,6 +14,9 @@
 .config/opencode/skills
 .config/opencode/themes/dracula-pro*
 
-# LazyVim auto-managed files
+# LazyVim auto-managed
 .config/nvim/lazy-lock.json
 .config/nvim/.neoconf.json
+
+# macOS
+**/.DS_Store
