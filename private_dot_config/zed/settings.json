@@ -8,31 +8,31 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "terminal": {
-    "font_size": 20.0
+    "font_size": 20.0,
   },
   "colorize_brackets": true,
   "sticky_scroll": {
-    "enabled": true
+    "enabled": true,
   },
   "git": {
-    "hunk_style": "staged_hollow"
+    "hunk_style": "staged_hollow",
   },
   "collaboration_panel": {
-    "button": false
+    "button": false,
   },
   "outline_panel": {
     "button": false,
-    "dock": "right"
+    "dock": "right",
   },
   "git_panel": {
     "button": true,
     "collapse_untracked_diff": true,
     "scrollbar": {
-      "show": "never"
-    }
+      "show": "never",
+    },
   },
   "scrollbar": {
-    "show": "never"
+    "show": "never",
   },
   "icon_theme": "Monospace Icon Theme - Light",
   "project_panel": {
@@ -48,8 +48,8 @@
     "auto_fold_dirs": true,
     "auto_reveal_entries": true,
     "scrollbar": {
-      "show": "never"
-    }
+      "show": "never",
+    },
   },
   "ui_font_size": 18.0,
   "ui_font_family": "Hack Nerd Font Mono",
@@ -58,15 +58,15 @@
   "theme": "Dracula Pro (Van Helsing)",
   "languages": {
     "Ruby": {
-      "language_servers": ["ruby-lsp"]
-    }
+      "language_servers": ["ruby-lsp"],
+    },
   },
   "lsp": {
     "rubocop": {
       "initialization_options": {
-        "safeAutocorrect": false
-      }
-    }
+        "safeAutocorrect": false,
+      },
+    },
   },
   "theme_overrides": {
     "Dracula Pro (Van Helsing)": {
@@ -97,7 +97,7 @@
       "terminal.ansi.dim_cyan": "#66ccbbff",
       "terminal.ansi.white": "#f8f8f2ff",
       "terminal.ansi.bright_white": "ffffffff",
-      "terminal.ansi.dim_white": "#c6c6c2ff"
+      "terminal.ansi.dim_white": "#c6c6c2ff",
     },
     "Tokyo Night Light": {
       "terminal.background": "#16161e",
@@ -128,7 +128,7 @@
       "terminal.ansi.dim_cyan": null,
       "terminal.ansi.white": "#787c99",
       "terminal.ansi.bright_white": "#acb0d0",
-      "terminal.ansi.dim_white": null
+      "terminal.ansi.dim_white": null,
     },
     "Tokyo Night": {
       "terminal.background": "#cbccd1",
@@ -148,8 +148,8 @@
       "terminal.ansi.cyan": "#0f4b6e",
       "terminal.ansi.bright_cyan": "#0f4b6e",
       "terminal.ansi.white": "#828594",
-      "terminal.ansi.bright_white": "#828594"
-    }
+      "terminal.ansi.bright_white": "#828594",
+    },
   },
-  "file_scan_exclusions": [".worktrees/", "*.log", ".conductor/"]
+  "file_scan_exclusions": [".worktrees/", "*.log", ".conductor/", ".branches/"],
 }
