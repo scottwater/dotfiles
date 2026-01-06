@@ -62,6 +62,14 @@ function find_routes() {
   bin/rails routes -g "$1"
 }
 
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
 alias hp="nocorrect hp"
 alias hs="nocorrect hs"
 alias mwt='eval "$(bin/wt --select)"'
@@ -69,7 +77,8 @@ alias zw='bin/wt --select --open zed'
 alias tg='t -g'
 alias tf='t -f'
 alias tff='t --ff'
-alias y="yazi"
+alias ca="chezmoi apply"
+
 # https://github.com/kevinSuttle/dotfiles/blob/9458141f40094d96952adc7c423cbdddeb909a81/functions
 searchAndDestroy() {
   lsof -i TCP:$1 | grep LISTEN | awk '{print $2}' | xargs kill -9
