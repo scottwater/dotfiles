@@ -3,7 +3,30 @@ gui:
   showDivergenceFromBaseBranch: "arrowAndNumber"
   switchTabsWithPanelJumpKeys: true
   enlargedSideViewLocation: top
+  # Dracula Pro Theme
+  theme:
+    activeBorderColor:
+      - "#bd93f9"  # purple
+      - bold
+    inactiveBorderColor:
+      - "#6272a4"  # comment gray
+    optionsTextColor:
+      - "#8be9fd"  # cyan
+    selectedLineBgColor:
+      - "#44475a"  # selection gray
+    selectedRangeBgColor:
+      - "#44475a"  # selection gray
+    cherryPickedCommitBgColor:
+      - "#bd93f9"  # purple
+    cherryPickedCommitFgColor:
+      - "#8be9fd"  # cyan
+    unstagedChangesColor:
+      - "#ff5555"  # red
+    defaultFgColor:
+      - "#f8f8f2"  # foreground
+    searchingActiveBorderColor:
+      - "#f1fa8c"  # yellow
 git:
   pagers:
-    - pager: delta --paging=never
+    - pager: delta --paging=never --features=vampire-bat
       colorArg: always
