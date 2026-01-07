@@ -34,6 +34,7 @@
 	ci = commit
 	di = diff
 	dc = diff --cached
+	d = diff -- . ':!.beads'
 	amend = commit --amend
 	aa = add --all
 	head = !git l -1
