@@ -10,11 +10,6 @@
     "kapture": {
       "command": "npx",
       "args": ["-y", "kapture-mcp", "bridge"]
-    },
-    "linear": {
-      "source": "custom",
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
     }
   },
   "amp.dangerouslyAllowAll": true
