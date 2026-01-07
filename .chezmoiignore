@@ -16,6 +16,7 @@
 
 # LazyVim auto-managed
 .config/nvim/lazy-lock.json
+.config/nvim/lazyvim.json
 .config/nvim/.neoconf.json
 
 # macOS
