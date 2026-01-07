@@ -10,6 +10,7 @@ autoload -U compinit; compinit
 zstyle ':completion:*' menu select
 
 export EDITOR=nvim
+alias n="nvim"
 set -o emacs
 
 
