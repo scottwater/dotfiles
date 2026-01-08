@@ -6,11 +6,5 @@
       "to": "amp-safety-net"
     }
   ],
-  "amp.mcpServers": {
-    "kapture": {
-      "command": "npx",
-      "args": ["-y", "kapture-mcp", "bridge"]
-    }
-  },
   "amp.dangerouslyAllowAll": true
 }

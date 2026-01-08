@@ -1,0 +1,18 @@
+{
+  "kapture": {
+    "command": "npx",
+    "args": ["-y", "kapture-mcp", "bridge"],
+    "includeTools": [
+      "list_tabs",
+      "new_tab",
+      "navigate",
+      "screenshot",
+      "click",
+      "fill",
+      "keypress",
+      "dom",
+      "elements",
+      "console_logs"
+    ]
+  }
+}
