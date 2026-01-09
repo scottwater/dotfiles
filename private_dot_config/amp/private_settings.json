@@ -6,5 +6,8 @@
       "to": "amp-safety-net"
     }
   ],
-  "amp.dangerouslyAllowAll": true
+  "amp.dangerouslyAllowAll": true,
+  "amp.experimental.autoHandoff": {
+    "context": 90
+  }
 }
