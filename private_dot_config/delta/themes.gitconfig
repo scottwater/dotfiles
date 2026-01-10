@@ -28,10 +28,9 @@
 
 
 [delta "vampire-bat"]
-    # author: Custom Dracula Pro theme
     # Based on Dracula Pro color palette
     dark = true
-    syntax-theme = Dracula
+    syntax-theme = vampire-bat
     # File styling
     file-style = "#bd93f9" bold
     file-decoration-style = "#6272a4" ul
