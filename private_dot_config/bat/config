@@ -1,0 +1,25 @@
+# Bat configuration
+# Using Dracula theme to match Dracula Pro theming across tools
+# (OpenCode, Zed, Delta, LazyGit, Neovim, Ghostty)
+
+# Theme - Custom Dracula Pro theme matching other tools
+# (Delta vampire-bat, Ghostty, Zed, LazyGit, etc.)
+--theme="vampire-bat"
+
+# Show line numbers
+--style="numbers,changes,header,grid"
+
+# Use italic text (works in most modern terminals)
+--italic-text=always
+
+# Set tab width
+--tabs=4
+
+# Enable paging for long output
+--paging=auto
+
+# Map additional file types
+--map-syntax "*.conf:INI"
+--map-syntax ".gitconfig:INI"
+--map-syntax "*.envrc:Bash"
+--map-syntax ".envrc:Bash"
