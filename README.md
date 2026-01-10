@@ -9,7 +9,7 @@ chezmoi init scottwater/dotfiles
 chezmoi apply
 ```
 
-**Reminder for Scott**: Dracula Pro themes will be pulled from private repo (See .chezmoiexternal.toml)
+**Reminder for Scott**: Dracula Pro themes and TPM (tmux plugin manager) are pulled via `.chezmoiexternal.toml`
 
 ## Tools
 
@@ -19,6 +19,7 @@ chezmoi apply
 - **[Starship](https://starship.rs/)** - Cross-shell prompt
 - **[Atuin](https://atuin.sh/)** - Shell history sync and search
 - **[Ghostty](https://ghostty.org/)** - Terminal emulator (Dracula Pro theme)
+- **[tmux](https://github.com/tmux/tmux)** - Terminal multiplexer with Dracula Pro (Vampire Bat) theme
 
 ### Development Environment
 
@@ -28,7 +29,8 @@ chezmoi apply
 
 ### Git & Version Control
 
-- **[delta](https://github.com/dandavison/delta)** - Git diff viewer
+- **[delta](https://github.com/dandavison/delta)** - Git diff viewer (Vampire Bat theme)
+- **[bat](https://github.com/sharkdp/bat)** - Syntax-highlighted cat replacement (Vampire Bat theme)
 - **[lazygit](https://github.com/jesseduffield/lazygit)** - Terminal UI for git
 
 ### AI Coding Assistants
@@ -54,6 +56,7 @@ chezmoi apply
 | `dot_gitconfig` | `~/.gitconfig` | Git configuration with aliases |
 | `dot_gitignore_global` | `~/.gitignore_global` | Global git ignore patterns |
 | `dot_gemrc` | `~/.gemrc` | Ruby gem configuration |
+| `dot_tmux.conf` | `~/.tmux.conf` | Tmux configuration with Vampire Bat theme |
 | `zsh/` | `~/zsh/` | Zsh plugins and helpers |
 
 ### Local Binaries (`~/.local/bin`)
@@ -75,6 +78,7 @@ chezmoi apply
 | `lazygit/config.yml` | `~/.config/lazygit/config.yml` | Lazygit config |
 | `nvim/` | `~/.config/nvim/` | Neovim/LazyVim configuration |
 | `zed/` | `~/.config/zed/` | Zed editor settings and themes |
+| `bat/` | `~/.config/bat/` | Bat config and Vampire Bat theme |
 | `opencode/` | `~/.config/opencode/` | OpenCode AI assistant config |
 | `amp/` | `~/.config/amp/` | Amp AI assistant config |
 | `skills/` | `~/.config/skills/` | Shared AI skills (symlinked) |
