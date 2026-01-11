@@ -49,3 +49,6 @@ brew "fzf"
 brew "zoxide"
 brew "resvg"
 cask "font-symbols-only-nerd-font"
+cask "1password"
+cask "raycast"
+
