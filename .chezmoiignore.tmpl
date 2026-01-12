@@ -21,3 +21,8 @@
 
 # macOS
 **/.DS_Store
+
+# Work-only files
+{{- if not .kode }}
+.config/amp/skills/linear/**
+{{- end }}
