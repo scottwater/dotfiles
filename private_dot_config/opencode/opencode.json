@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "theme": "dracula-pro",
   "plugin": [
     "opencode-openai-codex-auth@4.2.0",
     "opencode-gemini-auth@latest",
