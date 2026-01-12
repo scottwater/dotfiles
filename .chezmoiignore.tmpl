@@ -23,6 +23,6 @@
 **/.DS_Store
 
 # Work-only files
-{{- if not .kode }}
+{{- if not (get . "kode") }}
 .config/amp/skills/linear/**
 {{- end }}
