@@ -2,9 +2,8 @@ font-family = "Hack Nerd Font Mono"
 font-size = 18
 
 
-keybind = shift+enter=text:\n
-
-auto-update-channel = tip
+keybind = shift+enter=text:\\\n\r
+shell-integration-features = ssh-env
 
 palette = 0=#22212C
 palette = 1=#FF9580
