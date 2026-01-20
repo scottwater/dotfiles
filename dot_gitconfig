@@ -16,6 +16,8 @@
     diffFilter = delta --color-only
 [diff]
 	tool = nvimdiff
+[pull]
+	rebase = true
 [alias]
   co = checkout
   s = switch
