@@ -17,7 +17,7 @@ return {
         },
         rubocop = {
           mason = false,
-          cmd = { vim.fn.expand("~/.local/share/mise/shims/rubocop"), "--lsp" },
+          cmd = { vim.fn.expand("~/.local/share/mise/shims/standardrb"), "--lsp" },
         },
       },
       setup = {
