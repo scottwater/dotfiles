@@ -28,6 +28,7 @@ brew "puma-dev"
 cask "font-monaspice-nerd-font"
 cask "font-hack-nerd-font"
 brew "libyaml" # For Ruby 3.x
+brew "trash"
 
 cask "jordanbaird-ice"
 cask "postgres-unofficial"
