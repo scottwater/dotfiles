@@ -9,5 +9,10 @@
   "amp.dangerouslyAllowAll": true,
   "amp.experimental.autoHandoff": {
     "context": 90
-  }
+  },
+  "amp.experimental.tools": [
+    "kraken"
+  ],
+  "amp.experimental.walkthroughs": true,
+  "amp.experimental.illustrator": true
 }
