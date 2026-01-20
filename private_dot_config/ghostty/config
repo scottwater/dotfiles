@@ -3,7 +3,7 @@ font-size = 18
 
 auto-update-channel = stable
 
-keybind = shift+enter=text:\\\n\r
+# keybind = shift+enter=text:\\\n\r
 shell-integration-features = ssh-env
 
 palette = 0=#22212C
