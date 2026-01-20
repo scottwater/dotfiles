@@ -1,6 +1,4 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-
+#!/bin/bash
 # Amp Safety Net - A delegate script for blocking destructive commands.
 #
 # Amp Delegate Protocol:
@@ -19,5 +17,5 @@
 #   SAFETY_NET_PARANOID_INTERPRETERS=1 - Block python -c, node -e, etc.
 #   SAFETY_NET_ALLOW_TMP_RM=0  - Block rm -rf in /tmp, /var/tmp, $TMPDIR
 
-require_relative "safety_net_impl/hook"
-exit SafetyNetImpl::Hook.run
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec bun run "$SCRIPT_DIR/../../safety-net/cli.ts"

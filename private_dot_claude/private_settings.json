@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/deny-rm-rf.py"
+            "command": "bun run $HOME/.config/safety-net/cli.ts"
           }
         ]
       }

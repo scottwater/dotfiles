@@ -1,0 +1,8 @@
+{
+  "name": "safety-net",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
