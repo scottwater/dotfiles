@@ -4,7 +4,7 @@ require_relative "shell"
 
 module SafetyNetImpl
   module RulesRm
-    REASON_RM_RF = "rm -rf is destructive. List files first, then delete individually."
+    REASON_RM_RF = "rm -rf is destructive. Use `trash` instead, or list files first, then delete individually."
     REASON_RM_RF_ROOT_HOME = "rm -rf on root or home paths is extremely dangerous."
     REASON_RM_RF_TMP = "rm -rf in temp directories blocked. " \
       "[allow_tmp disabled - enable with: unset SAFETY_NET_ALLOW_TMP_RM]"
