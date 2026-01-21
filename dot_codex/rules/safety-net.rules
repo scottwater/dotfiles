@@ -1,0 +1,293 @@
+# Safety Net Rules for Codex
+#
+# Cross-platform command safety rules that block destructive commands.
+# Ported from the TypeScript safety-net used by Amp, Claude Code, and OpenCode.
+#
+# See: ~/.config/safety-net/README.md
+
+# =============================================================================
+# rm -rf protection
+# =============================================================================
+
+# Block rm -rf on root
+prefix_rule(
+    pattern=["rm", "-rf", "/"],
+    decision="forbidden",
+    justification="rm -rf on root is extremely dangerous and will destroy the entire filesystem.",
+    match=["rm -rf /", "rm -rf / --no-preserve-root"],
+)
+
+prefix_rule(
+    pattern=["rm", "-rf", "/*"],
+    decision="forbidden",
+    justification="rm -rf /* is extremely dangerous and will destroy the entire filesystem.",
+    match=["rm -rf /*"],
+)
+
+# Block rm -rf on home directory
+prefix_rule(
+    pattern=["rm", "-rf", "~"],
+    decision="forbidden",
+    justification="rm -rf on home directory will destroy all user data.",
+    match=["rm -rf ~", "rm -rf ~/"],
+)
+
+prefix_rule(
+    pattern=["rm", "-rf", "$HOME"],
+    decision="forbidden",
+    justification="rm -rf on home directory will destroy all user data.",
+    match=["rm -rf $HOME", "rm -rf $HOME/"],
+)
+
+# Block rm -fr variants (flags in different order)
+prefix_rule(
+    pattern=["rm", "-fr", "/"],
+    decision="forbidden",
+    justification="rm -fr on root is extremely dangerous.",
+    match=["rm -fr /"],
+)
+
+prefix_rule(
+    pattern=["rm", "-fr", "~"],
+    decision="forbidden",
+    justification="rm -fr on home directory will destroy all user data.",
+    match=["rm -fr ~"],
+)
+
+# Prompt for any rm -rf outside known safe paths
+prefix_rule(
+    pattern=["rm", "-rf"],
+    decision="prompt",
+    justification="rm -rf is destructive. Use 'trash' instead, or list files first, then delete individually.",
+    match=["rm -rf some_dir", "rm -rf ./build"],
+    not_match=["rm -r file", "rm file"],
+)
+
+prefix_rule(
+    pattern=["rm", "-fr"],
+    decision="prompt",
+    justification="rm -fr is destructive. Use 'trash' instead, or list files first, then delete individually.",
+    match=["rm -fr some_dir"],
+)
+
+prefix_rule(
+    pattern=["rm", "-Rf"],
+    decision="prompt",
+    justification="rm -Rf is destructive. Use 'trash' instead, or list files first, then delete individually.",
+    match=["rm -Rf some_dir"],
+)
+
+# =============================================================================
+# Dangerous git operations
+# =============================================================================
+
+# git checkout -- (discards uncommitted changes)
+prefix_rule(
+    pattern=["git", "checkout", "--"],
+    decision="forbidden",
+    justification="git checkout -- discards uncommitted changes permanently. Use 'git stash' first.",
+    match=["git checkout -- file.txt", "git checkout -- ."],
+)
+
+# git restore (discards changes)
+prefix_rule(
+    pattern=["git", "restore"],
+    decision="prompt",
+    justification="git restore discards uncommitted changes. Use 'git stash' or 'git diff' first.",
+    match=["git restore file.txt", "git restore ."],
+    not_match=["git restore --staged file.txt"],
+)
+
+# git reset --hard (destroys uncommitted changes)
+prefix_rule(
+    pattern=["git", "reset", "--hard"],
+    decision="forbidden",
+    justification="git reset --hard destroys uncommitted changes. Use 'git stash' first.",
+    match=["git reset --hard", "git reset --hard HEAD~1"],
+)
+
+# git reset --merge (can lose uncommitted changes)
+prefix_rule(
+    pattern=["git", "reset", "--merge"],
+    decision="prompt",
+    justification="git reset --merge can lose uncommitted changes.",
+    match=["git reset --merge"],
+)
+
+# git clean -f (removes untracked files permanently)
+prefix_rule(
+    pattern=["git", "clean", "-f"],
+    decision="forbidden",
+    justification="git clean -f removes untracked files permanently. Review with 'git clean -n' first.",
+    match=["git clean -f", "git clean -fd", "git clean -fx"],
+)
+
+prefix_rule(
+    pattern=["git", "clean", "--force"],
+    decision="forbidden",
+    justification="git clean --force removes untracked files permanently. Review with 'git clean -n' first.",
+    match=["git clean --force"],
+)
+
+# git push --force (destroys remote history)
+prefix_rule(
+    pattern=["git", "push", "--force"],
+    decision="forbidden",
+    justification="Force push can destroy remote history. Use --force-with-lease if necessary.",
+    match=["git push --force", "git push --force origin main"],
+    not_match=["git push --force-with-lease"],
+)
+
+prefix_rule(
+    pattern=["git", "push", "-f"],
+    decision="forbidden",
+    justification="Force push can destroy remote history. Use --force-with-lease if necessary.",
+    match=["git push -f", "git push -f origin main"],
+)
+
+# git branch -D (force delete without merge check)
+prefix_rule(
+    pattern=["git", "branch", "-D"],
+    decision="prompt",
+    justification="git branch -D force-deletes without merge check. Use -d for safety.",
+    match=["git branch -D feature-branch"],
+    not_match=["git branch -d feature-branch"],
+)
+
+# git stash drop (permanently deletes stashed changes)
+prefix_rule(
+    pattern=["git", "stash", "drop"],
+    decision="prompt",
+    justification="git stash drop permanently deletes stashed changes. List stashes first with 'git stash list'.",
+    match=["git stash drop", "git stash drop stash@{0}"],
+)
+
+# git stash clear (permanently deletes ALL stashed changes)
+prefix_rule(
+    pattern=["git", "stash", "clear"],
+    decision="forbidden",
+    justification="git stash clear permanently deletes ALL stashed changes.",
+    match=["git stash clear"],
+)
+
+# git worktree remove --force
+prefix_rule(
+    pattern=["git", "worktree", "remove", "--force"],
+    decision="prompt",
+    justification="git worktree remove --force can delete worktree files. Verify the path first.",
+    match=["git worktree remove --force /path/to/worktree"],
+)
+
+# =============================================================================
+# find -delete
+# =============================================================================
+
+prefix_rule(
+    pattern=["find"],
+    decision="prompt",
+    justification="find -delete permanently deletes matched files. Use -print first to review.",
+    match=["find . -name '*.tmp' -delete", "find /tmp -delete"],
+    not_match=["find . -name '*.txt'", "find . -type f -print"],
+)
+
+# =============================================================================
+# Dangerous disk operations
+# =============================================================================
+
+# dd with of= (can overwrite disks)
+prefix_rule(
+    pattern=["dd"],
+    decision="prompt",
+    justification="dd with of= can overwrite disks and destroy data. Verify the target device carefully.",
+    match=["dd if=/dev/zero of=/dev/sda", "dd if=image.iso of=/dev/sdb"],
+    not_match=["dd if=/dev/urandom bs=1 count=32"],
+)
+
+# mkfs (formats filesystems)
+prefix_rule(
+    pattern=["mkfs"],
+    decision="forbidden",
+    justification="mkfs formats filesystems and destroys all data on the target device.",
+    match=["mkfs.ext4 /dev/sda1", "mkfs -t ext4 /dev/sdb1"],
+)
+
+prefix_rule(
+    pattern=["mkfs.ext4"],
+    decision="forbidden",
+    justification="mkfs.ext4 formats filesystems and destroys all data on the target device.",
+    match=["mkfs.ext4 /dev/sda1"],
+)
+
+prefix_rule(
+    pattern=["mkfs.xfs"],
+    decision="forbidden",
+    justification="mkfs.xfs formats filesystems and destroys all data on the target device.",
+    match=["mkfs.xfs /dev/sda1"],
+)
+
+prefix_rule(
+    pattern=["mkfs.btrfs"],
+    decision="forbidden",
+    justification="mkfs.btrfs formats filesystems and destroys all data on the target device.",
+    match=["mkfs.btrfs /dev/sda1"],
+)
+
+# shred (secure delete)
+prefix_rule(
+    pattern=["shred"],
+    decision="prompt",
+    justification="shred permanently and securely deletes files. This cannot be undone.",
+    match=["shred file.txt", "shred -u sensitive.doc"],
+)
+
+# =============================================================================
+# xargs/parallel with rm -rf
+# =============================================================================
+
+prefix_rule(
+    pattern=["xargs", "rm", "-rf"],
+    decision="forbidden",
+    justification="xargs can feed arbitrary input to rm -rf. List files first, then delete individually.",
+    match=["find . | xargs rm -rf"],
+)
+
+prefix_rule(
+    pattern=["xargs", "rm", "-fr"],
+    decision="forbidden",
+    justification="xargs can feed arbitrary input to rm -fr. List files first, then delete individually.",
+    match=["find . | xargs rm -fr"],
+)
+
+prefix_rule(
+    pattern=["parallel", "rm", "-rf"],
+    decision="forbidden",
+    justification="parallel can feed arbitrary input to rm -rf. List files first, then delete individually.",
+    match=["parallel rm -rf ::: dir1 dir2"],
+)
+
+prefix_rule(
+    pattern=["parallel", "rm", "-fr"],
+    decision="forbidden",
+    justification="parallel can feed arbitrary input to rm -fr. List files first, then delete individually.",
+    match=["parallel rm -fr ::: dir1 dir2"],
+)
+
+# =============================================================================
+# Additional dangerous commands
+# =============================================================================
+
+# chmod 777 (overly permissive)
+prefix_rule(
+    pattern=["chmod", "777"],
+    decision="prompt",
+    justification="chmod 777 makes files world-writable, which is a security risk.",
+    match=["chmod 777 file", "chmod -R 777 dir"],
+)
+
+# chown to root
+prefix_rule(
+    pattern=["chown", "root"],
+    decision="prompt",
+    justification="Changing ownership to root may lock you out of your own files.",
+    match=["chown root file", "chown root:root file"],
+)
