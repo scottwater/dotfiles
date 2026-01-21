@@ -54,26 +54,26 @@ prefix_rule(
     match=["rm -fr ~"],
 )
 
-# Prompt for any rm -rf outside known safe paths
+# Block all rm -rf - use 'trash' instead
 prefix_rule(
     pattern=["rm", "-rf"],
-    decision="prompt",
-    justification="rm -rf is destructive. Use 'trash' instead, or list files first, then delete individually.",
+    decision="forbidden",
+    justification="rm -rf is forbidden. Use 'trash' instead.",
     match=["rm -rf some_dir", "rm -rf ./build"],
     not_match=["rm -r file", "rm file"],
 )
 
 prefix_rule(
     pattern=["rm", "-fr"],
-    decision="prompt",
-    justification="rm -fr is destructive. Use 'trash' instead, or list files first, then delete individually.",
+    decision="forbidden",
+    justification="rm -fr is forbidden. Use 'trash' instead.",
     match=["rm -fr some_dir"],
 )
 
 prefix_rule(
     pattern=["rm", "-Rf"],
-    decision="prompt",
-    justification="rm -Rf is destructive. Use 'trash' instead, or list files first, then delete individually.",
+    decision="forbidden",
+    justification="rm -Rf is forbidden. Use 'trash' instead.",
     match=["rm -Rf some_dir"],
 )
 

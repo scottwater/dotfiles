@@ -72,7 +72,7 @@ The plugin is automatically loaded from `~/.config/opencode/plugins/safety-net.t
 |----------|---------|-------------|
 | `SAFETY_NET_STRICT` | off | Fail-closed on unparseable commands |
 | `SAFETY_NET_PARANOID` | off | Enable all paranoid checks |
-| `SAFETY_NET_PARANOID_RM` | off | Block `rm -rf` even within cwd |
+| `SAFETY_NET_PARANOID_RM` | **on** | Block `rm -rf` even within cwd (use `trash`) |
 | `SAFETY_NET_PARANOID_INTERPRETERS` | off | Block `python -c`, `node -e`, etc. |
 | `SAFETY_NET_ALLOW_TMP_RM` | on | Allow `rm -rf` in temp directories |
 

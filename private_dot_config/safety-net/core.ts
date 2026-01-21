@@ -21,7 +21,7 @@ const REASON_RM_RF = "rm -rf is destructive. Use `trash` instead, or list files 
 const REASON_RM_RF_ROOT_HOME = "rm -rf on root or home paths is extremely dangerous."
 const REASON_RM_RF_TMP =
   "rm -rf in temp directories blocked. [allow_tmp disabled - enable with: unset SAFETY_NET_ALLOW_TMP_RM]"
-const PARANOID_RM_SUFFIX = " [paranoid mode - disable with: unset SAFETY_NET_PARANOID SAFETY_NET_PARANOID_RM]"
+const PARANOID_RM_SUFFIX = " [disable with: SAFETY_NET_PARANOID_RM=0]"
 
 const REASON_GIT_CHECKOUT_DOUBLE_DASH =
   "git checkout -- discards uncommitted changes permanently. Use 'git stash' first."
@@ -1260,7 +1260,7 @@ export function getOptionsFromEnv(): AnalysisOptions {
   const paranoid = envTruthy("SAFETY_NET_PARANOID")
   return {
     strict: envTruthy("SAFETY_NET_STRICT"),
-    paranoidRm: paranoid || envTruthy("SAFETY_NET_PARANOID_RM"),
+    paranoidRm: !envFalsy("SAFETY_NET_PARANOID_RM") || paranoid,
     paranoidInterpreters: paranoid || envTruthy("SAFETY_NET_PARANOID_INTERPRETERS"),
     allowTmp: !envFalsy("SAFETY_NET_ALLOW_TMP_RM"),
   }
