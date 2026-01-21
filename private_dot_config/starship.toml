@@ -23,9 +23,7 @@ $ruby\
 [](fg:green bg:comment)\
 $conda\
 [ ](fg:comment)\
-$cmd_duration\
-$line_break\
-$character"""
+"""
 
 palette = 'dracula'
 
