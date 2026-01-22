@@ -13,6 +13,9 @@
   "amp.experimental.tools": [
     "kraken"
   ],
+  "amp.experimental.modes": [
+    "deep"
+  ],
   "amp.experimental.walkthroughs": true,
   "amp.experimental.illustrator": true
 }
