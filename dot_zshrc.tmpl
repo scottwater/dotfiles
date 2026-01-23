@@ -1,3 +1,12 @@
+{{- if eq .chezmoi.os "linux" }}
+# Set UTF-8 locale for proper character rendering (Linux only)
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+# Wire up linexbrew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+export PATH="$HOME/.local/bin:$PATH"
+{{- end }}
+
 eval "$(atuin init zsh)"
 eval "$(mise activate zsh)"
 
