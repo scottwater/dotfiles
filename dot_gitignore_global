@@ -16,3 +16,4 @@ __tasks/*
 .claude/settings.local.json
 CLAUDE.local.md
 .serena/*
+mise.toml
