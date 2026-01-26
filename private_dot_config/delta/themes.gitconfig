@@ -53,16 +53,16 @@
     line-numbers-right-format = " {np:>3} │"
     line-numbers-left-style = "#6272a4"
     line-numbers-right-style = "#6272a4"
-    line-numbers-minus-style = "#ff5555" bold
-    line-numbers-plus-style = "#50fa7b" bold
+    line-numbers-minus-style = "#ff9580" bold
+    line-numbers-plus-style = "#8aff80" bold
     line-numbers-zero-style = "#6272a4"
     # Diff content styling
-    minus-style = syntax "#3d1e26"
-    minus-emph-style = syntax "#6b2232"
-    minus-non-emph-style = syntax "#3d1e26"
-    plus-style = syntax "#1e3d2b"
-    plus-emph-style = syntax "#28583d"
-    plus-non-emph-style = syntax "#1e3d2b"
+    minus-style = syntax "#43373f"
+    minus-emph-style = "#282a36" "#ff9580" bold
+    minus-non-emph-style = syntax "#43373f"
+    plus-style = syntax "#34453f"
+    plus-emph-style = "#282a36" "#8aff80" bold
+    plus-non-emph-style = syntax "#34453f"
     zero-style = syntax
     # Whitespace errors
     whitespace-error-style = "#ff5555" reverse
