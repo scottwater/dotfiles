@@ -43,7 +43,7 @@ The plugin is automatically loaded from `~/.config/opencode/plugins/safety-net.t
 ### rm -rf
 
 - `rm -rf /` or `~` (always blocked)
-- `rm -rf` outside of current working directory
+- `rm -rf` outside of temp directories (default)
 - `rm -rf .` (current directory itself)
 
 ### Dangerous Git Operations
@@ -66,6 +66,11 @@ The plugin is automatically loaded from `~/.config/opencode/plugins/safety-net.t
 - `shred`
 - Writing to `/dev/sd*` or `/dev/hd*`
 
+### Inline Scripts
+
+- Heredocs, here-strings, and interpreter one-liners (`bash -c`, `python -c`, `node -e`, `ruby -e`, `perl -e`) are parsed and scanned.
+- Dangerous commands hidden in inline scripts are blocked.
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -75,6 +80,15 @@ The plugin is automatically loaded from `~/.config/opencode/plugins/safety-net.t
 | `SAFETY_NET_PARANOID_RM` | **on** | Block `rm -rf` even within cwd (use `trash`) |
 | `SAFETY_NET_PARANOID_INTERPRETERS` | off | Block `python -c`, `node -e`, etc. |
 | `SAFETY_NET_ALLOW_TMP_RM` | on | Allow `rm -rf` in temp directories |
+| `SAFETY_NET_ALLOW_CWD_RM` | off | Allow `rm -rf` within cwd (still blocks root/home) |
+
+## Repository Scanning
+
+Scan a repo for destructive commands:
+
+```bash
+bun run ~/.config/safety-net/cli.ts scan /path/to/repo
+```
 
 ## Files
 
@@ -82,6 +96,8 @@ The plugin is automatically loaded from `~/.config/opencode/plugins/safety-net.t
 ~/.config/safety-net/
 ├── core.ts              # Shared analysis logic
 ├── cli.ts               # CLI for Amp/Claude Code (stdin → exit code)
+├── scan-runner.ts        # Repo scanning entrypoint
+├── scan-utils.ts         # Repo scanning extractors
 ├── opencode-plugin.ts   # OpenCode plugin wrapper
 └── README.md
 

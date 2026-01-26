@@ -4,6 +4,8 @@
  * Supports: Amp, Claude Code, OpenCode
  */
 
+import { extractHeredocBodies, extractHereStrings, extractStringLiterals, ScriptLanguage } from "./ast"
+
 const MAX_RECURSION_DEPTH = 5
 
 const STRICT_SUFFIX = " [strict mode - disable with: unset SAFETY_NET_STRICT]"
@@ -22,6 +24,7 @@ const REASON_RM_RF_ROOT_HOME = "rm -rf on root or home paths is extremely danger
 const REASON_RM_RF_TMP =
   "rm -rf in temp directories blocked. [allow_tmp disabled - enable with: unset SAFETY_NET_ALLOW_TMP_RM]"
 const PARANOID_RM_SUFFIX = " [disable with: SAFETY_NET_PARANOID_RM=0]"
+const REASON_INLINE_SCRIPT = "Inline scripts can hide destructive commands. Write the code to a file instead."
 
 const REASON_GIT_CHECKOUT_DOUBLE_DASH =
   "git checkout -- discards uncommitted changes permanently. Use 'git stash' first."
@@ -44,13 +47,21 @@ const REASON_GIT_STASH_DROP =
   "git stash drop permanently deletes stashed changes. List stashes first with 'git stash list'."
 const REASON_GIT_STASH_CLEAR = "git stash clear permanently deletes ALL stashed changes."
 
-const DANGEROUS_PATTERNS: RegExp[] = [
-  /\brm\s+.*-[^\s]*r[^\s]*f/,
-  /\brm\s+.*-[^\s]*f[^\s]*r/,
-  />\s*\/dev\/[sh]d[a-z]/,
-  /\bdd\b.*\bof=/,
-  /\bmkfs\b/,
-  /\bshred\b/,
+type Severity = "ERROR" | "WARNING"
+
+interface BlockReason {
+  reason: string
+  ruleId: string
+  severity: Severity
+}
+
+const DANGEROUS_PATTERNS: Array<{ pattern: RegExp; ruleId: string; severity: Severity }> = [
+  { pattern: /\brm\s+.*-[^\s]*r[^\s]*f/, ruleId: "core.pattern.rm-rf", severity: "ERROR" },
+  { pattern: /\brm\s+.*-[^\s]*f[^\s]*r/, ruleId: "core.pattern.rm-rf", severity: "ERROR" },
+  { pattern: />\s*\/dev\/[sh]d[a-z]/, ruleId: "core.pattern.dev-disk", severity: "ERROR" },
+  { pattern: /\bdd\b.*\bof=/, ruleId: "core.pattern.dd-of", severity: "ERROR" },
+  { pattern: /\bmkfs\b/, ruleId: "core.pattern.mkfs", severity: "ERROR" },
+  { pattern: /\bshred\b/, ruleId: "core.pattern.shred", severity: "ERROR" },
 ]
 
 const FIND_CONSUMES_ONE = new Set([
@@ -82,6 +93,12 @@ const FIND_EXEC_LIKE = new Set(["-exec", "-execdir", "-ok", "-okdir"])
 const SHELLS = new Set(["sh", "bash", "zsh", "fish", "dash", "ksh", "tcsh", "csh"])
 
 const INTERPRETERS = new Set(["python", "python3", "node", "ruby", "perl"])
+
+const INLINE_TRIGGER = /\b(rm|git|find|dd|mkfs|shred)\b/i
+
+const INLINE_LIMIT_BYTES = 1024 * 1024
+const INLINE_LIMIT_LINES = 10000
+const INLINE_LIMIT_PAYLOADS = 10
 
 const XARGS_CONSUMES_VALUE = new Set([
   "-a",
@@ -194,6 +211,8 @@ export interface AnalysisResult {
   blocked: boolean
   segment?: string
   reason?: string
+  ruleId?: string
+  severity?: Severity
 }
 
 export interface AnalysisOptions {
@@ -202,6 +221,7 @@ export interface AnalysisOptions {
   paranoidRm?: boolean
   paranoidInterpreters?: boolean
   allowTmp?: boolean
+  allowCwdRm?: boolean
 }
 
 // Shell parsing utilities
@@ -595,9 +615,9 @@ function rmTargets(tokens: string[]): string[] {
 
 function analyzeRm(
   tokens: string[],
-  opts: { allowTmpdirVar?: boolean; allowTmp?: boolean; cwd?: string; paranoid?: boolean }
-): string | null {
-  const { allowTmpdirVar = true, allowTmp = true, cwd, paranoid = false } = opts
+  opts: { allowTmpdirVar?: boolean; allowTmp?: boolean; cwd?: string; paranoid?: boolean; allowCwdRm?: boolean }
+): BlockReason | null {
+  const { allowTmpdirVar = true, allowTmp = true, cwd, paranoid = false, allowCwdRm = false } = opts
   const rest = tokens.slice(1)
 
   const optTokens: string[] = []
@@ -614,26 +634,32 @@ function analyzeRm(
   if (!recursive || !force) return null
 
   const targets = rmTargets(tokens)
-  if (targets.some((t) => isRootOrHomePath(t))) return REASON_RM_RF_ROOT_HOME
-
-  if (cwd && targets.some((t) => isCwdItself(t, cwd))) return REASON_RM_RF
-
-  if (targets.length > 0 && targets.every((t) => isTempPath(t, allowTmpdirVar))) {
-    return allowTmp ? null : REASON_RM_RF_TMP
+  if (targets.some((t) => isRootOrHomePath(t))) {
+    return { reason: REASON_RM_RF_ROOT_HOME, ruleId: "core.rm.root-home", severity: "ERROR" }
   }
 
-  if (paranoid) return REASON_RM_RF + PARANOID_RM_SUFFIX
+  if (cwd && targets.some((t) => isCwdItself(t, cwd))) {
+    return { reason: REASON_RM_RF, ruleId: "core.rm.cwd", severity: "WARNING" }
+  }
 
-  if (cwd && targets.length > 0) {
+  if (targets.length > 0 && targets.every((t) => isTempPath(t, allowTmpdirVar))) {
+    return allowTmp ? null : { reason: REASON_RM_RF_TMP, ruleId: "core.rm.tmp", severity: "WARNING" }
+  }
+
+  if (paranoid) {
+    return { reason: REASON_RM_RF + PARANOID_RM_SUFFIX, ruleId: "core.rm.paranoid", severity: "WARNING" }
+  }
+
+  if (allowCwdRm && cwd && targets.length > 0) {
     const home = process.env.HOME
     if (home && normalizePath(cwd) === normalizePath(home)) {
-      return REASON_RM_RF_ROOT_HOME
+      return { reason: REASON_RM_RF_ROOT_HOME, ruleId: "core.rm.root-home", severity: "ERROR" }
     }
 
     if (targets.every((t) => isPathWithinCwd(t, cwd))) return null
   }
 
-  return REASON_RM_RF
+  return { reason: REASON_RM_RF, ruleId: "core.rm.rf", severity: "WARNING" }
 }
 
 // git analysis
@@ -764,7 +790,7 @@ function checkoutPositionalArgs(rest: string[]): string[] {
   return positionals
 }
 
-function analyzeGit(tokens: string[]): string | null {
+function analyzeGit(tokens: string[]): BlockReason | null {
   const [sub, rest] = gitSubcommandAndRest(tokens)
   if (!sub) return null
 
@@ -776,7 +802,13 @@ function analyzeGit(tokens: string[]): string | null {
     case "checkout": {
       if (rest.includes("--")) {
         const idx = rest.indexOf("--")
-        return idx === 0 ? REASON_GIT_CHECKOUT_DOUBLE_DASH : REASON_GIT_CHECKOUT_REF_DOUBLE_DASH
+        return idx === 0
+          ? { reason: REASON_GIT_CHECKOUT_DOUBLE_DASH, ruleId: "core.git.checkout-double-dash", severity: "WARNING" }
+          : {
+              reason: REASON_GIT_CHECKOUT_REF_DOUBLE_DASH,
+              ruleId: "core.git.checkout-ref-double-dash",
+              severity: "WARNING",
+            }
       }
 
       if (rest.includes("-b") || short.has("b")) return null
@@ -786,39 +818,55 @@ function analyzeGit(tokens: string[]): string | null {
       const hasPathspecFromFile = restLower.some(
         (t) => t === "--pathspec-from-file" || t.startsWith("--pathspec-from-file=")
       )
-      if (hasPathspecFromFile) return REASON_GIT_CHECKOUT_PATHSPEC_FROM_FILE
+      if (hasPathspecFromFile) {
+        return { reason: REASON_GIT_CHECKOUT_PATHSPEC_FROM_FILE, ruleId: "core.git.checkout-pathspec", severity: "WARNING" }
+      }
 
       const positional = checkoutPositionalArgs(rest)
-      if (positional.length >= 2) return REASON_GIT_CHECKOUT_REF_PATHSPEC
+      if (positional.length >= 2) {
+        return { reason: REASON_GIT_CHECKOUT_REF_PATHSPEC, ruleId: "core.git.checkout-ref-pathspec", severity: "WARNING" }
+      }
 
       return null
     }
 
     case "restore": {
       if (restLower.includes("-h") || restLower.includes("--help") || restLower.includes("--version")) return null
-      if (restLower.includes("--worktree")) return REASON_GIT_RESTORE_WORKTREE
+      if (restLower.includes("--worktree")) {
+        return { reason: REASON_GIT_RESTORE_WORKTREE, ruleId: "core.git.restore-worktree", severity: "WARNING" }
+      }
       if (restLower.includes("--staged")) return null
-      return REASON_GIT_RESTORE
+      return { reason: REASON_GIT_RESTORE, ruleId: "core.git.restore", severity: "WARNING" }
     }
 
     case "reset": {
-      if (restLower.includes("--hard")) return REASON_GIT_RESET_HARD
-      if (restLower.includes("--merge")) return REASON_GIT_RESET_MERGE
+      if (restLower.includes("--hard")) {
+        return { reason: REASON_GIT_RESET_HARD, ruleId: "core.git.reset-hard", severity: "WARNING" }
+      }
+      if (restLower.includes("--merge")) {
+        return { reason: REASON_GIT_RESET_MERGE, ruleId: "core.git.reset-merge", severity: "WARNING" }
+      }
       return null
     }
 
     case "clean": {
       const hasForce = restLower.includes("--force") || short.has("f")
-      return hasForce ? REASON_GIT_CLEAN_FORCE : null
+      return hasForce ? { reason: REASON_GIT_CLEAN_FORCE, ruleId: "core.git.clean-force", severity: "WARNING" } : null
     }
 
     case "push": {
       const hasForceWithLease = restLower.some((t) => t.startsWith("--force-with-lease"))
       const hasForce = restLower.includes("--force") || short.has("f")
 
-      if (hasForce && !hasForceWithLease) return REASON_GIT_PUSH_FORCE
-      if (restLower.includes("--force") && hasForceWithLease) return REASON_GIT_PUSH_FORCE
-      if (short.has("f") && hasForceWithLease) return REASON_GIT_PUSH_FORCE
+      if (hasForce && !hasForceWithLease) {
+        return { reason: REASON_GIT_PUSH_FORCE, ruleId: "core.git.push-force", severity: "WARNING" }
+      }
+      if (restLower.includes("--force") && hasForceWithLease) {
+        return { reason: REASON_GIT_PUSH_FORCE, ruleId: "core.git.push-force", severity: "WARNING" }
+      }
+      if (short.has("f") && hasForceWithLease) {
+        return { reason: REASON_GIT_PUSH_FORCE, ruleId: "core.git.push-force", severity: "WARNING" }
+      }
       return null
     }
 
@@ -835,18 +883,26 @@ function analyzeGit(tokens: string[]): string | null {
       const shortForOpts = shortOpts(restForOpts)
       const hasForce = restForOptsLower.includes("--force") || shortForOpts.has("f")
 
-      return hasForce ? REASON_GIT_WORKTREE_REMOVE_FORCE : null
+      return hasForce
+        ? { reason: REASON_GIT_WORKTREE_REMOVE_FORCE, ruleId: "core.git.worktree-force", severity: "WARNING" }
+        : null
     }
 
     case "branch": {
-      if (rest.includes("-D") || short.has("D")) return REASON_GIT_BRANCH_DELETE_FORCE
+      if (rest.includes("-D") || short.has("D")) {
+        return { reason: REASON_GIT_BRANCH_DELETE_FORCE, ruleId: "core.git.branch-force", severity: "WARNING" }
+      }
       return null
     }
 
     case "stash": {
       if (restLower.length === 0) return null
-      if (restLower[0] === "drop") return REASON_GIT_STASH_DROP
-      if (restLower[0] === "clear") return REASON_GIT_STASH_CLEAR
+      if (restLower[0] === "drop") {
+        return { reason: REASON_GIT_STASH_DROP, ruleId: "core.git.stash-drop", severity: "WARNING" }
+      }
+      if (restLower[0] === "clear") {
+        return { reason: REASON_GIT_STASH_CLEAR, ruleId: "core.git.stash-clear", severity: "WARNING" }
+      }
       return null
     }
   }
@@ -1014,10 +1070,10 @@ function rmHasRecursiveForce(tokens: string[]): boolean {
   return recursive && force
 }
 
-function dangerousInText(text: string): string | null {
-  for (const pattern of DANGEROUS_PATTERNS) {
+function dangerousInText(text: string): BlockReason | null {
+  for (const { pattern, ruleId, severity } of DANGEROUS_PATTERNS) {
     if (pattern.test(text)) {
-      return `Dangerous pattern detected: ${pattern.source}`
+      return { reason: `Dangerous pattern detected: ${pattern.source}`, ruleId, severity }
     }
   }
   return null
@@ -1028,6 +1084,98 @@ function dangerousInText(text: string): string | null {
 interface SegmentResult {
   segment: string
   reason: string
+  ruleId: string
+  severity: Severity
+}
+
+function interpreterLanguage(head: string): ScriptLanguage {
+  switch (head) {
+    case "python":
+    case "python3":
+      return "python"
+    case "node":
+      return "javascript"
+    case "ruby":
+      return "ruby"
+    case "perl":
+      return "perl"
+    default:
+      return "javascript"
+  }
+}
+
+function analyzeInlineScript(
+  code: string,
+  language: ScriptLanguage,
+  options: AnalyzeCommandOptions
+): SegmentResult | null {
+  if (code.length > INLINE_LIMIT_BYTES || code.split("\n").length > INLINE_LIMIT_LINES) {
+    return {
+      segment: code,
+      reason: REASON_INLINE_SCRIPT,
+      ruleId: "core.inline.too-large",
+      severity: "WARNING",
+    }
+  }
+
+  if (!INLINE_TRIGGER.test(code)) return null
+
+  if (language === "shell") {
+    return analyzeCommand(code, options)
+  }
+
+  const literals = extractStringLiterals(code, language)
+  for (const literal of literals) {
+    if (!INLINE_TRIGGER.test(literal)) continue
+    const result = analyzeCommand(literal, options)
+    if (result) return result
+  }
+
+  return {
+    segment: code,
+    reason: REASON_INLINE_SCRIPT,
+    ruleId: "core.inline.opaque",
+    severity: "WARNING",
+  }
+}
+
+function analyzeHeredocs(command: string, options: AnalyzeCommandOptions): SegmentResult | null {
+  if (!INLINE_TRIGGER.test(command)) return null
+
+  const bodies = extractHeredocBodies(command)
+  const hereStrings = extractHereStrings(command)
+  const payloads = [...bodies, ...hereStrings]
+  if (payloads.length > INLINE_LIMIT_PAYLOADS) {
+    return {
+      segment: command,
+      reason: REASON_INLINE_SCRIPT,
+      ruleId: "core.inline.too-many",
+      severity: "WARNING",
+    }
+  }
+
+  for (const payload of payloads) {
+    if (payload.length > INLINE_LIMIT_BYTES || payload.split("\n").length > INLINE_LIMIT_LINES) {
+      return {
+        segment: command,
+        reason: REASON_INLINE_SCRIPT,
+        ruleId: "core.inline.too-large",
+        severity: "WARNING",
+      }
+    }
+    if (!INLINE_TRIGGER.test(payload)) continue
+    const result = analyzeCommand(payload, options)
+    if (result) return result
+  }
+
+  return payloads.length > 0
+    ? {
+        segment: command,
+        reason: REASON_INLINE_SCRIPT,
+        ruleId: "core.inline.opaque",
+        severity: "WARNING",
+      }
+    : null
 }
 
 function analyzeSegment(
@@ -1037,7 +1185,8 @@ function analyzeSegment(
   strict: boolean,
   paranoidRm: boolean,
   paranoidInterpreters: boolean,
-  allowTmp: boolean
+  allowTmp: boolean,
+  allowCwdRm: boolean
 ): SegmentResult | null {
   if (depth > MAX_RECURSION_DEPTH) return null
 
@@ -1065,13 +1214,19 @@ function analyzeSegment(
         paranoidRm,
         paranoidInterpreters,
         allowTmp,
+        allowCwdRm,
       })
       if (result) return result
     }
 
     if (hasShellDashC(strippedTokens) && !inner) {
       if (strict) {
-        return { segment, reason: `Unable to extract -c argument${STRICT_SUFFIX}` }
+        return {
+          segment,
+          reason: `Unable to extract -c argument${STRICT_SUFFIX}`,
+          ruleId: "core.shell.extract-dash-c",
+          severity: "WARNING",
+        }
       }
       return null
     }
@@ -1081,11 +1236,24 @@ function analyzeSegment(
     const code = extractPythonishCodeArg(strippedTokens)
     if (code) {
       if (paranoidInterpreters) {
-        return { segment, reason: REASON_INTERPRETER_ONE_LINER + PARANOID_INTERPRETERS_SUFFIX }
+        return {
+          segment,
+          reason: REASON_INTERPRETER_ONE_LINER + PARANOID_INTERPRETERS_SUFFIX,
+          ruleId: "core.inline.paranoid",
+          severity: "WARNING",
+        }
       }
 
-      const danger = dangerousInText(code)
-      if (danger) return { segment, reason: danger }
+      const inlineResult = analyzeInlineScript(code, interpreterLanguage(head), {
+        depth: depth + 1,
+        cwd,
+        strict,
+        paranoidRm,
+        paranoidInterpreters,
+        allowTmp,
+        allowCwdRm,
+      })
+      if (inlineResult) return { ...inlineResult, segment }
     }
   }
 
@@ -1094,10 +1262,15 @@ function analyzeSegment(
     if (child) {
       const childHead = child.length > 0 ? normalizeCmdToken(child[0]) : null
       if (childHead === "rm" && rmHasRecursiveForce(child)) {
-        return { segment, reason: REASON_XARGS_RM_RF }
+        return { segment, reason: REASON_XARGS_RM_RF, ruleId: "core.xargs.rm-rf", severity: "WARNING" }
       }
       if (childHead && SHELLS.has(childHead) && hasShellDashC(child)) {
-        return { segment, reason: "xargs with shell -c can execute arbitrary commands." }
+        return {
+          segment,
+          reason: "xargs with shell -c can execute arbitrary commands.",
+          ruleId: "core.xargs.shell-dash-c",
+          severity: "WARNING",
+        }
       }
     }
   }
@@ -1107,17 +1280,22 @@ function analyzeSegment(
     if (child) {
       const childHead = child.length > 0 ? normalizeCmdToken(child[0]) : null
       if (childHead === "rm" && rmHasRecursiveForce(child)) {
-        return { segment, reason: REASON_PARALLEL_RM_RF }
+        return { segment, reason: REASON_PARALLEL_RM_RF, ruleId: "core.parallel.rm-rf", severity: "WARNING" }
       }
       if (childHead && SHELLS.has(childHead) && hasShellDashC(child)) {
-        return { segment, reason: "parallel with shell -c can execute arbitrary commands." }
+        return {
+          segment,
+          reason: "parallel with shell -c can execute arbitrary commands.",
+          ruleId: "core.parallel.shell-dash-c",
+          severity: "WARNING",
+        }
       }
     }
   }
 
   if (head === "git") {
     const reason = analyzeGit(["git", ...strippedTokens.slice(1)])
-    if (reason) return { segment, reason }
+    if (reason) return { segment, ...reason }
   }
 
   if (head === "rm") {
@@ -1126,12 +1304,13 @@ function analyzeSegment(
       allowTmp,
       cwd,
       paranoid: paranoidRm,
+      allowCwdRm,
     })
-    if (reason) return { segment, reason }
+    if (reason) return { segment, ...reason }
   }
 
   if (head === "find" && findHasDelete(strippedTokens.slice(1))) {
-    return { segment, reason: REASON_FIND_DELETE }
+    return { segment, reason: REASON_FIND_DELETE, ruleId: "core.find.delete", severity: "WARNING" }
   }
 
   for (let idx = 1; idx < strippedTokens.length; idx++) {
@@ -1143,22 +1322,34 @@ function analyzeSegment(
         allowTmp,
         cwd,
         paranoid: paranoidRm,
+        allowCwdRm,
       })
-      if (reason) return { segment, reason }
+      if (reason) return { segment, ...reason }
     }
 
     if (cmd === "git") {
       const reason = analyzeGit(["git", ...strippedTokens.slice(idx + 1)])
-      if (reason) return { segment, reason }
+      if (reason) return { segment, ...reason }
     }
 
     if (cmd === "find" && findHasDelete(strippedTokens.slice(idx + 1))) {
-      return { segment, reason: REASON_FIND_DELETE }
+      return { segment, reason: REASON_FIND_DELETE, ruleId: "core.find.delete", severity: "WARNING" }
     }
   }
 
+  const heredocResult = analyzeHeredocs(segment, {
+    depth: depth + 1,
+    cwd,
+    strict,
+    paranoidRm,
+    paranoidInterpreters,
+    allowTmp,
+    allowCwdRm,
+  })
+  if (heredocResult) return heredocResult
+
   const danger = dangerousInText(segment)
-  if (danger) return { segment, reason: danger }
+  if (danger) return { segment, ...danger }
 
   return null
 }
@@ -1190,15 +1381,32 @@ interface AnalyzeCommandOptions {
   paranoidRm?: boolean
   paranoidInterpreters?: boolean
   allowTmp?: boolean
+  allowCwdRm?: boolean
 }
 
 function analyzeCommand(command: string, options: AnalyzeCommandOptions = {}): SegmentResult | null {
-  const { depth = 0, strict = false, paranoidRm = false, paranoidInterpreters = false, allowTmp = true } = options
+  const {
+    depth = 0,
+    strict = false,
+    paranoidRm = false,
+    paranoidInterpreters = false,
+    allowTmp = true,
+    allowCwdRm = false,
+  } = options
 
   let effectiveCwd = options.cwd
 
   for (const segment of splitShellCommands(command)) {
-    const result = analyzeSegment(segment, depth, effectiveCwd, strict, paranoidRm, paranoidInterpreters, allowTmp)
+    const result = analyzeSegment(
+      segment,
+      depth,
+      effectiveCwd,
+      strict,
+      paranoidRm,
+      paranoidInterpreters,
+      allowTmp,
+      allowCwdRm
+    )
     if (result) return result
 
     if (effectiveCwd && segmentChangesCwd(segment)) {
@@ -1229,15 +1437,16 @@ function redactSecrets(text: string): string {
   return result
 }
 
-export function formatBlockMessage(command: string, segment: string, reason: string): string {
+export function formatBlockMessage(command: string, segment: string, reason: string, ruleId?: string): string {
   const safeCommand = redactSecrets(command).slice(0, 300)
   const safeSegment = redactSecrets(segment).slice(0, 300)
+  const ruleLine = ruleId ? `Rule: ${ruleId}\n\n` : ""
 
   return `Safety Net: BLOCKED
 
 Reason: ${reason}
 
-Command: ${safeCommand}
+${ruleLine}Command: ${safeCommand}
 
 Segment: ${safeSegment}
 
@@ -1263,6 +1472,7 @@ export function getOptionsFromEnv(): AnalysisOptions {
     paranoidRm: !envFalsy("SAFETY_NET_PARANOID_RM") || paranoid,
     paranoidInterpreters: paranoid || envTruthy("SAFETY_NET_PARANOID_INTERPRETERS"),
     allowTmp: !envFalsy("SAFETY_NET_ALLOW_TMP_RM"),
+    allowCwdRm: envTruthy("SAFETY_NET_ALLOW_CWD_RM"),
   }
 }
 
@@ -1280,6 +1490,7 @@ export function analyze(command: string, options: AnalysisOptions = {}): Analysi
     paranoidRm: mergedOptions.paranoidRm,
     paranoidInterpreters: mergedOptions.paranoidInterpreters,
     allowTmp: mergedOptions.allowTmp,
+    allowCwdRm: mergedOptions.allowCwdRm,
   })
 
   if (result) {
@@ -1287,6 +1498,8 @@ export function analyze(command: string, options: AnalysisOptions = {}): Analysi
       blocked: true,
       segment: result.segment,
       reason: result.reason,
+      ruleId: result.ruleId,
+      severity: result.severity,
     }
   }
 

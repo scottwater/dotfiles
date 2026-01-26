@@ -21,6 +21,7 @@
  *   SAFETY_NET_PARANOID_RM=1   - Block rm -rf even in cwd
  *   SAFETY_NET_PARANOID_INTERPRETERS=1 - Block python -c, node -e, etc.
  *   SAFETY_NET_ALLOW_TMP_RM=0  - Block rm -rf in /tmp, /var/tmp, $TMPDIR
+ *   SAFETY_NET_ALLOW_CWD_RM=1  - Allow rm -rf within cwd
  */
 
 import { analyze, formatBlockMessage, getOptionsFromEnv } from "./core"
@@ -76,6 +77,12 @@ function extractCommand(input: unknown): { command: string; cwd?: string } | nul
 }
 
 async function main(): Promise<number> {
+  const [mode, ...rest] = process.argv.slice(2)
+  if (mode === "scan") {
+    const { runScan } = await import("./scan-runner")
+    return runScan(rest)
+  }
+
   const toolName = process.env.AGENT_TOOL_NAME
   if (toolName && toolName !== "Bash") {
     return 0
@@ -122,7 +129,7 @@ async function main(): Promise<number> {
   const result = analyze(command, { ...options, cwd })
 
   if (result.blocked) {
-    const message = formatBlockMessage(command, result.segment!, result.reason!)
+    const message = formatBlockMessage(command, result.segment!, result.reason!, result.ruleId)
     console.error(message)
     return 2
   }

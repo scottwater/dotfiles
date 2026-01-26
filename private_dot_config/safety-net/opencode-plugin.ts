@@ -9,6 +9,7 @@
  *   SAFETY_NET_PARANOID_RM=1   - Block rm -rf even in cwd
  *   SAFETY_NET_PARANOID_INTERPRETERS=1 - Block python -c, node -e, etc.
  *   SAFETY_NET_ALLOW_TMP_RM=0  - Block rm -rf in /tmp, /var/tmp, $TMPDIR
+ *   SAFETY_NET_ALLOW_CWD_RM=1  - Allow rm -rf within cwd
  */
 
 import { analyze, formatBlockMessage } from "./core"
@@ -46,7 +47,7 @@ export const SafetyNet = async (ctx: PluginContext) => {
       const result = analyze(command, { cwd })
 
       if (result.blocked) {
-        throw new Error(formatBlockMessage(command, result.segment!, result.reason!))
+        throw new Error(formatBlockMessage(command, result.segment!, result.reason!, result.ruleId))
       }
     },
   }

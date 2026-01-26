@@ -2,6 +2,9 @@
   "name": "safety-net",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "yaml": "2.5.1"
+  },
   "devDependencies": {
     "bun-types": "latest"
   }
