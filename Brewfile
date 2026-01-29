@@ -25,6 +25,7 @@ brew "atuin"
 cask "font-hack-nerd-font"
 brew "libyaml" # For Ruby 3.x
 brew "trash"
+brew  "steipete/tap/summarize"
 
 cask "jordanbaird-ice"
 cask "postgres-unofficial"
