@@ -13,9 +13,7 @@
   "amp.experimental.tools": [
     "kraken"
   ],
-  "amp.experimental.modes": [
-    "deep"
-  ],
+  "amp.experimental.modes": [],
   "amp.experimental.walkthroughs": true,
   "amp.experimental.illustrator": true,
   "amp.experimental.codeReviewSkill": true
