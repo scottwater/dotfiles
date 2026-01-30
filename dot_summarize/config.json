@@ -1,0 +1,9 @@
+{
+  "model": "auto",
+  "cli": {
+    "enabled": ["claude", "codex", "gemini"],
+    "claude": { "model": "sonnet" },
+    "codex": { "model": "gpt-5.2" },
+    "gemini": { "model": "gemini-3-flash-preview" }
+  }
+}
