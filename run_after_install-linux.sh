@@ -17,7 +17,6 @@ sudo apt-get install -y \
   fzf \
   git \
   jq \
-  lazygit \
   neovim \
   poppler-utils \
   ripgrep \
