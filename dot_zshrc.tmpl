@@ -2,8 +2,9 @@
 # Set UTF-8 locale for proper character rendering (Linux only)
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
-# Wire up linexbrew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+fi
 export PATH="$HOME/.local/bin:$PATH"
 {{- end }}
 
@@ -16,8 +17,10 @@ fpath+=($HOME/.zsh/pure)
 autoload -U promptinit; promptinit
 prompt pure
 
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if command -v brew >/dev/null 2>&1; then
+  source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 
 source $HOME/zsh/zsh-z.plugin.zsh
 autoload -U compinit; compinit
@@ -30,7 +33,9 @@ set -o emacs
 
 
 # Aliases
-alias bb="brew bundle"
+if command -v brew >/dev/null 2>&1; then
+  alias bb="brew bundle"
+fi
 alias la="ls -A -l -G"
 alias pl="cd ~/play"
 alias wo="cd ~/work"
@@ -40,7 +45,9 @@ alias rake='noglob rake'
 alias bundle='nocorrect bundle'
 alias rspec='nocorrect rspec'
 alias reload="source ~/.zshrc"
+{{- if eq .chezmoi.os "darwin" }}
 alias tpd="tail -f ~/Library/Logs/puma-dev.log"
+{{- end }}
 alias rc="bundle exec rails console"
 alias be="bundle exec"
 alias br="bin/rails"

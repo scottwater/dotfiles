@@ -1,0 +1,41 @@
+{{- if eq .chezmoi.os "darwin" }}
+cask_args appdir: "/Applications"
+{{- end }}
+
+tap "heroku/brew"
+
+# Both (CLI)
+brew "git"
+brew "git-delta"
+brew "gh"
+brew "lazygit"
+brew "neovim"
+brew "overmind"
+brew "redis"
+brew "yazi"
+brew "zoxide"
+
+# macOS only (CLI)
+{{- if eq .chezmoi.os "darwin" }}
+brew "libpq"
+brew "libyaml" # For Ruby 3.x
+brew "trash"
+brew "steipete/tap/summarize"
+{{- end }}
+
+# Linux only (CLI)
+{{- if eq .chezmoi.os "linux" }}
+brew "trash-cli"
+{{- end }}
+
+# macOS only (UI)
+{{- if eq .chezmoi.os "darwin" }}
+cask "alt-tab"
+cask "ghostty"
+cask "jordanbaird-ice"
+cask "postgres-unofficial"
+cask "1password"
+cask "raycast"
+cask "font-hack-nerd-font"
+cask "font-symbols-only-nerd-font"
+{{- end }}

@@ -4,12 +4,33 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 
 ## Setup Instructions
 
+Install chezmoi (not managed here) and initialize with SSH:
+
 ```bash
-chezmoi init scottwater/dotfiles
+chezmoi init git@github.com:scottwater/dotfiles.git
+chezmoi apply
+```
+
+Next steps on macOS (local machine only):
+
+```bash
+chezmoi apply
+```
+
+Next steps on Linux (SSH-only):
+
+```bash
 chezmoi apply
 ```
 
 **Reminder for Scott**: Dracula Pro themes and TPM (tmux plugin manager) are pulled via `.chezmoiexternal.toml`
+
+## Installation Scripts
+
+The install scripts run automatically via `chezmoi apply`:
+
+- `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv, amp)
+- `run_after_install-linux.sh` - Ubuntu apt installs for CLI tools only
 
 ## Tools
 
