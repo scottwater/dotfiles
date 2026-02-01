@@ -9,7 +9,11 @@ export PATH="$HOME/.local/bin:$PATH"
 {{- end }}
 
 eval "$(atuin init zsh)"
-eval "$(mise activate zsh)"
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  eval "$(mise activate zsh --shims)"
+else
+  eval "$(mise activate zsh)"
+fi
 eval "$(fnox activate zsh)"
 
 # Pure prompt
@@ -20,6 +24,9 @@ prompt pure
 if command -v brew >/dev/null 2>&1; then
   source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
 source $HOME/zsh/zsh-z.plugin.zsh

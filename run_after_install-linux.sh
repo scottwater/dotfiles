@@ -23,7 +23,6 @@ sudo apt-get install -y \
   tmux \
   wget \
   zsh \
-  zsh-autosuggestions \
   zsh-syntax-highlighting
 
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then

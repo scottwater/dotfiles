@@ -1,11 +1,10 @@
 
-export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 {{ if eq .chezmoi.os "linux" -}}
 if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
-export PATH="$HOME/.local/bin:$PATH"
 {{- else }}
 if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -15,12 +14,6 @@ fi
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export RAILS_EDITOR="zed"
-
-if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-  eval "$(mise activate zsh --shims)"
-else
-  eval "$(mise activate zsh)"
-fi
 
 {{- if eq .chezmoi.os "darwin" }}
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
