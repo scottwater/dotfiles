@@ -30,3 +30,7 @@ if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   mkdir -p "$HOME/.local/bin"
   ln -s "$(command -v fdfind)" "$HOME/.local/bin/fd"
 fi
+
+if [ "$SHELL" != "$(which zsh)" ]; then
+  sudo chsh -s "$(which zsh)" "$USER"
+fi
