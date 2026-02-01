@@ -9,7 +9,6 @@ if ! command -v apt-get >/dev/null 2>&1; then
   echo "apt-get not available. Skipping Linux package installs." >&2
   exit 0
 fi
-
 sudo apt-get update
 sudo apt-get install -y \
   bat \
@@ -17,6 +16,8 @@ sudo apt-get install -y \
   fzf \
   git \
   jq \
+  libyaml-dev \
+  libffi-dev \
   neovim \
   poppler-utils \
   ripgrep \
