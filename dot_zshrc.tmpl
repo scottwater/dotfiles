@@ -1,3 +1,14 @@
+if [ -z "${ZSH_VERSION:-}" ]; then
+  if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+  elif [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv bash)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv bash)"
+  fi
+  return 0 2>/dev/null || exit 0
+fi
+
 {{- if eq .chezmoi.os "linux" }}
 # Set UTF-8 locale for proper character rendering (Linux only)
 export LANG=C.UTF-8

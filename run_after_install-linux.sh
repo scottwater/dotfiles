@@ -10,7 +10,14 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 0
 fi
 sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_SUSPEND=1 apt-get install -y \
+tmp_log="$(mktemp)"
+trap 'rm -f "$tmp_log"' EXIT
+set +e
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  -o DPkg::Post-Invoke::= \
+  -o DPkg::Post-Invoke-Success::= \
+  -o APT::Update::Post-Invoke::= \
+  -o APT::Update::Post-Invoke-Success::= \
   bat \
   fd-find \
   fzf \
@@ -24,7 +31,16 @@ sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_SUSPEND=1 apt-get install -y \
   tmux \
   wget \
   zsh \
-  zsh-syntax-highlighting
+  zsh-syntax-highlighting 2>&1 | tee "$tmp_log"
+apt_status=${PIPESTATUS[0]}
+set -e
+if [ "$apt_status" -ne 0 ]; then
+  if grep -Fq "Failed to retrieve available kernel versions." "$tmp_log"; then
+    echo "needrestart failed to read kernel versions; continuing." >&2
+  else
+    exit "$apt_status"
+  fi
+fi
 
 if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
   mkdir -p "$HOME/.local/bin"
@@ -33,14 +49,6 @@ fi
 
 if [ "$SHELL" != "$(which zsh)" ]; then
   sudo chsh -s "$(which zsh)" "$USER"
-fi
-
-if [ -f "$HOME/.zshrc" ]; then
-  # Ensure brew is on PATH without showing shell output.
-  # shellcheck disable=SC1090
-  set +e
-  source "$HOME/.zshrc" >/dev/null 2>&1
-  set -e
 fi
 
 brew_cmd=""
