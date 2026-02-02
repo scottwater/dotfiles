@@ -10,7 +10,7 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 0
 fi
 sudo apt-get update
-sudo apt-get install -y \
+sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_SUSPEND=1 apt-get install -y \
   bat \
   fd-find \
   fzf \
@@ -43,8 +43,19 @@ if [ -f "$HOME/.zshrc" ]; then
   set -e
 fi
 
+brew_cmd=""
 if command -v brew >/dev/null 2>&1; then
-  brew bundle
+  brew_cmd="brew"
+elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  brew_cmd="/home/linuxbrew/.linuxbrew/bin/brew"
+elif [ -x /opt/homebrew/bin/brew ]; then
+  brew_cmd="/opt/homebrew/bin/brew"
+elif [ -x /usr/local/bin/brew ]; then
+  brew_cmd="/usr/local/bin/brew"
+fi
+
+if [ -n "$brew_cmd" ]; then
+  "$brew_cmd" bundle
 else
   echo "Homebrew not on PATH yet. Remember to run: brew bundle" >&2
 fi
