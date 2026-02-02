@@ -4,17 +4,19 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 
 ## Setup Instructions
 
-Install chezmoi (not managed here) and initialize with SSH:
 
 ```bash
-chezmoi init git@github.com:scottwater/dotfiles.git
-chezmoi apply
+sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply git@github.com:scottwater/dotfiles.git
 ```
+
+Note the `lb` - This will ensure chezmoi is installed in $HOME/.local/bin
+
 
 Next steps on macOS (local machine only):
 
 ```bash
 chezmoi apply
+brew bundle
 ```
 
 Next steps on Linux (SSH-only):
