@@ -28,6 +28,12 @@ install_amp() {
   fi
 }
 
+install_amp() {
+  if ! has_command opencode; then
+    curl -fsSL https://opencode.ai/install | bash
+  fi
+}
+
 install_uv() {
   if ! has_command uv; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
