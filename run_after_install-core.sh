@@ -28,7 +28,7 @@ install_amp() {
   fi
 }
 
-install_amp() {
+install_opencode() {
   if ! has_command opencode; then
     curl -fsSL https://opencode.ai/install | bash
   fi
@@ -59,6 +59,7 @@ install_homebrew() {
 install_atuin
 install_mise
 install_amp
+install_opencode
 install_uv
 install_homebrew
 
