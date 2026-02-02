@@ -38,7 +38,9 @@ fi
 if [ -f "$HOME/.zshrc" ]; then
   # Ensure brew is on PATH without showing shell output.
   # shellcheck disable=SC1090
+  set +e
   source "$HOME/.zshrc" >/dev/null 2>&1
+  set -e
 fi
 
 if command -v brew >/dev/null 2>&1; then
