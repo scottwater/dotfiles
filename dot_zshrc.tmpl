@@ -18,6 +18,8 @@ if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
 fi
 . "$HOME/.atuin/bin/env"
 export PATH="$HOME/.local/bin:$PATH"
+# Need to figure out how to control where this is installed
+export PATH=$HOME/.opencode/bin:$PATH
 {{- end }}
 
 eval "$(atuin init zsh)"
