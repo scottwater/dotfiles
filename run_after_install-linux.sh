@@ -37,4 +37,6 @@ fi
 
 if command -v brew >/dev/null 2>&1; then
   brew bundle
+else
+  echo "Homebrew not on PATH yet. Remember to run: brew bundle" >&2
 fi
