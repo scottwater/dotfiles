@@ -35,6 +35,12 @@ if [ "$SHELL" != "$(which zsh)" ]; then
   sudo chsh -s "$(which zsh)" "$USER"
 fi
 
+if [ -f "$HOME/.zshrc" ]; then
+  # Ensure brew is on PATH without showing shell output.
+  # shellcheck disable=SC1090
+  source "$HOME/.zshrc" >/dev/null 2>&1
+fi
+
 if command -v brew >/dev/null 2>&1; then
   brew bundle
 else
