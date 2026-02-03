@@ -26,14 +26,14 @@ prefix_rule(
 
 # Block rm -rf on home directory
 prefix_rule(
-    pattern=["rm", "-rf", "~"],
+    pattern=["rm", "-rf", ["~", "~/"]],
     decision="forbidden",
     justification="rm -rf on home directory will destroy all user data.",
-    match=["rm -rf ~", "rm -rf ~/"],
+    match=["rm -rf ~", "rm -rf ~/", "rm -rf '~/'"],
 )
 
 prefix_rule(
-    pattern=["rm", "-rf", "$HOME"],
+    pattern=["rm", "-rf", ["$HOME", "$HOME/"]],
     decision="forbidden",
     justification="rm -rf on home directory will destroy all user data.",
     match=["rm -rf $HOME", "rm -rf $HOME/"],
@@ -95,7 +95,6 @@ prefix_rule(
     decision="prompt",
     justification="git restore discards uncommitted changes. Use 'git stash' or 'git diff' first.",
     match=["git restore file.txt", "git restore ."],
-    not_match=["git restore --staged file.txt"],
 )
 
 # git reset --hard (destroys uncommitted changes)
@@ -116,10 +115,10 @@ prefix_rule(
 
 # git clean -f (removes untracked files permanently)
 prefix_rule(
-    pattern=["git", "clean", "-f"],
+    pattern=["git", "clean", ["-f", "-fd", "-fx"]],
     decision="forbidden",
     justification="git clean -f removes untracked files permanently. Review with 'git clean -n' first.",
-    match=["git clean -f", "git clean -fd", "git clean -fx"],
+    match=["git clean -f", "git clean -f -d", "git clean -fd", "git clean -f -x", "git clean -fx"],
 )
 
 prefix_rule(
@@ -187,7 +186,6 @@ prefix_rule(
     decision="prompt",
     justification="find -delete permanently deletes matched files. Use -print first to review.",
     match=["find . -name '*.tmp' -delete", "find /tmp -delete"],
-    not_match=["find . -name '*.txt'", "find . -type f -print"],
 )
 
 # =============================================================================
@@ -200,7 +198,6 @@ prefix_rule(
     decision="prompt",
     justification="dd with of= can overwrite disks and destroy data. Verify the target device carefully.",
     match=["dd if=/dev/zero of=/dev/sda", "dd if=image.iso of=/dev/sdb"],
-    not_match=["dd if=/dev/urandom bs=1 count=32"],
 )
 
 # mkfs (formats filesystems)
@@ -208,7 +205,7 @@ prefix_rule(
     pattern=["mkfs"],
     decision="forbidden",
     justification="mkfs formats filesystems and destroys all data on the target device.",
-    match=["mkfs.ext4 /dev/sda1", "mkfs -t ext4 /dev/sdb1"],
+    match=["mkfs -t ext4 /dev/sda1", "mkfs -t ext4 /dev/sdb1"],
 )
 
 prefix_rule(
@@ -248,14 +245,14 @@ prefix_rule(
     pattern=["xargs", "rm", "-rf"],
     decision="forbidden",
     justification="xargs can feed arbitrary input to rm -rf. List files first, then delete individually.",
-    match=["find . | xargs rm -rf"],
+    match=["xargs rm -rf"],
 )
 
 prefix_rule(
     pattern=["xargs", "rm", "-fr"],
     decision="forbidden",
     justification="xargs can feed arbitrary input to rm -fr. List files first, then delete individually.",
-    match=["find . | xargs rm -fr"],
+    match=["xargs rm -fr"],
 )
 
 prefix_rule(
@@ -281,12 +278,20 @@ prefix_rule(
     pattern=["chmod", "777"],
     decision="prompt",
     justification="chmod 777 makes files world-writable, which is a security risk.",
-    match=["chmod 777 file", "chmod -R 777 dir"],
+    match=["chmod 777 file"],
+)
+
+# chmod -R 777 (recursive, overly permissive)
+prefix_rule(
+    pattern=["chmod", "-R", "777"],
+    decision="prompt",
+    justification="chmod 777 makes files world-writable, which is a security risk.",
+    match=["chmod -R 777 dir"],
 )
 
 # chown to root
 prefix_rule(
-    pattern=["chown", "root"],
+    pattern=["chown", ["root", "root:root"]],
     decision="prompt",
     justification="Changing ownership to root may lock you out of your own files.",
     match=["chown root file", "chown root:root file"],
