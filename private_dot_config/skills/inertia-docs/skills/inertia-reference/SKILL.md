@@ -1,3 +1,10 @@
+---
+name: interia-reference
+description: 'Refrence docs for using Intertia.js, Rails, and React'
+metadata:
+  version: '1'
+---
+
 # Inertia.js Reference for Rails + React
 
 Use this skill when working with Inertia.js in a Ruby on Rails application with React frontend. This provides comprehensive reference documentation for implementing server-driven single-page applications.
