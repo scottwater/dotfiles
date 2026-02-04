@@ -14,10 +14,16 @@ unified_exec = true
 apply_patch_freeform = true
 skills = true
 shell_snapshot = true
+
 [mcp_servers.kapture]
 command = "npx"
 args = ["-y", "kapture-mcp@latest", "bridge"]
 
+
+{{- if (get . "kode") }}
+[mcp_servers.linear]
+url = "https://mcp.linear.app/mcp"
+{{- end }}
 
 [projects."/Users/scott/projects"]
 trust_level = "trusted"
