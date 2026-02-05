@@ -1,55 +1,56 @@
 ---
-name: interia-reference
-description: 'Refrence docs for using Intertia.js, Rails, and React'
+name: inertia-reference
+description: "Overview and project conventions for Inertia Rails + React in ToDoOrDie."
 metadata:
-  version: '1'
+  version: "2"
 ---
 
-# Inertia.js Reference for Rails + React
+# Inertia Reference (ToDoOrDie)
 
-Use this skill when working with Inertia.js in a Ruby on Rails application with React frontend. This provides comprehensive reference documentation for implementing server-driven single-page applications.
+Use this skill for orientation, file map, and baseline conventions before deeper edits.
 
-## When to Use
+## When to use
+- Starting a new Inertia feature in this repo
+- Unsure where shared props, layouts, or SSR are configured
+- Need a quick map before editing a controller or page
 
-- Implementing Inertia page components in React
-- Setting up forms with useForm hook or Form component
-- Configuring Rails controllers to render Inertia responses
-- Managing shared data and props
-- Handling navigation with Link components or router
-- Implementing partial reloads and deferred props
-- Setting up authentication and authorization patterns
-- Handling errors and validation
+## Project map
+- `config/initializers/inertia_rails.rb`
+- `app/controllers/application_controller.rb`
+- `app/controllers/inertia_controller.rb`
+- `app/views/layouts/application.html.erb`
+- `app/views/layouts/public.html.erb`
+- `app/frontend/entrypoints/inertia.tsx`
+- `app/frontend/layouts/persistent-layout.tsx`
+- `app/frontend/ssr/ssr.ts`
 
-## Reference Documents
+## Baseline conventions in this app
+- Inertia controllers inherit `InertiaController`.
+- `inertia_config default_render: true` is enabled.
+- Shared props are lambdas in `ApplicationController` and `InertiaController`.
+- Default layout is `PersistentLayout`.
+- Client sets `X-Browser-Timezone` on every visit.
+- Validation errors are passed as `ActiveModel::Errors` or via `inertia_errors`.
 
-- **API.md** - Complete API reference for Rails adapter and React components
-- **EXAMPLES.md** - Code examples for common patterns
-- **BEST-PRACTICES.md** - Recommended patterns and conventions
-- **INTEGRATION.md** - Rails + React integration patterns
-
-## Quick Reference
-
-### Rails Controller Response
+## Quick example
 ```ruby
-render inertia: 'Users/Index', props: { users: User.all }
+# app/controllers/lists_controller.rb
+class ListsController < InertiaController
+  def index
+    render inertia: "Lists/Index", props: {
+      lists: Current.user.lists.order(:name).map { |l| { id: l.id, name: l.name } }
+    }
+  end
+end
 ```
 
-### React Page Component
-```jsx
-export default function Index({ users }) {
-  return <div>{users.map(u => <div key={u.id}>{u.name}</div>)}</div>
-}
-```
-
-### Form Submission
-```jsx
-const form = useForm({ name: '', email: '' })
-form.post('/users')
-```
-
-### Navigation
-```jsx
-<Link href="/users">Users</Link>
-// or
-router.visit('/users')
-```
+## Related skills
+- `inertia-rails-setup`
+- `inertia-rendering-props`
+- `inertia-forms-validation`
+- `inertia-navigation`
+- `inertia-layouts`
+- `inertia-ssr`
+- `inertia-auth`
+- `inertia-testing`
+- `inertia-pitfalls`
