@@ -14,11 +14,14 @@ unified_exec = true
 apply_patch_freeform = true
 skills = true
 shell_snapshot = true
+collab = true
 
 [mcp_servers.kapture]
 command = "npx"
 args = ["-y", "kapture-mcp@latest", "bridge"]
 
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
 
 {{- if (get . "kode") }}
 [mcp_servers.linear]
