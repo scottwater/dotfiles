@@ -30,7 +30,7 @@ You are an expert technology researcher specializing in discovering, analyzing, 
 Before going online, check if curated knowledge already exists in skills:
 
 1. **Discover Available Skills**:
-   - Use Glob to find all SKILL.md files: `**/**/SKILL.md` and `~/.config/opencode/skills/**/SKILL.md`
+   - Use Glob to find all SKILL.md files: `**/**/SKILL.md` and `~/.agents/skills/**/SKILL.md`
    - Also check project-level skills: `.opencode/skills/**/SKILL.md`
    - Read the skill descriptions to understand what each covers
 
