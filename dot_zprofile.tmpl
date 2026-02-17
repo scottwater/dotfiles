@@ -15,6 +15,13 @@ fi
 export XDG_CONFIG_HOME="$HOME/.config"
 export RAILS_EDITOR="zed"
 
+if command -v mise >/dev/null 2>&1; then
+  # Non-interactive login shells (Codex) skip .zshrc; ensure shims exist there.
+  if ! [[ -o interactive ]] && [[ ":$PATH:" != *":$HOME/.local/share/mise/shims:"* ]]; then
+    eval "$(mise activate zsh --shims)"
+  fi
+fi
+
 {{- if eq .chezmoi.os "darwin" }}
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 {{- end }}

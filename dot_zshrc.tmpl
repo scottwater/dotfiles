@@ -23,10 +23,12 @@ export PATH=$HOME/.opencode/bin:$PATH
 {{- end }}
 
 eval "$(atuin init zsh)"
-if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-  eval "$(mise activate zsh --shims)"
-else
-  eval "$(mise activate zsh)"
+if command -v mise >/dev/null 2>&1 && [[ ":$PATH:" != *":$HOME/.local/share/mise/shims:"* ]]; then
+  if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+    eval "$(mise activate zsh --shims)"
+  else
+    eval "$(mise activate zsh)"
+  fi
 fi
 eval "$(fnox activate zsh)"
 
