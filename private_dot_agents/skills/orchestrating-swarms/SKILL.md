@@ -399,15 +399,6 @@ Task({
 - `learnings-researcher` - Search docs/solutions/
 - `repo-research-analyst` - Repository patterns
 
-### Design Agents
-```javascript
-Task({
-  subagent_type: "compound-engineering:design:figma-design-sync",
-  description: "Sync with Figma",
-  prompt: "Compare implementation with Figma design at [URL]"
-})
-```
-
 ### Workflow Agents
 ```javascript
 Task({

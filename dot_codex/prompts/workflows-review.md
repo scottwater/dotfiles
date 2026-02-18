@@ -63,8 +63,7 @@ If a review agent flags any file in these directories for cleanup or removal, di
 #### Parallel Agents to review the PR:
 
 <parallel_tasks>
-
-Run ALL or most of these agents at the same time:
+Spawn multiple agents to run ALL or most of these agents at the same time:
 
 1. Task kieran-rails-reviewer(PR content)
 2. Task dhh-rails-reviewer(PR title)
