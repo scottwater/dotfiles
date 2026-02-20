@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'TXT'
+Usage:
+  make-agent <agent_name> [main|master]
+
+Examples:
+  ./make-agent moe
+  ./make-agent larry main
+  ./make-agent currly master
+TXT
+}
+
+if [[ "${1:-}" == "" || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+agent="$1"
+src_name="${2:-main}"
+
+if [[ "$src_name" != "main" && "$src_name" != "master" ]]; then
+  echo "❌ Source must be 'main' or 'master' (got '$src_name')."
+  usage
+  exit 1
+fi
+
+# Basic agent name hygiene (avoid weird paths like ../)
+if [[ "$agent" == *"/"* || "$agent" == *".."* || "$agent" == "" ]]; then
+  echo "❌ Invalid agent name: '$agent'"
+  exit 1
+fi
+
+src_dir="./${src_name}"
+dst_dir="./${agent}"
+
+# Refuse to run from inside a git repo (parent should not have .git)
+if [[ -d "./.git" ]]; then
+  echo "❌ Refusing to run from inside a git repo."
+  echo "   Run this from the parent directory that contains '$src_name/'."
+  exit 1
+fi
+
+if [[ ! -d "$src_dir" ]]; then
+  echo "❌ Expected source directory '$src_dir' to exist in: $(pwd)"
+  exit 1
+fi
+
+if [[ ! -d "$src_dir/.git" ]]; then
+  echo "❌ '$src_dir' does not look like a git repo (missing .git)."
+  exit 1
+fi
+
+if [[ -e "$dst_dir" ]]; then
+  echo "⚠️  '$dst_dir' already exists."
+  read -r -p "Overwrite it (this will DELETE it)? [y/N] " ans
+  case "${ans:-}" in
+    y|Y|yes|YES) ;;
+    *) echo "✅ Keeping existing '$dst_dir'."; exit 0 ;;
+  esac
+  trash "$dst_dir"
+fi
+
+echo "📁 Cloning $src_name -> $agent (APFS clone if supported)"
+cp -cR "$src_dir" "$dst_dir"
+
+echo "✍️  Unlocking '$agent' for writing"
+chmod -R u+w "$dst_dir"
+
+echo "✅ Agent workspace ready: $dst_dir"
+echo "   Tip: cd $dst_dir"

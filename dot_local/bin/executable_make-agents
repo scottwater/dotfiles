@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Usage:
+#   ./make-agents           # uses ./main as source
+#   ./make-agents master    # uses ./master as source
+#   ./make-agents main      # explicit
+
+src_name="${1:-main}"
+
+if [[ "$src_name" != "main" && "$src_name" != "master" ]]; then
+  echo "Usage: $(basename "$0") [main|master]"
+  echo "Default is 'main'."
+  exit 1
+fi
+
+src_dir="./${src_name}"
+
+if [[ ! -d "$src_dir" ]]; then
+  echo "❌ Expected source directory '$src_dir' to exist in: $(pwd)"
+  exit 1
+fi
+
+if [[ ! -d "$src_dir/.git" ]]; then
+  echo "❌ '$src_dir' does not look like a git repo (missing .git)."
+  exit 1
+fi
+
+# Must run from parent dir; avoid accidentally running inside the repo
+if [[ -d "./.git" ]]; then
+  echo "❌ Refusing to run from inside a git repo."
+  echo "   Run this from the parent directory that contains '$src_name/'."
+  exit 1
+fi
+
+agents=(larry currly moe)
+
+echo "Source repo: $src_dir"
+echo "Creating agent clones: ${agents[*]}"
+echo
+
+# Safety: bulk create only; if any target exists, abort and let make-agent handle replacement
+existing=()
+for a in "${agents[@]}"; do
+  if [[ -e "./$a" ]]; then
+    existing+=("$a")
+  fi
+done
+
+if [[ ${#existing[@]} -gt 0 ]]; then
+  echo "❌ Refusing to run: target folder(s) already exist: ${existing[*]}"
+  echo "   Use make-agent <name> [main|master] to replace one intentionally."
+  exit 1
+fi
+
+for a in "${agents[@]}"; do
+  echo "📁 Cloning $src_name -> $a (APFS clone if supported)"
+  cp -cR "$src_dir" "./$a"
+
+  # Keep source branch as-is; user creates branches manually when needed.
+  (
+    cd "./$a"
+    chmod -R u+w .
+  )
+
+  echo "✅ $a ready"
+  echo
+done
+
+echo "Done."
+echo "Tip: point Codex/Amp/Claude at ./larry, ./currly, ./moe"

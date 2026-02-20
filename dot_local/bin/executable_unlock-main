@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'TXT'
+Usage:
+  unlock-main [repo_path]
+
+Examples:
+  unlock-main                 # from inside repo OR parent containing ./main or ./master
+  unlock-main /path/to/main
+TXT
+}
+
+resolve_repo_root() {
+  local explicit_path="${1:-}"
+  local git_root=""
+  local git_root_name=""
+
+  if [[ -n "$explicit_path" ]]; then
+    if [[ -d "$explicit_path/.git" ]]; then
+      (cd "$explicit_path" && pwd)
+      return 0
+    fi
+    echo "❌ Provided path '$explicit_path' is not a git repo (missing .git)." >&2
+    return 1
+  fi
+
+  # Case 1: run from parent/root directory that contains the target repo.
+  if [[ -d "./main/.git" ]]; then
+    (cd ./main && pwd)
+    return 0
+  fi
+
+  if [[ -d "./master/.git" ]]; then
+    (cd ./master && pwd)
+    return 0
+  fi
+
+  # Case 2: run from inside the target repo.
+  if git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    git_root_name="$(basename "$git_root")"
+    if [[ "$git_root_name" == "main" || "$git_root_name" == "master" ]]; then
+      echo "$git_root"
+      return 0
+    fi
+
+    # If current repo is a wrapper/root repo, prefer nested ./main or ./master.
+    if [[ -d "$git_root/main/.git" ]]; then
+      (cd "$git_root/main" && pwd)
+      return 0
+    fi
+    if [[ -d "$git_root/master/.git" ]]; then
+      (cd "$git_root/master" && pwd)
+      return 0
+    fi
+
+    echo "$git_root"
+    return 0
+  fi
+
+  return 1
+}
+
+unlock_repo_user_writable() {
+  find . -type d -exec chmod u+w {} +
+  find . -type f -exec chmod u+w {} +
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+repo_root="$(resolve_repo_root "${1:-}")" || {
+  echo "❌ Could not find target repo."
+  echo "   Run from inside the repo, from its parent containing ./main or ./master, or pass repo path."
+  exit 1
+}
+
+repo_dirname="$(basename "$repo_root")"
+if [[ "$repo_dirname" != "main" && "$repo_dirname" != "master" ]]; then
+  echo "❌ Refusing to run: repo directory must be named 'main' or 'master'."
+  echo "   Detected: '$repo_dirname' at $repo_root"
+  exit 1
+fi
+
+cd "$repo_root"
+if [[ ! -d .git ]]; then
+  echo "❌ Refusing to run: $repo_root does not look like a git repo (missing .git)."
+  exit 1
+fi
+
+echo "🔓 Unlocking $repo_root"
+unlock_repo_user_writable
+echo "✅ Unlocked: $repo_root"
