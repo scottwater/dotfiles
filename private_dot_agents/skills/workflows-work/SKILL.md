@@ -232,13 +232,9 @@ This command takes a work document (plan, specification, or todo file) and execu
    ```
    See the `agent-browser` skill for detailed usage.
 
-   **Step 3: Upload using imgup skill**
-   ```bash
-   skill: imgup
-   # Then upload each screenshot:
-   imgup -h pixhost screenshot.png  # pixhost works without API key
-   # Alternative hosts: catbox, imagebin, beeimg
-   ```
+   **Step 3: Upload screenshots**
+   Use any configured uploader or storage target available on your machine.
+   Collect stable URLs for each screenshot and include them in the PR body.
 
    **What to capture:**
    - **New screens**: Screenshot of the new UI
@@ -351,7 +347,7 @@ When swarm mode is enabled, the workflow changes:
    Teammate({ operation: "cleanup" })
    ```
 
-See the `orchestrating-swarms` skill for detailed swarm patterns and best practices.
+For deeper multi-agent execution patterns, use the teammate orchestration flow in this prompt.
 
 ---
 

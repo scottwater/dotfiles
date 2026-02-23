@@ -107,7 +107,7 @@ Examples:
 Run these agents in parallel:
 
 - Use the $best-practices-researcher skill to: feature_description
-- Use the $framework-docs-researcher skill to: feature_description
+- Use the $web-search-researcher skill to: feature_description
 
 ### 1.6. Consolidate Research
 
@@ -147,13 +147,13 @@ Think like a product manager - what would make this issue clear and actionable? 
 - [ ] Gather supporting materials (error logs, screenshots, design mockups)
 - [ ] Prepare code examples or reproduction steps if applicable, name the mock filenames in the lists
 
-### 3. SpecFlow Analysis
+### 3. Flow Analysis
 
-After planning the issue structure, run SpecFlow Analyzer to validate and refine the feature specification:
+After planning the issue structure, run a flow analysis pass to validate and refine the feature specification:
 
-- Use the $spec-flow-analyzer skill to: feature_description, research_findings
+- Use the $workflow-analyzer skill to: feature_description, research_findings
 
-**SpecFlow Analyzer Output:**
+**Flow Analyzer Output:**
 
 - [ ] Review SpecFlow analysis results
 - [ ] Incorporate any identified gaps or edge cases into the issue

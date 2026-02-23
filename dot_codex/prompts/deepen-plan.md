@@ -138,7 +138,7 @@ Task general-purpose: "Use the frontend-design skill at ~/.claude/plugins/.../pr
 
 Task general-purpose: "Use the agent-native-architecture skill at ~/.claude/plugins/.../prompts:agent-native-architecture. Read SKILL.md and apply it to: [agent/tool sections of plan]"
 
-Task general-purpose: "Use the security-patterns skill at ~/.claude/skills/security-patterns. Read SKILL.md and apply it to: [full plan]"
+Task general-purpose: "Use the security-sentinel skill at [skill-path]. Read SKILL.md and apply it to: [full plan]"
 ```
 
 **No limit on skill sub-agents. Spawn one for every skill that could possibly be relevant.**
@@ -360,7 +360,7 @@ Task [agent-name]: "Review this plan using your expertise. Apply all your checks
 
 **Step 4: Also discover and run research agents**
 
-Research agents (like `best-practices-researcher`, `framework-docs-researcher`, `git-history-analyzer`, `repo-research-analyst`) should also be run for relevant plan sections.
+Research agents (like `best-practices-researcher`, `web-search-researcher`, `git-history-analyzer`, `codebase-analyzer`) should also be run for relevant plan sections.
 
 ### 6. Wait for ALL Agents and Synthesize Everything
 

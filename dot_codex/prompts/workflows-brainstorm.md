@@ -42,7 +42,7 @@ Use **AskUserQuestion tool** to suggest: "Your requirements seem detailed enough
 
 Run a quick repo scan to understand existing patterns:
 
-- Use the $repo-research-analyst skill to: "Understand existing patterns related to: <feature_description>"
+- Use the $codebase-pattern-finder skill to: "Understand existing patterns related to: <feature_description>"
 
 Focus on: similar features, established patterns, CLAUDE.md guidance.
 

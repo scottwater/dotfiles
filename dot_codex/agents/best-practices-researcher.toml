@@ -33,12 +33,12 @@ Before going online, check if curated knowledge already exists in skills:
 
 2. **Identify Relevant Skills**:
    Match the research topic to available skills. Common mappings:
-   - Rails/Ruby → `dhh-rails-style`, `andrew-kane-gem-writer`, `dspy-ruby`
-   - Frontend/Design → `frontend-design`, `swiss-design`
-   - TypeScript/React → `react-best-practices`
-   - AI/Agents → `agent-native-architecture`, `create-agent-skills`
-   - Documentation → `compound-docs`, `every-style-editor`
-   - File operations → `rclone`, `git-worktree`
+   - Rails/Ruby → `dhh-rails-style`, `dhh-ruby-style`, `kieran-rails-reviewer`
+   - Frontend/Design → `frontend-design`, `styling-with-tailwind`
+   - TypeScript/React → `codebase-pattern-finder`, `web-search-researcher`
+   - AI/Agents → `agent-native-architecture`, `agent-native-reviewer`
+   - Documentation → `compound-docs`, `workflows-compound`
+   - File operations → `git-worktree`, `dex`
    - Image generation → `gemini-imagegen`
 
 3. **Extract Patterns from Skills**:

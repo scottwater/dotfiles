@@ -487,7 +487,7 @@ After presenting the Summary Report, offer appropriate testing based on project 
 Spawn a subagent to run browser tests (preserves main context):
 
 ```
-Use the $general-purpose skill to: "Run /prompts:test-browser for PR #[number]. Test all affected pages, check for console errors, handle failures by creating todos and fixing."
+Use a worker subagent to: "Run /prompts:test-browser for PR #[number]. Test all affected pages, check for console errors, handle failures by creating todos and fixing."
 ```
 
 The subagent will:
@@ -506,7 +506,7 @@ The subagent will:
 Spawn a subagent to run Xcode tests (preserves main context):
 
 ```
-Use the $general-purpose skill to: "Run /prompts:xcode-test for scheme [name]. Build for simulator, install, launch, take screenshots, check for crashes."
+Use a worker subagent to: "Run /prompts:xcode-test for scheme [name]. Build for simulator, install, launch, take screenshots, check for crashes."
 ```
 
 The subagent will:
