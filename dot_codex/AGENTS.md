@@ -16,7 +16,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Editor: `nvim <path>`.
 - Prefer end-to-end verify; if blocked, say what’s missing.
 - New deps: quick health check (recent releases/commits, adoption).
-- Slash cmds: `~/.codex/prompts/`.
+- Skills: `~/.agents/skills/` (use loops skills instead of deprecated prompts).
 - Web: search early; quote exact errors; prefer 2024–2025 sources; fallback Firecrawl (`pnpm mcp:*`) / `mcporter`.
 - Oracle: run `npx -y @steipete/oracle --help` once/session before first use.
 - Style: telegraph. Drop filler/grammar. Min tokens (global AGENTS + replies).

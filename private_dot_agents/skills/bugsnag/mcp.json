@@ -1,6 +1,0 @@
-{
-  "bugsnag": {
-    "command": "npx",
-    "args": ["-y", "@smartbear/mcp"]
-  }
-}

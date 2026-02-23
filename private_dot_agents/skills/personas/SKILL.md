@@ -1,5 +1,5 @@
 ---
-name: applying-personas
+name: personas
 description: Apply expert personas to provide specialized feedback and perspectives. Use when you want feedback through the lens of specific experts, critics, or archetypes (e.g., "give me feedback as a focused product manager" or "review this as Jason Fried would").
 ---
 
