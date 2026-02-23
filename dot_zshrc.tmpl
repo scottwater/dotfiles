@@ -68,9 +68,6 @@ alias rake='noglob rake'
 alias bundle='nocorrect bundle'
 alias rspec='nocorrect rspec'
 alias reload="source ~/.zshrc"
-{{- if eq .chezmoi.os "darwin" }}
-alias tpd="tail -f ~/Library/Logs/puma-dev.log"
-{{- end }}
 alias rc="bundle exec rails console"
 alias be="bundle exec"
 alias br="bin/rails"
