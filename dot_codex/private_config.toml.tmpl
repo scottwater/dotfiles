@@ -52,96 +52,18 @@ trust_level = "trusted"
 description = "Reviews code to ensure agent-native parity — any action a user can take, an agent can also take. Use after adding UI features, agent tools, or system prompts."
 config_file = "agents/agent-native-reviewer.toml"
 
-[agents."architecture-strategist"]
-description = "Analyzes code changes from an architectural perspective for pattern compliance and design integrity. Use when reviewing PRs, adding services, or evaluating structural refactors."
-config_file = "agents/architecture-strategist.toml"
-
 [agents."best-practices-researcher"]
 description = "Researches and synthesizes external best practices, documentation, and examples for any technology or framework. Use when you need industry standards, community conventions, or implementation guidance."
 config_file = "agents/best-practices-researcher.toml"
-
-[agents."bug-reproduction-validator"]
-description = "Systematically reproduces and validates bug reports to confirm whether reported behavior is an actual bug. Use when you receive a bug report or issue that needs verification."
-config_file = "agents/bug-reproduction-validator.toml"
 
 [agents."code-simplicity-reviewer"]
 description = "Final review pass to ensure code is as simple and minimal as possible. Use after implementation is complete to identify YAGNI violations and simplification opportunities."
 config_file = "agents/code-simplicity-reviewer.toml"
 
-[agents."data-integrity-guardian"]
-description = "Reviews database migrations, data models, and persistent data code for safety. Use when checking migration safety, data constraints, transaction boundaries, or privacy compliance."
-config_file = "agents/data-integrity-guardian.toml"
-
-[agents."data-migration-expert"]
-description = "Validates data migrations, backfills, and production data transformations against reality. Use when PRs involve ID mappings, column renames, enum conversions, or schema changes."
-config_file = "agents/data-migration-expert.toml"
-
-[agents."deployment-verification-agent"]
-description = "Produces Go/No-Go deployment checklists with SQL verification queries, rollback procedures, and monitoring plans. Use when PRs touch production data, migrations, or risky data changes."
-config_file = "agents/deployment-verification-agent.toml"
-
-[agents."dhh-rails-reviewer"]
-description = "Brutally honest Rails code review from DHH's perspective. Use when reviewing Rails code for anti-patterns, JS framework contamination, or violations of Rails conventions."
-config_file = "agents/dhh-rails-reviewer.toml"
-
-[agents."every-style-editor"]
-description = "Reviews and edits text content to conform to Every's editorial style guide. Use when written content needs style compliance checks for headlines, punctuation, voice, and formatting."
-config_file = "agents/every-style-editor.toml"
-
 [agents."framework-docs-researcher"]
 description = "Gathers comprehensive documentation and best practices for frameworks, libraries, or dependencies. Use when you need official docs, version-specific constraints, or implementation patterns."
 config_file = "agents/framework-docs-researcher.toml"
 
-[agents."git-history-analyzer"]
-description = "Performs archaeological analysis of git history to trace code evolution, identify contributors, and understand why code patterns exist. Use when you need historical context for code changes."
-config_file = "agents/git-history-analyzer.toml"
-
-[agents."julik-frontend-races-reviewer"]
-description = "Reviews JavaScript and Stimulus code for race conditions, timing issues, and DOM lifecycle problems. Use after implementing or modifying frontend controllers or async UI code."
-config_file = "agents/julik-frontend-races-reviewer.toml"
-
-[agents."kieran-python-reviewer"]
-description = "Reviews Python code with an extremely high quality bar for Pythonic patterns, type safety, and maintainability. Use after implementing features, modifying code, or creating new Python modules."
-config_file = "agents/kieran-python-reviewer.toml"
-
-[agents."kieran-rails-reviewer"]
-description = "Reviews Rails code with an extremely high quality bar for conventions, clarity, and maintainability. Use after implementing features, modifying code, or creating new Rails components."
-config_file = "agents/kieran-rails-reviewer.toml"
-
-[agents."kieran-typescript-reviewer"]
-description = "Reviews TypeScript code with an extremely high quality bar for type safety, modern patterns, and maintainability. Use after implementing features, modifying code, or creating new TypeScript components."
-config_file = "agents/kieran-typescript-reviewer.toml"
-
 [agents."learnings-researcher"]
 description = "Searches docs/solutions/ for relevant past solutions by frontmatter metadata. Use before implementing features or fixing problems to surface institutional knowledge and prevent repeated mistakes."
 config_file = "agents/learnings-researcher.toml"
-
-[agents."lint"]
-description = "Use this agent when you need to run linting and code quality checks on Ruby and ERB files. Run before pushing to origin."
-config_file = "agents/lint.toml"
-
-[agents."pattern-recognition-specialist"]
-description = "Analyzes code for design patterns, anti-patterns, naming conventions, and duplication. Use when checking codebase consistency or verifying new code follows established patterns."
-config_file = "agents/pattern-recognition-specialist.toml"
-
-[agents."performance-oracle"]
-description = "Analyzes code for performance bottlenecks, algorithmic complexity, database queries, memory usage, and scalability. Use after implementing features or when performance concerns arise."
-config_file = "agents/performance-oracle.toml"
-
-[agents."pr-comment-resolver"]
-description = "Addresses PR review comments by implementing requested changes and reporting resolutions. Use when code review feedback needs to be resolved with code changes."
-config_file = "agents/pr-comment-resolver.toml"
-
-[agents."repo-research-analyst"]
-description = "Conducts thorough research on repository structure, documentation, conventions, and implementation patterns. Use when onboarding to a new codebase or understanding project conventions."
-config_file = "agents/repo-research-analyst.toml"
-
-[agents."security-sentinel"]
-description = "Performs security audits for vulnerabilities, input validation, auth/authz, hardcoded secrets, and OWASP compliance. Use when reviewing code for security issues or before deployment."
-config_file = "agents/security-sentinel.toml"
-
-[agents."spec-flow-analyzer"]
-description = "Analyzes specifications and feature descriptions for user flow completeness and gap identification. Use when a spec, plan, or feature description needs flow analysis, edge case discovery, or requirements validation."
-config_file = "agents/spec-flow-analyzer.toml"
-
-# END compound-engineering multi-agent roles

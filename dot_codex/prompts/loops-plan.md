@@ -3,8 +3,6 @@ description: Transform feature descriptions into well-structured project plans f
 argument-hint: "[feature description, bug report, or improvement idea]"
 ---
 
-Use the $workflows-plan skill for this command and follow its instructions.
-
 # Create a plan for a new feature or bug fix
 
 ## Introduction
@@ -75,7 +73,7 @@ First, I need to understand the project's conventions, existing patterns, and an
 
 Run these agents **in parallel** to gather local context:
 
-- Use the $repo-research-analyst skill to: feature_description
+- Use the $codebase-locator skill to: feature_description
 - Use the $learnings-researcher skill to: feature_description
 
 **What to look for:**
@@ -498,26 +496,25 @@ After writing the plan file, use the **AskUserQuestion tool** to present these o
 
 **Options:**
 1. **Open plan in editor** - Open the plan file for review
-2. **Run `/prompts:deepen-plan`** - Enhance each section with parallel research agents (best practices, performance, UI)
-3. **Run `/prompts:technical_review`** - Technical feedback from code-focused reviewers (DHH, Kieran, Simplicity)
-4. **Review and refine** - Improve the document through structured self-review
-5. **Start `/prompts:workflows-work`** - Begin implementing this plan locally
-6. **Start `/prompts:workflows-work` on remote** - Begin implementing in Claude Code on the web (use `&` to run in background)
-7. **Create Issue** - Create issue in project tracker (GitHub/Linear)
+2. **Run `/prompts:loops-deepenplan`** - Enhance each section with parallel research agents (best practices, performance, UI)
+3. **Review and refine** - Improve the document through structured self-review
+4. **Start `/prompts:loops-work`** - Begin implementing this plan locally
+5. **Start `/prompts:loops-work` on remote** - Begin implementing in Claude Code on the web (use `&` to run in background)
+6. **Create Issue** - Create issue in project tracker (GitHub/Linear)
 
 Based on selection:
 - **Open plan in editor** → Run `open docs/plans/<plan_filename>.md` to open the file in the user's default editor
-- **`/prompts:deepen-plan`** → Call the /prompts:deepen-plan command with the plan file path to enhance with research
-- **`/prompts:technical_review`** → Call the /prompts:technical_review command with the plan file path
+- **`/prompts:loops-deepenplan`** → Call the /prompts:loops-deepenplan command with the plan file path to enhance with research
+- **`/prompts:loops-research`** → Call the /prompts:loops-research command with specific questions about the plan
 - **Review and refine** → Load `document-review` skill.
-- **`/prompts:workflows-work`** → Call the /prompts:workflows-work command with the plan file path
-- **`/prompts:workflows-work` on remote** → Run `/prompts:workflows-work docs/plans/<plan_filename>.md &` to start work in background for Claude Code web
+- **`/prompts:loops-work`** → Call the /prompts:loops-work command with the plan file path
+- **`/prompts:loops-work` on remote** → Run `/prompts:loops-work docs/plans/<plan_filename>.md &` to start work in background for Claude Code web
 - **Create Issue** → See "Issue Creation" section below
 - **Other** (automatically provided) → Accept free text for rework or specific changes
 
-**Note:** If running `/prompts:workflows-plan` with ultrathink enabled, automatically run `/prompts:deepen-plan` after plan creation for maximum depth and grounding.
+**Note:** If running `/prompts:loops-plan` with ultrathink enabled, automatically run `/prompts:loops-deepenplan` after plan creation for maximum depth and grounding.
 
-Loop back to options after Simplify or Other changes until user selects `/prompts:workflows-work` or `/prompts:technical_review`.
+Loop back to options after Simplify or Other changes until user selects `/prompts:loops-work` or is done.
 
 ## Issue Creation
 
@@ -541,12 +538,17 @@ When user selects "Create Issue", detect their project tracker from CLAUDE.md:
    linear issue create --title "<title>" --description "$(cat <plan_path>)"
    ```
 
-4. **If no tracker configured:**
+4. If dex:
+  - Use the dex skill to add the task with the relevant content
+  - If this is a large task, consider adding a parent task with multiple child
+  tasks
+
+5. **If no tracker configured:**
    Ask user: "Which project tracker do you use? (GitHub/Linear/Other)"
    - Suggest adding `project_tracker: github` or `project_tracker: linear` to their CLAUDE.md
 
-5. **After creation:**
+6. **After creation:**
    - Display the issue URL
-   - Ask if they want to proceed to `/prompts:workflows-work` or `/prompts:technical_review`
+  - Ask if they want to proceed to `/prompts:loops-work` or `/prompts:loops-research`
 
 NEVER CODE! Just research and write the plan.

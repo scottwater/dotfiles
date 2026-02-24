@@ -2,7 +2,7 @@
 description: Detail research on the existing codebase
 argument-hint: "[what do you want to know more about]"
 ---
-# Research Codebase
+# Loops Research
 
 You are tasked with conducting comprehensive research across the codebase to answer user questions by spawning parallel sub-agents and synthesizing their findings.
 
@@ -49,9 +49,9 @@ Then wait for the user's research query.
    - We now have specialized agents that know how to do specific research tasks:
 
    **For codebase research:**
-   - Use the **research/codebase-locator** skill to find WHERE files and components live
-   - Use the **research/codebase-analyzer** skill to understand HOW specific code works (without critiquing it)
-   - Use the **research/codebase-pattern-finder** skill to find examples of existing patterns (without evaluating them)
+   - Use the **loops/codebase-locator** skill to find WHERE files and components live
+   - Use the **loops/codebase-analyzer** skill to understand HOW specific code works (without critiquing it)
+   - Use the **loops/codebase-pattern-finder** skill to find examples of existing patterns (without evaluating them)
 
    **IMPORTANT**: All agents are documentarians, not critics. They will describe what exists without suggesting improvements or identifying issues.
 
@@ -79,7 +79,7 @@ Then wait for the user's research query.
 
 5. **Gather metadata for the research document:**
    - Run the `spec_metadata.sh` script to generate all relevant metadata with
-     the research/research-metadata skill
+     the loops/research-metadata skill
    - Filename: `docs/research/YYYY-MM-DD-ENG-XXXX-description.md`
      - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
        - YYYY-MM-DD is today's date

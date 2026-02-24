@@ -152,7 +152,7 @@ For each relevant document, return a summary in this format:
 
 ## Frontmatter Schema Reference
 
-Reference the [yaml-schema.md](../../skills/compound-docs/references/yaml-schema.md) for the complete schema. Key enum values:
+Reference the [yaml-schema.md](../../skills/loops/compound-docs/references/yaml-schema.md) for the complete schema. Key enum values:
 
 **problem_type values:**
 - build_error, test_failure, runtime_error, performance_issue
@@ -256,8 +256,8 @@ Structure your findings as:
 ## Integration Points
 
 This agent is designed to be invoked by:
-- `/workflows:plan` - To inform planning with institutional knowledge
-- `/deepen-plan` - To add depth with relevant learnings
+- `/prompts:loops-plan` - To inform planning with institutional knowledge
+- `/prompts:loops-deepenplan` - To add depth with relevant learnings
 - Manual invocation before starting work on a feature
 
 The goal is to surface relevant learnings in under 30 seconds for a typical solutions directory, enabling fast knowledge retrieval during planning phases.

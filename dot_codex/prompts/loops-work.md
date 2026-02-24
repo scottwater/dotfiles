@@ -3,8 +3,6 @@ description: Execute work plans efficiently while maintaining quality and finish
 argument-hint: "[plan file, specification, or todo file path]"
 ---
 
-Use the $workflows-work skill for this command and follow its instructions.
-
 # Work Plan Execution Command
 
 Execute a work plan efficiently while maintaining quality and finishing features.
@@ -161,26 +159,13 @@ This command takes a work document (plan, specification, or todo file) and execu
    # Run full test suite (use project's test command)
    # Examples: bin/rails test, npm test, pytest, go test, etc.
 
-   # Run linting (per CLAUDE.md)
-   # Use linting-agent before pushing to origin
+   # Run linting (per AGENTS.md)
    ```
 
-2. **Consider Reviewer Agents** (Optional)
+2. **Consider Reviewer Counselors** (Optional)
 
-   Use for complex, risky, or large changes:
-
-   - **code-simplicity-reviewer**: Check for unnecessary complexity
-   - **kieran-rails-reviewer**: Verify Rails conventions (Rails projects)
-   - **performance-oracle**: Check for performance issues
-   - **security-sentinel**: Scan for security vulnerabilities
-   - **cora-test-reviewer**: Review test quality (Rails projects with comprehensive test coverage)
-
-   Run reviewers in parallel with Task tool:
-
-   ```
-   Task(code-simplicity-reviewer): "Review changes for simplicity"
-   Task(kieran-rails-reviewer): "Check Rails conventions"
-   ```
+   Use the `$counselors` skill to run a focused multi-agent review with the
+   "review group" pass and summarize findings and recommendations.
 
    Present findings to user and address critical issues.
 
@@ -235,7 +220,7 @@ Before creating PR, verify:
 - [ ] All clarifying questions asked and answered
 - [ ] All TodoWrite tasks marked completed
 - [ ] Tests pass (run project's test command)
-- [ ] Linting passes (use linting-agent)
+- [ ] Linting passes (use the repo's standard lint command)
 - [ ] Code follows existing patterns
 - [ ] Figma designs match implementation (if applicable)
 - [ ] Before/after screenshots captured and uploaded (for UI changes)

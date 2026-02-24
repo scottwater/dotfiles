@@ -119,7 +119,6 @@ The install scripts run automatically via `chezmoi apply`:
 Custom skills shared across AI assistants:
 
 - **gemini-imagegen** - Image generation via Gemini API (Nano Banana Pro)
-- **dhh-rails-style** - 37signals/DHH Rails coding conventions
 - **committing-with-guidelines** - Git commit message standards
 
 ## Usage

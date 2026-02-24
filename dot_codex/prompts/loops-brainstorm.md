@@ -3,13 +3,11 @@ description: Explore requirements and approaches through collaborative dialogue 
 argument-hint: "[feature idea or problem to explore]"
 ---
 
-Use the $workflows-brainstorm skill for this command and follow its instructions.
-
 # Brainstorm a Feature or Improvement
 
 **Note: The current year is 2026.** Use this when dating brainstorm documents.
 
-Brainstorming helps answer **WHAT** to build through collaborative dialogue. It precedes `/prompts:workflows-plan`, which answers **HOW** to build it.
+Brainstorming helps answer **WHAT** to build through collaborative dialogue. It precedes `/prompts:loops-plan`, which answers **HOW** to build it.
 
 **Process knowledge:** Load the `brainstorming` skill for detailed question techniques, approach exploration patterns, and YAGNI principles.
 
@@ -34,7 +32,7 @@ Evaluate whether brainstorming is needed based on the feature description.
 - Constrained, well-defined scope
 
 **If requirements are already clear:**
-Use **AskUserQuestion tool** to suggest: "Your requirements seem detailed enough to proceed directly to planning. Should I run `/prompts:workflows-plan` instead, or would you like to explore the idea further?"
+Use **AskUserQuestion tool** to suggest: "Your requirements seem detailed enough to proceed directly to planning. Should I run `/prompts:loops-plan` instead, or would you like to explore the idea further?"
 
 ### Phase 1: Understand the Idea
 
@@ -44,7 +42,7 @@ Run a quick repo scan to understand existing patterns:
 
 - Use the $codebase-pattern-finder skill to: "Understand existing patterns related to: <feature_description>"
 
-Focus on: similar features, established patterns, CLAUDE.md guidance.
+Focus on: similar features, established patterns, AGENTS.md guidance.
 
 #### 1.2 Collaborative Dialogue
 
@@ -87,7 +85,7 @@ Use **AskUserQuestion tool** to present next steps:
 
 **Options:**
 1. **Review and refine** - Improve the document through structured self-review
-2. **Proceed to planning** - Run `/prompts:workflows-plan` (will auto-detect this brainstorm)
+2. **Proceed to planning** - Run `/prompts:loops-plan` (will auto-detect this brainstorm)
 3. **Done for now** - Return later
 
 **If user selects "Review and refine":**
@@ -96,8 +94,8 @@ Load the `document-review` skill and apply it to the brainstorm document.
 
 When document-review returns "Review complete", present next steps:
 
-1. **Move to planning** - Continue to `/prompts:workflows-plan` with this document
-2. **Done for now** - Brainstorming complete. To start planning later: `/prompts:workflows-plan [document-path]`
+1. **Move to planning** - Continue to `/prompts:loops-plan` with this document
+2. **Done for now** - Brainstorming complete. To start planning later: `/prompts:loops-plan [document-path]`
 
 ## Output Summary
 
@@ -112,7 +110,7 @@ Key decisions:
 - [Decision 1]
 - [Decision 2]
 
-Next: Run `/prompts:workflows-plan` when ready to implement.
+Next: Run `/prompts:loops-plan` when ready to implement.
 ```
 
 ## Important Guidelines

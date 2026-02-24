@@ -3,15 +3,13 @@ description: Enhance a plan with parallel research agents for each section to ad
 argument-hint: "[path to plan file]"
 ---
 
-Use the $deepen-plan skill for this command and follow its instructions.
-
 # Deepen Plan - Power Enhancement Mode
 
 ## Introduction
 
 **Note: The current year is 2026.** Use this when searching for recent documentation and best practices.
 
-This command takes an existing plan (from `/prompts:workflows-plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
+This command takes an existing plan (from `/prompts:loops-plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
 - Best practices and industry patterns
 - Performance optimizations
 - UI/UX improvements (if applicable)
@@ -66,28 +64,18 @@ Dynamically discover all available skills and match them to plan sections. Don't
 
 ```bash
 # 1. Project-local skills (highest priority - project-specific)
-ls .claude/skills/
+find skills -type f -name "SKILL.md" 2>/dev/null
 
-# 2. User's global skills (~/.claude/)
-ls ~/.claude/skills/
-
-# 3. compound-engineering plugin skills
-ls ~/.claude/plugins/cache/*/compound-engineering/*/skills/
-
-# 4. ALL other installed plugins - check every plugin for skills
-find ~/.claude/plugins/cache -type d -name "skills" 2>/dev/null
-
-# 5. Also check installed_plugins.json for all plugin locations
-cat ~/.claude/plugins/installed_plugins.json
+find . -path "*/skills/*/SKILL.md" -type f 2>/dev/null
 ```
 
-**Important:** Check EVERY source. Don't assume compound-engineering is the only plugin. Use skills from ANY installed plugin that's relevant.
+**Important:** Check EVERY source. Don't assume one source is complete. Use any relevant skill discovered at runtime.
 
 **Step 2: For each discovered skill, read its SKILL.md to understand what it does**
 
 ```bash
 # For each skill directory found, read its documentation
-cat [skill-path]/prompts:skill.md
+cat [skill-path]/SKILL.md
 ```
 
 **Step 3: Match skills to plan content**
@@ -107,7 +95,7 @@ Task general-purpose: "You have the [skill-name] skill available at [skill-path]
 
 YOUR JOB: Use this skill on the plan.
 
-1. Read the skill: cat [skill-path]/prompts:skill.md
+1. Read the skill: cat [skill-path]/SKILL.md
 2. Follow the skill's instructions exactly
 3. Apply the skill to this content:
 
@@ -132,13 +120,13 @@ The skill tells you what to do - follow it. Execute the skill completely."
 
 **Example spawns:**
 ```
-Task general-purpose: "Use the dhh-rails-style skill at ~/.claude/plugins/.../prompts:dhh-rails-style. Read SKILL.md and apply it to: [Rails sections of plan]"
+Task general-purpose: "Use the rails-style skill at [skill-path]. Read SKILL.md and apply it to: [Rails sections of plan]"
 
-Task general-purpose: "Use the frontend-design skill at ~/.claude/plugins/.../prompts:frontend-design. Read SKILL.md and apply it to: [UI sections of plan]"
+Task general-purpose: "Use the frontend-design skill at [skill-path]. Read SKILL.md and apply it to: [UI sections of plan]"
 
-Task general-purpose: "Use the agent-native-architecture skill at ~/.claude/plugins/.../prompts:agent-native-architecture. Read SKILL.md and apply it to: [agent/tool sections of plan]"
+Task general-purpose: "Use the agent-native-architecture skill at [skill-path]. Read SKILL.md and apply it to: [agent/tool sections of plan]"
 
-Task general-purpose: "Use the security-sentinel skill at [skill-path]. Read SKILL.md and apply it to: [full plan]"
+Task general-purpose: "Use the code-simplicity-reviewer skill at [skill-path]. Read SKILL.md and apply it to: [full plan]"
 ```
 
 **No limit on skill sub-agents. Spawn one for every skill that could possibly be relevant.**
@@ -146,13 +134,13 @@ Task general-purpose: "Use the security-sentinel skill at [skill-path]. Read SKI
 ### 3. Discover and Apply Learnings/Solutions
 
 <thinking>
-Check for documented learnings from /prompts:workflows-compound. These are solved problems stored as markdown files. Spawn a sub-agent for each learning to check if it's relevant.
+Check for documented learnings in docs/solutions. These are solved problems stored as markdown files. Spawn a sub-agent for each learning to check if it's relevant.
 </thinking>
 
 **LEARNINGS LOCATION - Check these exact folders:**
 
 ```
-docs/solutions/           <-- PRIMARY: Project-level learnings (created by /prompts:workflows-compound)
+docs/solutions/           <-- PRIMARY: Project-level learnings
 ├── performance-issues/
 │   └── *.md
 ├── debugging-patterns/
@@ -176,8 +164,8 @@ Run these commands to get every learning file:
 find docs/solutions -name "*.md" -type f 2>/dev/null
 
 # If docs/solutions doesn't exist, check alternate locations:
-find .claude/docs -name "*.md" -type f 2>/dev/null
-find ~/.claude/docs -name "*.md" -type f 2>/dev/null
+find docs/solutions -name "*.md" -type f 2>/dev/null
+find docs/research -name "*.md" -type f 2>/dev/null
 ```
 
 **Step 2: Read frontmatter of each learning to filter**
@@ -288,8 +276,8 @@ Return concrete, actionable recommendations."
 
 For any technologies/frameworks mentioned in the plan, query Context7:
 ```
-mcp__plugin_compound-engineering_context7__resolve-library-id: Find library ID for [framework]
-mcp__plugin_compound-engineering_context7__query-docs: Query documentation for specific patterns
+resolve-library-id: Find library ID for [framework]
+query-docs: Query documentation for specific patterns
 ```
 
 **Use WebSearch for current best practices:**
@@ -306,32 +294,16 @@ Dynamically discover every available agent and run them ALL against the plan. Do
 
 ```bash
 # 1. Project-local agents (highest priority - project-specific)
-find .claude/agents -name "*.md" 2>/dev/null
-
-# 2. User's global agents (~/.claude/)
-find ~/.claude/agents -name "*.md" 2>/dev/null
-
-# 3. compound-engineering plugin agents (all subdirectories)
-find ~/.claude/plugins/cache/*/compound-engineering/*/prompts:agents -name "*.md" 2>/dev/null
-
-# 4. ALL other installed plugins - check every plugin for agents
-find ~/.claude/plugins/cache -path "*/agents/*.md" 2>/dev/null
-
-# 5. Check installed_plugins.json to find all plugin locations
-cat ~/.claude/plugins/installed_plugins.json
-
-# 6. For local plugins (isLocal: true), check their source directories
-# Parse installed_plugins.json and find local plugin paths
+find agents -name "*.toml" 2>/dev/null
+find . -path "*/agents/*.toml" -type f 2>/dev/null
 ```
 
 **Important:** Check EVERY source. Include agents from:
-- Project `.claude/agents/`
-- User's `~/.claude/agents/`
-- compound-engineering plugin (but SKIP workflow/ agents - only use review/, research/, design/, docs/)
-- ALL other installed plugins (agent-sdk-dev, frontend-design, etc.)
-- Any local plugins
+- Project-local agents discovered from current workspace
+- Installed/shared agent directories discovered by search
+- Skip workflow orchestrators; prioritize review/research/design/docs specialists
 
-**For compound-engineering plugin specifically:**
+**When categorizing discovered agents:**
 - USE: `agents/review/*` (all reviewers)
 - USE: `agents/research/*` (all researchers)
 - USE: `agents/design/*` (design agents)
@@ -360,7 +332,7 @@ Task [agent-name]: "Review this plan using your expertise. Apply all your checks
 
 **Step 4: Also discover and run research agents**
 
-Research agents (like `best-practices-researcher`, `web-search-researcher`, `git-history-analyzer`, `codebase-analyzer`) should also be run for relevant plan sections.
+Research agents (like `best-practices-researcher`, `web-search-researcher`, `codebase-analyzer`) should also be run for relevant plan sections.
 
 ### 6. Wait for ALL Agents and Synthesize Everything
 
@@ -371,7 +343,7 @@ Wait for ALL parallel agents to complete - skills, research agents, review agent
 **Collect outputs from ALL sources:**
 
 1. **Skill-based sub-agents** - Each skill's full output (code examples, patterns, recommendations)
-2. **Learnings/Solutions sub-agents** - Relevant documented learnings from /prompts:workflows-compound
+2. **Learnings/Solutions sub-agents** - Relevant documented learnings from docs/solutions
 3. **Research agents** - Best practices, documentation, real-world examples
 4. **Review agents** - All feedback from every reviewer (architecture, security, performance, simplicity, etc.)
 5. **Context7 queries** - Framework documentation and patterns
@@ -481,28 +453,28 @@ After writing the enhanced plan, use the **AskUserQuestion tool** to present the
 
 **Options:**
 1. **View diff** - Show what was added/changed
-2. **Run `/prompts:technical_review`** - Get feedback from reviewers on enhanced plan
-3. **Start `/prompts:workflows-work`** - Begin implementing this enhanced plan
+2. **Run `/prompts:loops-research`** - Investigate unclear risks or assumptions in this enhanced plan
+3. **Start `/prompts:loops-work`** - Begin implementing this enhanced plan
 4. **Deepen further** - Run another round of research on specific sections
 5. **Revert** - Restore original plan (if backup exists)
 
 Based on selection:
 - **View diff** → Run `git diff [plan_path]` or show before/after
-- **`/prompts:technical_review`** → Call the /prompts:technical_review command with the plan file path
-- **`/prompts:workflows-work`** → Call the /prompts:workflows-work command with the plan file path
+- **`/prompts:loops-research`** → Call the /prompts:loops-research command with a focused question about the plan
+- **`/prompts:loops-work`** → Call the /prompts:loops-work command with the plan file path
 - **Deepen further** → Ask which sections need more research, then re-run those agents
 - **Revert** → Restore from git or backup
 
 ## Example Enhancement
 
-**Before (from /prompts:workflows-plan):**
+**Before (from /prompts:loops-plan):**
 ```markdown
 ## Technical Approach
 
 Use React Query for data fetching with optimistic updates.
 ```
 
-**After (from /prompts:workflows-deepen-plan):**
+**After (from /prompts:loops-deepenplan):**
 ```markdown
 ## Technical Approach
 
@@ -540,8 +512,8 @@ const queryClient = new QueryClient({
 - Consider offline support with `persistQueryClient`
 
 **References:**
-- https://prompts:tanstack.com/query/latest/docs/react/guides/optimistic-updates
-- https://prompts:tkdodo.eu/blog/practical-react-query
+- https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
+- https://tkdodo.eu/blog/practical-react-query
 ```
 
 NEVER CODE! Just research and enhance the plan.
