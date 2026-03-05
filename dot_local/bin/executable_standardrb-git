@@ -1,0 +1,146 @@
+#!/usr/bin/env zsh
+
+# =============================================================================
+# standardrb-git - Run standardrb on Git-Modified Files
+# =============================================================================
+# Runs standardrb with auto-fix on git-modified .rb files, or on specified
+# files if provided.
+#
+# Usage: standardrb-git [options] [files...]
+#
+# If no files specified, runs on all git-modified .rb files.
+# If files specified, filters to only .rb files and runs on those.
+#
+# Options:
+#   --no-fix             Don't auto-fix (default is --fix)
+#   -h, --help           Show help
+#
+# Examples:
+#   standardrb-git                    # All git-modified .rb files
+#   standardrb-git app/models/*.rb    # Specific files
+
+set -e
+
+# -----------------------------------------------------------------------------
+# HELPER FUNCTIONS
+# -----------------------------------------------------------------------------
+
+_show_help() {
+  echo "Usage: standardrb-git [options] [files...]"
+  echo ""
+  echo "If no files specified, runs on all git-modified .rb files."
+  echo "If files specified, filters to only .rb files and runs on those."
+  echo ""
+  echo "Options:"
+  echo "  --no-fix             Don't auto-fix (default is --fix)"
+  echo "  -h, --help           Show help"
+  echo ""
+  echo "Examples:"
+  echo "  standardrb-git                    # All git-modified .rb files"
+  echo "  standardrb-git app/models/*.rb    # Specific files"
+}
+
+# Gets all git-modified .rb files
+_get_git_modified_ruby_files() {
+  local changed_files=$(git diff --name-only 2>/dev/null)
+  local staged_files=$(git diff --cached --name-only 2>/dev/null)
+  local untracked_files=$(git ls-files --others --exclude-standard 2>/dev/null)
+
+  echo "$changed_files\n$staged_files\n$untracked_files" | sort -u | grep -v '^$' | grep '\.rb$'
+}
+
+# -----------------------------------------------------------------------------
+# MAIN LOGIC
+# -----------------------------------------------------------------------------
+
+main() {
+  local autofix=true
+  local show_help=false
+  local specified_files=()
+  local standardrb_opts=()
+
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --no-fix)
+        autofix=false
+        shift
+        ;;
+      -h|--help)
+        show_help=true
+        shift
+        ;;
+      -*)
+        # Pass through other options to standardrb
+        standardrb_opts+=("$1")
+        shift
+        ;;
+      *)
+        # File argument
+        specified_files+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  # Handle help
+  if [[ $show_help == true ]]; then
+    _show_help
+    exit 0
+  fi
+
+  local ruby_files=()
+
+  if [[ ${#specified_files[@]} -gt 0 ]]; then
+    # Filter specified files to only .rb files that exist
+    for file in "${specified_files[@]}"; do
+      if [[ "$file" == *.rb && -f "$file" ]]; then
+        ruby_files+=("$file")
+      fi
+    done
+
+    if [[ ${#ruby_files[@]} -eq 0 ]]; then
+      echo "No .rb files found in the provided list."
+      exit 0
+    fi
+
+    echo "Running standardrb on specified .rb files:"
+    printf "  %s\n" "${ruby_files[@]}"
+    echo ""
+  else
+    # Get git-modified .rb files
+    local modified_files=$(_get_git_modified_ruby_files)
+
+    if [[ -z "$modified_files" ]]; then
+      echo "No modified .rb files found."
+      exit 0
+    fi
+
+    # Convert to array
+    ruby_files=(${(f)modified_files})
+
+    echo "Running standardrb on modified .rb files:"
+    printf "  %s\n" "${ruby_files[@]}"
+    echo ""
+  fi
+
+  # Build standardrb command
+  local standardrb_args=()
+
+  if [[ $autofix == true ]]; then
+    standardrb_args+=("--fix")
+  fi
+
+  standardrb_args+=("${standardrb_opts[@]}")
+  standardrb_args+=("${ruby_files[@]}")
+
+  if [[ -x "bin/standardrb" ]]; then
+    bin/standardrb "${standardrb_args[@]}"
+  elif [[ -f "Gemfile" ]]; then
+    bundle exec standardrb "${standardrb_args[@]}"
+  else
+    standardrb "${standardrb_args[@]}"
+  fi
+}
+
+main "$@"
