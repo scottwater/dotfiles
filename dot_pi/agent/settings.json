@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.55.4",
+  "lastChangelogVersion": "0.56.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.3-codex",
   "defaultThinkingLevel": "high",
@@ -9,5 +9,11 @@
     "npm:@plannotator/pi-extension"
   ],
   "designDeck": {},
-  "theme": "vampire-bat"
+  "theme": "vampire-bat",
+  "enabledModels": [
+    "anthropic/claude-haiku-4-5",
+    "anthropic/claude-opus-4-6",
+    "anthropic/claude-sonnet-4-6",
+    "openai-codex/gpt-5.3-codex"
+  ]
 }
