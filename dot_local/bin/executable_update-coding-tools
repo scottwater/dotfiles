@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -u
+
+run_update() {
+  local tool_name="$1"
+  shift
+
+  echo ""
+  echo "=== Updating ${tool_name} ==="
+
+  if "$@"; then
+    echo "✅ ${tool_name} updated"
+    return 0
+  else
+    local status=$?
+    echo "❌ ${tool_name} update failed (exit ${status})"
+    return "$status"
+  fi
+}
+
+failures=0
+
+run_update "pi" npm install -g @mariozechner/pi-coding-agent || failures=$((failures + 1))
+run_update "amp" amp update || failures=$((failures + 1))
+run_update "codex" npm install -g @openai/codex || failures=$((failures + 1))
+run_update "claude code" claude update || failures=$((failures + 1))
+run_update "opencode" opencode upgrade || failures=$((failures + 1))
+
+echo ""
+if [[ "$failures" -eq 0 ]]; then
+  echo "All update commands completed successfully."
+else
+  echo "Completed with ${failures} failed update(s)."
+  exit 1
+fi
