@@ -5,7 +5,8 @@
   "defaultThinkingLevel": "high",
   "packages": [
     "npm:pi-design-deck",
-    "https://github.com/nicobailon/visual-explainer"
+    "https://github.com/nicobailon/visual-explainer",
+    "npm:@plannotator/pi-extension"
   ],
   "designDeck": {},
   "theme": "vampire-bat"
