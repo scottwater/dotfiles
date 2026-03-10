@@ -9,3 +9,6 @@ vim.opt.termguicolors = true
 
 -- Set COLORTERM for true color support in terminal buffers
 vim.env.COLORTERM = "truecolor"
+
+vim.opt.number = true
+vim.opt.relativenumber = false
