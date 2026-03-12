@@ -71,11 +71,16 @@ alias reload="source ~/.zshrc"
 alias rc="bundle exec rails console"
 alias be="bundle exec"
 alias br="bin/rails"
-alias g="git"
+function g() {
+  if [[ $# -eq 0 ]]; then
+    git status -s
+  else
+    git "$@"
+  fi
+}
 alias lg="lazygit"
-alias s="g status -s"
 alias tc="reset && tmux clear-history"
-
+alias s="stooges"
 alias bt="bontree"
 
 alias popo="bin/rubocop -f github"
