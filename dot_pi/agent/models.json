@@ -1,0 +1,19 @@
+{
+  "providers": {
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "api": "openai-completions",
+      "apiKey": "!op read 'op://Coding/pi-limited/credential'",
+      "models": [
+        {
+          "id": "openrouter/healer-alpha",
+          "name": "OpenRouter Healer Alpha"
+        },
+        {
+          "id": "openrouter/hunter-alpha",
+          "name": "OpenRouter Hunter Alpha"
+        }
+      ]
+    }
+  }
+}
