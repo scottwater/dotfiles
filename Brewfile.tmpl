@@ -5,6 +5,7 @@ cask_args appdir: "/Applications"
 tap "heroku/brew"
 
 # Both (CLI)
+brew "bat"
 brew "git"
 brew "git-delta"
 brew "gh"
@@ -16,6 +17,7 @@ brew "yazi"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 brew "zoxide"
+brew "glow"
 
 # macOS only (CLI)
 {{- if eq .chezmoi.os "darwin" }}

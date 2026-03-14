@@ -6,6 +6,10 @@ if [ "${CHEZMOI_OS:-}" != "linux" ] && [ "${CHEZMOI_OS:-}" != "darwin" ]; then
   exit 1
 fi
 
+# chezmoi run scripts do not execute inside your interactive shell, so make sure
+# we can detect tools installed into user-local locations on repeat applies.
+export PATH="$HOME/.local/bin:$HOME/.atuin/bin:$HOME/.opencode/bin:$PATH"
+
 has_command() {
   command -v "$1" >/dev/null 2>&1
 }
