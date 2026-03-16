@@ -1,12 +1,16 @@
 {
-  "lastChangelogVersion": "0.57.1",
+  "lastChangelogVersion": "0.58.3",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "high",
+  "quietStartup": true,
   "packages": [
     "npm:pi-design-deck",
     "https://github.com/nicobailon/visual-explainer",
-    "npm:@plannotator/pi-extension"
+    "npm:@plannotator/pi-extension",
+    "https://github.com/calesennett/pi-codex-fast",
+    "npm:pi-btw",
+    "git:github.com/scottwater/pi-stoic"
   ],
   "designDeck": {},
   "theme": "vampire-bat",
@@ -20,5 +24,8 @@
     "anthropic/claude-haiku-4-5",
     "anthropic/claude-sonnet-4-6",
     "openrouter/minimax/minimax-m2.5"
-  ]
+  ],
+  "pi-codex-fast": {
+    "enabled": true
+  }
 }
