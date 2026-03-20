@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEST_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fnox"
+DEST_FILE="${DEST_DIR}/age.txt"
+TMP_FILE=""
+
+cleanup() {
+  if [ -n "${TMP_FILE:-}" ] && [ -f "$TMP_FILE" ]; then
+    rm -f "$TMP_FILE"
+  fi
+}
+trap cleanup EXIT
+
+has_command() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+run_with_sudo_if_needed() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  elif has_command sudo; then
+    sudo "$@"
+  else
+    echo "Need root privileges to run: $*" >&2
+    return 1
+  fi
+}
+
+ensure_age_installed() {
+  if has_command age; then
+    echo "age is already installed."
+    return
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      if ! has_command brew; then
+        echo "Homebrew is required to install age on macOS. Install brew, then rerun configure_age." >&2
+        exit 1
+      fi
+
+      echo "Installing age with Homebrew..."
+      brew install age
+      ;;
+    Linux)
+      if has_command apt-get; then
+        echo "Installing age with apt-get..."
+        run_with_sudo_if_needed apt-get install -y age
+      elif has_command apt; then
+        echo "Installing age with apt..."
+        run_with_sudo_if_needed apt install -y age
+      else
+        echo "Unsupported Linux package manager. Please install age manually, then rerun configure_age." >&2
+        exit 1
+      fi
+      ;;
+    *)
+      echo "Unsupported OS: $(uname -s). Please install age manually, then rerun configure_age." >&2
+      exit 1
+      ;;
+  esac
+}
+
+copy_age_file() {
+  if ! has_command op; then
+    echo "1Password CLI (op) is required to fetch age.txt from the Dev vault." >&2
+    exit 1
+  fi
+
+  TMP_FILE="$(mktemp)"
+
+  if op document get "age.txt" --vault Dev --output "$TMP_FILE" >/dev/null 2>&1; then
+    :
+  elif op read "op://Dev/age.txt" >"$TMP_FILE" 2>/dev/null; then
+    :
+  else
+    echo "Unable to read age.txt from the 1Password Dev vault. Make sure op is signed in and the item exists." >&2
+    exit 1
+  fi
+
+  install -d -m 700 "$DEST_DIR"
+  install -m 600 "$TMP_FILE" "$DEST_FILE"
+
+  echo "Copied age.txt to $DEST_FILE"
+}
+
+main() {
+  ensure_age_installed
+  copy_age_file
+}
+
+main "$@"

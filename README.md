@@ -89,6 +89,7 @@ The install scripts run automatically via `chezmoi apply`:
 | `executable_t` | `~/.local/bin/t` | Unified test runner (RSpec/Rails) |
 | `executable_spec_metadata` | `~/.local/bin/spec_metadata` | Spec metadata helper |
 | `executable_rubocop-git` | `~/.local/bin/rubocop-git` | RuboCop git integration |
+| `executable_configure_age` | `~/.local/bin/configure_age` | Install age and copy `age.txt` from 1Password Dev vault |
 
 ### Config Directory (`~/.config`)
 
