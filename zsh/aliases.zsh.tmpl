@@ -1,0 +1,97 @@
+# Shared aliases and shell helpers
+
+# Editor and dotfiles
+alias n="nvim"
+alias reload="source ~/.zshrc"
+
+# Navigation
+{{- if eq .chezmoi.os "darwin" }}
+alias la="ls -A -l -G"
+{{- else }}
+alias la="ls -A -l --color=auto"
+{{- end }}
+alias pl="cd ~/play"
+alias wo="cd ~/work"
+alias p="cd ~/projects"
+alias src="cd ~/src"
+
+# Package management and Ruby
+if command -v brew >/dev/null 2>&1; then
+  alias bb="brew bundle"
+fi
+alias rake='noglob rake'
+alias bundle='nocorrect bundle'
+alias rspec='nocorrect rspec'
+alias rc="bundle exec rails console"
+alias be="bundle exec"
+alias br="bin/rails"
+alias popo="bin/rubocop -f github"
+alias prime="bin/rails dev:prime"
+alias mwt='eval "$(bin/wt --select)"'
+alias zw='bin/wt --select --open zed'
+
+# Git and terminal
+function g() {
+  if [[ $# -eq 0 ]]; then
+    git status -s
+  else
+    git "$@"
+  fi
+}
+alias lg="lazygit"
+alias tc="reset && tmux clear-history"
+alias tg='t -g'
+alias tf='t -f'
+alias tff='t --ff'
+
+# Custom tools
+alias s="stooges"
+alias ss="stooges sync"
+alias sa="stooges add"
+alias bt="bontree"
+alias ycc="claude --dangerously-skip-permissions"
+alias yc="codex --dangerously-bypass-approvals-and-sandbox"
+function oc() {
+  opencode "${1:-.}"
+}
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
+# Heroku helpers
+function hs() {
+  heroku "$@" --remote staging
+}
+
+function hp() {
+  heroku "$@" --remote production
+}
+
+function hd() {
+  heroku "$@" --remote demo
+}
+
+alias hp="nocorrect hp"
+alias hs="nocorrect hs"
+
+function kill_console() {
+  ps -ef | grep 'heroku run' | grep -v grep | awk '{print $2}' | xargs kill -9
+}
+
+function find_routes() {
+  bin/rails routes -g "$1"
+}
+
+# Chezmoi
+alias ca="chezmoi apply"
+alias ccd='cd $(chezmoi source-path)'
+
+# Utilities
+searchAndDestroy() {
+  lsof -i TCP:$1 | grep LISTEN | awk '{print $2}' | xargs kill -9
+  echo "Port" $1 "found and killed."
+}
