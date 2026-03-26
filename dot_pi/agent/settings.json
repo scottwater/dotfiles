@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.58.3",
+  "lastChangelogVersion": "0.62.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "high",
@@ -10,22 +10,26 @@
     "npm:@plannotator/pi-extension",
     "https://github.com/calesennett/pi-codex-fast",
     "npm:pi-btw",
-    "git:github.com/scottwater/pi-stoic"
+    "git:github.com/scottwater/pi-stoic",
+    "npm:glimpseui",
+    "git:https://github.com/badlogic/pi-diff-review"
   ],
   "designDeck": {},
   "theme": "vampire-bat",
   "enabledModels": [
-    "openrouter/openrouter/healer-alpha",
-    "openrouter/openrouter/hunter-alpha",
+    "openrouter/healer-alpha",
+    "openrouter/hunter-alpha",
     "openai-codex/gpt-5.3-codex-spark",
     "openai-codex/gpt-5.3-codex",
     "openai-codex/gpt-5.4",
     "anthropic/claude-opus-4-6",
     "anthropic/claude-haiku-4-5",
     "anthropic/claude-sonnet-4-6",
-    "openrouter/minimax/minimax-m2.5"
+    "minimax/minimax-m2.5"
   ],
   "pi-codex-fast": {
     "enabled": true
-  }
+  },
+  "powerline": "default",
+  "workingVibe": "zen"
 }
