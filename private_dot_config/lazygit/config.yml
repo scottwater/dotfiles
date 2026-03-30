@@ -3,6 +3,7 @@ gui:
   showDivergenceFromBaseBranch: "arrowAndNumber"
   switchTabsWithPanelJumpKeys: true
   enlargedSideViewLocation: top
+  sidePanelWidth: 0.2
   # Dracula Pro Theme
   theme:
     activeBorderColor:
@@ -28,5 +29,5 @@ gui:
       - "#f1fa8c"  # yellow
 git:
   pagers:
-    - pager: delta --paging=never --features=vampire-bat
+    - pager: delta --paging=never --features=vampire-bat -s
       colorArg: always
