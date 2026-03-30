@@ -20,7 +20,7 @@ run_update() {
 
 failures=0
 
-run_update "pi" npm install -g @mariozechner/pi-coding-agent || failures=$((failures + 1))
+run_update "pi" npm install -g @mariozechner/pi-coding-agent && pi update || failures=$((failures + 1))
 run_update "amp" amp update || failures=$((failures + 1))
 run_update "codex" npm install -g @openai/codex || failures=$((failures + 1))
 run_update "claude code" claude update || failures=$((failures + 1))
