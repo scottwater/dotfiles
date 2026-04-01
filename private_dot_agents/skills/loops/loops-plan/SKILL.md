@@ -7,6 +7,29 @@ description: Transform feature ideas/bugs into comprehensive implementation plan
 
 Create a detailed implementation plan. No coding in this skill.
 
+## Default Interaction Contract
+
+This skill defaults to collaborative planning.
+
+Do not jump directly to writing the final implementation plan unless the user explicitly asks for a one-shot draft (for example: "just draft it", "skip questions", "one-shot this", or "make reasonable assumptions and proceed").
+
+The user should never need to say special phrases like "work back and forth with me" to get collaborative planning behavior.
+
+For non-trivial requests, the default sequence is:
+1. research
+2. surface open questions and assumptions
+3. present a concise outline
+4. get user feedback or explicit permission to proceed
+5. write and save the final plan
+
+## One-Shot Exception
+
+If the user explicitly requests speed over interaction:
+- say you are proceeding in one-shot mode
+- make reasonable assumptions
+- include an `Assumptions Requiring Confirmation` section near the top of the plan
+- still surface any critical blockers before continuing
+
 **Note: current year 2026.** Use in dates and time-aware research.
 
 ## Input
@@ -49,6 +72,11 @@ Capture planning signals during intake:
 
 Run these research tracks in parallel where possible.
 
+Keep research objective:
+- capture current behavior, file locations, constraints, and existing patterns
+- separate what exists now from proposed changes
+- do not let a preferred solution bias the research findings
+
 #### A) Codebase location scan (inline)
 
 Goal: find where related code lives (without deep implementation analysis).
@@ -87,16 +115,23 @@ Build findings set:
 - related issues/PRs
 - conventions to follow from `AGENTS.md`
 
-### 2. Plan Structure
+### 2. Design Discussion (Mandatory Before Plan)
 
-Define:
-- searchable title using conventional prefix: `feat|fix|refactor`
-- filename with date + kebab + `-plan`
-  - `YYYY-MM-DD-<type>-<descriptive-name>-plan.md`
-- stakeholders and constraints
-- scope boundaries and supporting artifacts
+After research, first produce a short design discussion in the chat. This is required for non-trivial requests unless the user explicitly asks for a one-shot draft.
 
-### 3. Inline Spec Flow Analysis
+Include:
+- current state (objective, codebase-backed)
+- desired end state
+- key constraints and non-negotiables
+- open questions and implementation blockers
+- explicit assumptions if information is missing
+- candidate approaches only when there are meaningful tradeoffs
+
+Rules:
+- clear scope is not enough; if material design decisions remain implicit, surface them
+- do not write the final plan yet
+- ask one question at a time for blockers or high-risk tradeoffs
+- if only lower-priority uncertainty remains, state assumptions explicitly and ask whether to proceed
 
 For each major feature flow, map:
 - happy path
@@ -119,8 +154,6 @@ Produce prioritized clarification questions:
 2. Important (major UX/maintainability impact)
 3. Nice-to-have (clarity improvements)
 
-### 4. Inline Workflow Insight Analysis
-
 Extract high-value decisions/constraints from gathered research and docs:
 - finalized decisions and rationale
 - non-negotiable constraints
@@ -131,9 +164,42 @@ Filter aggressively:
 - remove tangents and speculative options
 - keep only actionable, current signals
 
-### 5. Compose Comprehensive Plan
+Before proceeding, present a short Design Summary in the chat with:
+- current state
+- desired end state
+- finalized decisions
+- open questions
+- explicit assumptions
 
-Always output detailed plan. Use this structure:
+### 3. Structure Outline (Mandatory Before Final Plan)
+
+Before writing the final plan, present a concise implementation outline in the chat.
+
+Define:
+- searchable title using conventional prefix: `feat|fix|refactor`
+- filename with date + kebab + `-plan`
+  - `YYYY-MM-DD-<type>-<descriptive-name>-plan.md`
+- stakeholders and constraints
+- scope boundaries and supporting artifacts
+- proposed phases in implementation order
+- ordering rationale
+- dependencies or blockers
+- validation/testing checkpoints between phases
+
+Rules:
+- prefer vertical slices over horizontal layer-by-layer phases
+- each phase should end in something testable or otherwise verifiable
+- avoid "all database, then all backend, then all frontend" plans unless the task truly requires it
+- ask the user to confirm or adjust the outline before writing the final plan
+- do not write the final plan until the outline has been reviewed or the user explicitly says to proceed
+
+### 4. Compose Comprehensive Plan
+
+After the design discussion and outline review are complete — or the user explicitly requests one-shot mode — write the detailed plan.
+
+Use concise, execution-ready prose. Avoid filler and speculative tangents. Include sections conditionally when they are not relevant.
+
+Use this structure:
 
 ```markdown
 ---
@@ -146,7 +212,11 @@ date: YYYY-MM-DD
 
 ## Overview
 
+## Current State
+
 ## Problem Statement
+
+## Desired End State
 
 ## Proposed Solution
 
@@ -159,16 +229,19 @@ date: YYYY-MM-DD
 #### Phase 1: Foundation
 - tasks
 - success criteria
+- validation/checkpoint
 - estimated effort
 
 #### Phase 2: Core Implementation
 - tasks
 - success criteria
+- validation/checkpoint
 - estimated effort
 
 #### Phase 3: Polish & Optimization
 - tasks
 - success criteria
+- validation/checkpoint
 - estimated effort
 
 ## User Flows and Edge Cases
@@ -176,7 +249,10 @@ date: YYYY-MM-DD
 - identified gaps
 - explicit assumptions
 
-## Alternative Approaches Considered
+## Assumptions Requiring Confirmation
+- ...
+
+## Alternative Approaches Considered (if relevant)
 
 ## Acceptance Criteria
 
@@ -199,9 +275,9 @@ date: YYYY-MM-DD
 
 ## Risk Analysis & Mitigation
 
-## Resource Requirements
+## Resource Requirements (if relevant)
 
-## Future Considerations
+## Future Considerations (if relevant)
 
 ## Documentation Plan
 
@@ -210,27 +286,31 @@ date: YYYY-MM-DD
 ### Internal References
 - `path/to/file:line`
 
-### External References
+### External References (if used)
 - URL
 
 ### Related Work
 - issue/PR/doc refs
 ```
 
-### 6. Save Plan + Task Creation Hint
+### 5. Save Plan + Task Creation Hint
 
 Write file:
 - `docs/plans/YYYY-MM-DD-<type>-<descriptive-name>-plan.md`
 
 Plan should stand alone. Include enough context for execution tooling (for example dex task conversion).
 
-### 7. Final Review (Self-Contained)
+### 6. Final Review (Self-Contained)
 
 Checklist before finish:
 - title clear/searchable
+- collaborative steps completed, or one-shot mode explicitly acknowledged
+- outline reviewed by user, or user explicitly waived outline review
 - sections complete
 - acceptance criteria measurable
 - assumptions and edge cases explicit
+- `Assumptions Requiring Confirmation` included when needed
+- multi-phase work uses vertical slices and includes validation checkpoints
 - references valid
 - examples include candidate filenames where useful
 - add ERD mermaid diagram when introducing model/data changes
