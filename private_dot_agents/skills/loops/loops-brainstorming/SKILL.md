@@ -7,6 +7,22 @@ description: Explore requirements and approaches through collaborative dialogue 
 
 Use this skill to decide WHAT to build before deciding HOW.
 
+## Default Interaction Contract
+
+This skill defaults to collaborative back-and-forth.
+
+The user should never need to say special phrases like "work back and forth with me" to get interactive brainstorming behavior.
+
+Do not skip directly to a brainstorm doc or a recommended approach unless the user explicitly asks for a one-shot draft.
+
+## One-Shot Exception
+
+If the user explicitly asks for a fast draft:
+- say you are proceeding in one-shot mode
+- make assumptions explicit
+- include an `Assumptions to Validate` section in the brainstorm doc
+- still pause if there is a critical blocker or major unresolved tradeoff
+
 **Note: current year 2026.** Use when dating brainstorm docs.
 
 ## When to Use
@@ -45,6 +61,16 @@ Key topics:
 - success criteria
 - edge/error cases
 - existing patterns to copy
+
+Before moving to approaches, present a short understanding summary in the chat:
+- problem to solve
+- target users/context
+- constraints
+- success criteria
+- open questions
+- explicit assumptions
+
+Ask the user to confirm or adjust this summary before moving to approaches, unless one-shot mode was explicitly requested.
 
 Exit when idea is clear or user says proceed.
 
@@ -89,6 +115,9 @@ topic: <kebab-case-topic>
 
 ## Open Questions
 - [Unresolved items for planning]
+
+## Assumptions to Validate
+- [Explicit assumptions that still need confirmation]
 
 ## Next Steps
 - Move to `loops-plan` for implementation planning
