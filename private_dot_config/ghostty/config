@@ -6,6 +6,9 @@ auto-update-channel = stable
 # keybind = shift+enter=text:\\\n\r
 shell-integration-features = ssh-env
 
+keybind = alt+backspace=text:\x1b\x7f
+unfocused-split-opacity = 0.55
+
 palette = 0=#22212C
 palette = 1=#FF9580
 palette = 2=#8AFF80

@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.62.0",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.4",
+  "lastChangelogVersion": "0.64.0",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "high",
   "quietStartup": true,
   "packages": [
@@ -9,10 +9,12 @@
     "https://github.com/nicobailon/visual-explainer",
     "npm:@plannotator/pi-extension",
     "https://github.com/calesennett/pi-codex-fast",
-    "npm:pi-btw",
     "git:github.com/scottwater/pi-stoic",
     "npm:glimpseui",
-    "git:https://github.com/badlogic/pi-diff-review"
+    "git:https://github.com/badlogic/pi-diff-review",
+    "npm:pi-interview",
+    "npm:@sherif-fanous/pi-rtk",
+    "https://github.com/davebcn87/pi-autoresearch"
   ],
   "designDeck": {},
   "theme": "vampire-bat",
