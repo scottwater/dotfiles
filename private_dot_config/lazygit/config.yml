@@ -29,5 +29,5 @@ gui:
       - "#f1fa8c"  # yellow
 git:
   pagers:
-    - pager: delta --paging=never --features=vampire-bat -s
+    - pager: delta --paging=never --features=vampire-bat
       colorArg: always
