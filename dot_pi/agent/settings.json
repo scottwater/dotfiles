@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.64.0",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "lastChangelogVersion": "0.66.1",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "high",
   "quietStartup": true,
   "packages": [
@@ -14,20 +14,24 @@
     "git:https://github.com/badlogic/pi-diff-review",
     "npm:pi-interview",
     "npm:@sherif-fanous/pi-rtk",
-    "https://github.com/davebcn87/pi-autoresearch"
+    "https://github.com/davebcn87/pi-autoresearch",
+    "npm:pi-web-access",
+    "https://github.com/nicobailon/pi-subagents",
+    "https://github.com/nicobailon/pi-prompt-template-model"
   ],
   "designDeck": {},
   "theme": "vampire-bat",
   "enabledModels": [
-    "openrouter/healer-alpha",
-    "openrouter/hunter-alpha",
+    "openrouter/openrouter/healer-alpha",
+    "openrouter/openrouter/hunter-alpha",
     "openai-codex/gpt-5.3-codex-spark",
     "openai-codex/gpt-5.3-codex",
     "openai-codex/gpt-5.4",
     "anthropic/claude-opus-4-6",
     "anthropic/claude-haiku-4-5",
     "anthropic/claude-sonnet-4-6",
-    "minimax/minimax-m2.5"
+    "openrouter/minimax/minimax-m2.5",
+    "openai-codex/gpt-5.4-mini"
   ],
   "pi-codex-fast": {
     "enabled": true
