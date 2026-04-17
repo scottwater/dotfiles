@@ -1,7 +1,6 @@
 ---
 description: Skeptical senior-engineer review over an arbitrary change scope
 subagent: skeptical-engineer
-inheritContext: true
 ---
 Review this target: $@
 

@@ -1,7 +1,6 @@
 ---
 description: Guideline and correctness review over an arbitrary change scope
 subagent: code-reviewer
-inheritContext: true
 ---
 Review this target: $@
 

@@ -1,7 +1,6 @@
 ---
 description: Silent-failure and error-handling review over an arbitrary change scope
 subagent: silent-failure-hunter
-inheritContext: true
 ---
 Review this target: $@
 

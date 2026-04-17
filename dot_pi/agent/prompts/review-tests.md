@@ -1,7 +1,6 @@
 ---
 description: Test-coverage review over an arbitrary change scope
 subagent: pr-test-analyzer
-inheritContext: true
 ---
 Review this target: $@
 
