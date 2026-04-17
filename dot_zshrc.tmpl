@@ -27,6 +27,11 @@ fi
 if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh)"
 fi
+
+if command -v stooges >/dev/null 2>&1; then
+  eval "$(stooges shell-init zsh)"
+fi
+
 if command -v mise >/dev/null 2>&1 && [[ ":$PATH:" != *":$HOME/.local/share/mise/shims:"* ]]; then
   if [[ "$TERM_PROGRAM" == "vscode" ]]; then
     eval "$(mise activate zsh --shims)"
