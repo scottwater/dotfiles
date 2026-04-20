@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.67.6",
+  "lastChangelogVersion": "0.67.68",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.4",
   "defaultThinkingLevel": "high",
@@ -18,7 +18,11 @@
     "npm:pi-web-access",
     "https://github.com/nicobailon/pi-subagents",
     "https://github.com/nicobailon/pi-prompt-template-model",
-    "git:github.com/dbachelder/pi-btw"
+    "git:github.com/dbachelder/pi-btw",
+    "https://github.com/nicobailon/pi-intercom.git",
+    "https://github.com/fluxgear/pi-thinking-steps.git",
+    "https://github.com/nicobailon/pi-mcp-adapter.git",
+    "https://github.com/nicobailon/pi-powerline-footer.git"
   ],
   "designDeck": {},
   "theme": "vampire-bat",
