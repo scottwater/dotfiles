@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+MISE_BIN="${HOME}/.local/bin/mise"
+MISE_SHIMS="${HOME}/.local/share/mise/shims"
+COMPOSED_BUNDLE_GEMFILE=".ruby-lsp/Gemfile"
+
+prepend_path() {
+  local dir="$1"
+
+  if [[ -z "$dir" || ! -d "$dir" ]]; then
+    return
+  fi
+
+  PATH="$dir${PATH:+:${PATH}}"
+}
+
+sanitize_ruby_env() {
+  unset RUBYLIB RUBYOPT GEM_HOME GEM_PATH
+  unset BUNDLE_GEMFILE BUNDLE_PATH BUNDLE_BIN BUNDLE_BIN_PATH BUNDLE_WITHOUT BUNDLE_FROZEN
+  unset RUBYGEMS_GEMDEPS
+}
+
+main() {
+  sanitize_ruby_env
+  prepend_path "$MISE_SHIMS"
+
+  local project_ruby=""
+  if [[ -x "$MISE_BIN" ]]; then
+    project_ruby="$("$MISE_BIN" which ruby 2>/dev/null || true)"
+  elif command -v mise >/dev/null 2>&1; then
+    project_ruby="$(mise which ruby 2>/dev/null || true)"
+  fi
+
+  local project_ruby_bin=""
+  if [[ -n "$project_ruby" ]]; then
+    project_ruby_bin="$(dirname "$project_ruby")"
+    prepend_path "$project_ruby_bin"
+  fi
+
+  local composed_bundle="${PWD}/${COMPOSED_BUNDLE_GEMFILE}"
+  if [[ -f "$composed_bundle" ]] && command -v bundle >/dev/null 2>&1; then
+    if BUNDLE_GEMFILE="$composed_bundle" bundle check >/dev/null 2>&1; then
+      export BUNDLE_GEMFILE="$composed_bundle"
+
+      if [[ -n "$project_ruby_bin" && -x "$project_ruby_bin/ruby-lsp" ]]; then
+        exec bundle exec "$project_ruby_bin/ruby-lsp" "$@"
+      fi
+    fi
+  fi
+
+  if [[ -n "$project_ruby_bin" && -x "$project_ruby_bin/ruby-lsp" ]]; then
+    exec "$project_ruby_bin/ruby-lsp" "$@"
+  fi
+
+  if [[ -n "$project_ruby" ]]; then
+    {
+      echo "nvim-ruby-lsp: couldn't find a runnable Ruby LSP for this project"
+      echo "cwd: ${PWD}"
+      echo "active ruby: ${project_ruby}"
+
+      if [[ -f "$composed_bundle" ]]; then
+        echo "composed bundle: ${composed_bundle} (present, but not installed yet)"
+        echo "try: PATH=\"${MISE_SHIMS}:\$PATH\" BUNDLE_GEMFILE=.ruby-lsp/Gemfile ruby -S bundle install"
+      else
+        echo "composed bundle: ${composed_bundle} (missing)"
+      fi
+
+      echo "ruby-lsp executable: ${project_ruby_bin}/ruby-lsp (missing)"
+      echo "try: PATH=\"${MISE_SHIMS}:\$PATH\" ruby -S gem install ruby-lsp ruby-lsp-rails"
+    } >&2
+    exit 1
+  fi
+
+  if [[ -x "$MISE_SHIMS/ruby-lsp" ]]; then
+    exec "$MISE_SHIMS/ruby-lsp" "$@"
+  fi
+
+  echo "nvim-ruby-lsp: unable to locate ruby-lsp" >&2
+  exit 1
+}
+
+main "$@"
