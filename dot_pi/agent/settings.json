@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.67.68",
+  "lastChangelogVersion": "0.70.2",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.4",
+  "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
   "quietStartup": true,
   "packages": [
@@ -9,7 +9,6 @@
     "https://github.com/nicobailon/visual-explainer",
     "npm:@plannotator/pi-extension",
     "https://github.com/calesennett/pi-codex-fast",
-    "git:github.com/scottwater/pi-stoic",
     "npm:glimpseui",
     "git:https://github.com/badlogic/pi-diff-review",
     "npm:pi-interview",
@@ -22,7 +21,8 @@
     "https://github.com/nicobailon/pi-intercom.git",
     "https://github.com/fluxgear/pi-thinking-steps.git",
     "https://github.com/nicobailon/pi-mcp-adapter.git",
-    "https://github.com/nicobailon/pi-powerline-footer.git"
+    "https://github.com/nicobailon/pi-powerline-footer.git",
+    "git:github.com/scottwater/pi-stoic"
   ],
   "designDeck": {},
   "theme": "vampire-bat",
@@ -36,7 +36,8 @@
     "anthropic/claude-haiku-4-5",
     "anthropic/claude-sonnet-4-6",
     "openrouter/minimax/minimax-m2.5",
-    "openai-codex/gpt-5.4-mini"
+    "openai-codex/gpt-5.4-mini",
+    "openai-codex/gpt-5.5"
   ],
   "pi-codex-fast": {
     "enabled": true
