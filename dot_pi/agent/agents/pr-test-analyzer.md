@@ -2,7 +2,7 @@
 name: pr-test-analyzer
 description: Reviews changed code for meaningful test coverage gaps and brittle test design
 tools: read, grep, find, ls, bash
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 ---
 

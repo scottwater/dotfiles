@@ -2,7 +2,7 @@
 name: code-reviewer
 description: Reviews changed code for guideline compliance, correctness, and high-confidence issues
 tools: read, grep, find, ls, bash
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 ---
 

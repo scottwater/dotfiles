@@ -2,7 +2,7 @@
 name: silent-failure-hunter
 description: Audits changed code for silent failures, swallowed errors, weak fallbacks, and poor error reporting
 tools: read, grep, find, ls, bash
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 ---
 

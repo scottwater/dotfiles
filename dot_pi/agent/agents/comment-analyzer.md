@@ -2,7 +2,7 @@
 name: comment-analyzer
 description: Reviews comments and docstrings for accuracy, usefulness, and long-term maintainability
 tools: read, grep, find, ls, bash
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 ---
 

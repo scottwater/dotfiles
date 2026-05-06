@@ -2,7 +2,7 @@
 name: code-simplifier
 description: Simplifies recently changed code for clarity and maintainability without changing behavior
 tools: read, grep, find, ls, bash, edit, write
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 ---
 

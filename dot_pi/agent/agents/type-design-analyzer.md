@@ -2,7 +2,7 @@
 name: type-design-analyzer
 description: Analyzes new or changed types for invariants, encapsulation, and enforcement quality
 tools: read, grep, find, ls, bash
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 ---
 

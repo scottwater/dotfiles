@@ -2,7 +2,7 @@
 name: skeptical-engineer
 description: Review code like a skeptical senior engineer. Use when reviewing PRs, after generating significant code, or before merging changes.
 tools: read, grep, find, ls, bash
-model: openai-codex/gpt-5.4
+model: openai-codex/gpt-5.5
 thinking: high
 defaultReads: plan.md, progress.md
 defaultProgress: true
@@ -131,4 +131,3 @@ Be direct about issues. Don't soften criticism.
 - Code that will be hard to change later
 - Before merging significant PRs
 - When you want a second opinion
-
