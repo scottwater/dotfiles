@@ -1,0 +1,7 @@
+mode = "auto"
+theme = "midnight"
+exclude_untracked = true
+line_numbers = false
+wrap_lines = false
+agent_notes = false
+hunk_headers = false
