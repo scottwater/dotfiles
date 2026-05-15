@@ -1,6 +1,6 @@
 mode = "auto"
 theme = "midnight"
-exclude_untracked = true
+exclude_untracked = false
 line_numbers = false
 wrap_lines = false
 agent_notes = false
