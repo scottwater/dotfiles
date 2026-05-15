@@ -1,9 +1,0 @@
-name = "Vampire Bat"
-
-[colors]
-background = "#22212C"
-foreground = "#F8F8F2"
-primary = "#9580FF"
-success = "#8AFF80"
-warning = "#FFFF80"
-destructive = "#FF5555"
