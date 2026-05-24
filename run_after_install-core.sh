@@ -17,6 +17,8 @@ has_command() {
 install_atuin() {
   if ! has_command atuin; then
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+  elif ! atuin doctor >/dev/null 2>&1; then
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
   fi
 }
 
@@ -64,13 +66,27 @@ install_homebrew() {
   fi
 }
 
+install_fnox() {
+  if ! has_command mise; then
+    return
+  fi
+
+  if ! mise registry fnox >/dev/null 2>&1; then
+    mise self-update -y || true
+  fi
+
+  if mise registry fnox >/dev/null 2>&1; then
+    mise use -g fnox
+  else
+    mise use -g --remove fnox || true
+    mise use -g github:jdx/fnox
+  fi
+}
+
 install_atuin
 install_mise
 install_amp
 install_opencode
 install_uv
 install_homebrew
-
-if has_command mise; then
-  mise use -g fnox
-fi
+install_fnox

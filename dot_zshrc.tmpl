@@ -39,7 +39,9 @@ if command -v mise >/dev/null 2>&1 && [[ ":$PATH:" != *":$HOME/.local/share/mise
     eval "$(mise activate zsh)"
   fi
 fi
-eval "$(fnox activate zsh)"
+if command -v fnox >/dev/null 2>&1; then
+  eval "$(fnox activate zsh)"
+fi
 
 # Pure prompt
 fpath+=($HOME/.zsh/pure)
