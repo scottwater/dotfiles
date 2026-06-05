@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Push selected LLM OAuth/auth files from this machine to a remote VM over SSH.
+# This file is safe to keep in chezmoi: it contains only an allowlist of paths,
+# not the secret contents. The secrets are streamed over SSH and never written to
+# a local temporary archive.
+
+program="${0##*/}"
+dry_run=0
+host=""
+extra_paths=()
+ssh_args=()
+
+# Keep this list intentionally small. Add provider-specific files with
+#   push-llm-auth --include .some-tool/auth.json user@host
+candidate_paths=(
+  ".codex/auth.json"
+  ".pi/agent/auth.json"
+  ".claude/.credentials.json"
+  ".claude.json"
+)
+
+usage() {
+  cat <<EOF
+Usage: $program [options] <ssh-host> [-- <ssh options>]
+
+Push local LLM auth files to a remote machine over SSH.
+
+Options:
+  -n, --dry-run          Show what would be copied, but do not copy anything
+      --include <path>   Also copy this file, relative to \$HOME; may be repeated
+  -h, --help             Show this help
+
+Default allowlist:
+$(printf '  %s\n' "${candidate_paths[@]}")
+
+Examples:
+  $program ubuntu@vm.example.com
+  $program --dry-run ubuntu@vm.example.com
+  $program --include .some-provider/auth.json ubuntu@vm.example.com
+  $program ubuntu@vm.example.com -- -p 2222 -i ~/.ssh/id_ed25519
+EOF
+}
+
+normalize_path() {
+  local path="$1"
+
+  case "$path" in
+    "$HOME"/*)
+      path="${path#$HOME/}"
+      ;;
+    "~"/*)
+      path="${path#"~/"}"
+      ;;
+  esac
+
+  printf '%s\n' "$path"
+}
+
+validate_relative_path() {
+  local path="$1"
+
+  case "$path" in
+    ""|/*|..|../*|*/..|*/../*|*$'\n'*|*$'\r'*)
+      return 1
+      ;;
+  esac
+
+  return 0
+}
+
+contains_item() {
+  local needle="$1"
+  shift
+
+  local item
+  for item in "$@"; do
+    [[ "$item" == "$needle" ]] && return 0
+  done
+
+  return 1
+}
+
+shell_quote() {
+  # POSIX-safe single-quote escaping for remote shell snippets.
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--dry-run)
+      dry_run=1
+      shift
+      ;;
+    --include)
+      if [[ $# -lt 2 ]]; then
+        echo "error: --include requires a path" >&2
+        exit 64
+      fi
+      extra_paths+=("$2")
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      ssh_args+=("$@")
+      break
+      ;;
+    -*)
+      echo "error: unknown option: $1" >&2
+      usage >&2
+      exit 64
+      ;;
+    *)
+      if [[ -n "$host" ]]; then
+        echo "error: only one ssh host may be specified" >&2
+        usage >&2
+        exit 64
+      fi
+      host="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$host" ]]; then
+  usage >&2
+  exit 64
+fi
+
+all_candidates=("${candidate_paths[@]}")
+if [[ ${#extra_paths[@]} -gt 0 ]]; then
+  all_candidates+=("${extra_paths[@]}")
+fi
+
+files=()
+missing=()
+
+for raw_path in "${all_candidates[@]}"; do
+  rel_path="$(normalize_path "$raw_path")"
+
+  if ! validate_relative_path "$rel_path"; then
+    echo "error: refusing unsafe path: $raw_path" >&2
+    exit 65
+  fi
+
+  if [[ -f "$HOME/$rel_path" ]]; then
+    contains_item "$rel_path" "${files[@]+"${files[@]}"}" || files+=("$rel_path")
+  else
+    contains_item "$rel_path" "${missing[@]+"${missing[@]}"}" || missing+=("$rel_path")
+  fi
+done
+
+if [[ ${#files[@]} -eq 0 ]]; then
+  echo "No auth files found in the allowlist." >&2
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "Checked:" >&2
+    printf '  %s\n' "${missing[@]}" >&2
+  fi
+  exit 1
+fi
+
+printf 'Pushing %d auth file(s) to %s:\n' "${#files[@]}" "$host"
+printf '  %s\n' "${files[@]}"
+
+if [[ ${#missing[@]} -gt 0 ]]; then
+  echo
+  echo "Skipping missing allowlisted file(s):"
+  printf '  %s\n' "${missing[@]}"
+fi
+
+if [[ "$dry_run" -eq 1 ]]; then
+  echo
+  echo "Dry run only; nothing copied."
+  exit 0
+fi
+
+remote_file_args=""
+remote_dir_args=""
+
+for rel_path in "${files[@]}"; do
+  remote_file_args+=" \"\$HOME\"/$(shell_quote "$rel_path")"
+
+  parent="${rel_path%/*}"
+  while [[ "$parent" != "$rel_path" && "$parent" != "." && -n "$parent" ]]; do
+    remote_dir_args+=" \"\$HOME\"/$(shell_quote "$parent")"
+    [[ "$parent" == */* ]] || break
+    parent="${parent%/*}"
+  done
+done
+
+remote_script="
+set -eu
+umask 077
+
+tar -xzf - -C \"\$HOME\"
+
+for dir in$remote_dir_args; do
+  if [ -d \"\$dir\" ]; then
+    chmod 700 \"\$dir\"
+  fi
+done
+
+for file in$remote_file_args; do
+  if [ -f \"\$file\" ]; then
+    chmod 600 \"\$file\"
+  fi
+done
+
+printf 'LLM auth files installed on %s.\\n' \"\$(hostname 2>/dev/null || printf remote)\"
+"
+
+(
+  cd "$HOME"
+  COPYFILE_DISABLE=1 tar -czf - "${files[@]}"
+) | ssh "${ssh_args[@]+"${ssh_args[@]}"}" "$host" "sh -c $(shell_quote "$remote_script")"
