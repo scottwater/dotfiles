@@ -16,9 +16,9 @@ has_command() {
 
 install_atuin() {
   if ! has_command atuin; then
-    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --non-interactive
   elif ! atuin doctor >/dev/null 2>&1; then
-    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --non-interactive
   fi
 }
 
