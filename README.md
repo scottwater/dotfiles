@@ -31,7 +31,7 @@ chezmoi apply
 
 The install scripts run automatically via `chezmoi apply`:
 
-- `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv)
+- `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv) and global mise runtimes (latest Ruby, Node.js 24)
 - `run_after_install-linux.sh` - Ubuntu apt installs for CLI tools only
 
 ## Tools
@@ -46,7 +46,7 @@ The install scripts run automatically via `chezmoi apply`:
 
 ### Development Environment
 
-- **[mise](https://mise.jdx.dev/)** - Runtime version manager (Ruby, Node, etc.)
+- **[mise](https://mise.jdx.dev/)** - Runtime version manager with global latest Ruby and Node.js 24 defaults
 - **[Neovim](https://neovim.io/)** - Editor (LazyVim configuration)
 - **[Zed](https://zed.dev/)** - Code editor (Dracula Pro theme)
 

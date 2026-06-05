@@ -28,6 +28,17 @@ install_mise() {
   fi
 }
 
+install_mise_runtimes() {
+  if ! has_command mise; then
+    return
+  fi
+
+  # Use precompiled Ruby binaries when available, falling back to ruby-build only
+  # when mise cannot find a matching binary for the platform/version.
+  mise settings ruby.compile=false
+  mise use -g --pin -y ruby@latest node@24
+}
+
 install_uv() {
   if ! has_command uv; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -73,6 +84,7 @@ install_fnox() {
 
 install_atuin
 install_mise
+install_mise_runtimes
 install_uv
 install_homebrew
 install_fnox
