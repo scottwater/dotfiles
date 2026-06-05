@@ -10,7 +10,6 @@ if [ -z "${ZSH_VERSION:-}" ]; then
 fi
 
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.opencode/bin:$PATH"
 if [ -f "$HOME/.atuin/bin/env" ]; then
   . "$HOME/.atuin/bin/env"
 fi
@@ -64,9 +63,6 @@ export EDITOR=nvim
 set -o emacs
 
 source "$HOME/zsh/aliases.zsh"
-
-# AMP toolbox directory
-export AMP_TOOLBOX="$XDG_CONFIG_HOME/amp/tools"
 
 # PI
 export PI_SUBAGENT_RUNTIME_ROOT="$HOME/.pi/agent/git/github.com/nicobailon/pi-subagents"

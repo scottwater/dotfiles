@@ -31,7 +31,7 @@ chezmoi apply
 
 The install scripts run automatically via `chezmoi apply`:
 
-- `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv, amp)
+- `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv)
 - `run_after_install-linux.sh` - Ubuntu apt installs for CLI tools only
 
 ## Tools
@@ -55,11 +55,10 @@ The install scripts run automatically via `chezmoi apply`:
 - **[delta](https://github.com/dandavison/delta)** - Git diff viewer (Vampire Bat theme)
 - **[bat](https://github.com/sharkdp/bat)** - Syntax-highlighted cat replacement (Vampire Bat theme)
 - **[lazygit](https://github.com/jesseduffield/lazygit)** - Terminal UI for git
+- **[hunk](https://github.com/modem-dev/hunk)** - Terminal UI for reviewing and staging git diffs
 
 ### AI Coding Assistants
 
-- **[OpenCode](https://opencode.ai/)** - AI coding assistant with custom agents, commands, and themes
-- **[Amp](https://ampcode.com/)** - AI coding assistant with custom commands and tools
 - **[Claude Code](https://claude.ai/)** - AI coding assistant with custom skills
 
 ### Ruby/Rails Development
@@ -103,8 +102,7 @@ The install scripts run automatically via `chezmoi apply`:
 | `nvim/` | `~/.config/nvim/` | Neovim/LazyVim configuration |
 | `zed/` | `~/.config/zed/` | Zed editor settings and themes |
 | `bat/` | `~/.config/bat/` | Bat config and Vampire Bat theme |
-| `opencode/` | `~/.config/opencode/` | OpenCode AI assistant config |
-| `amp/` | `~/.config/amp/` | Amp AI assistant config |
+| `hunk/` | `~/.config/hunk/` | Hunk config and Vampire Bat theme |
 | `skills/` | `~/.config/skills/` | Shared AI skills (symlinked) |
 
 ### Claude Directory (`~/.claude`)

@@ -21,10 +21,8 @@ run_update() {
 failures=0
 
 run_update "pi" npm install -g @earendil-works/pi-coding-agent && pi update || failures=$((failures + 1))
-run_update "amp" amp update || failures=$((failures + 1))
 run_update "codex" npm install -g @openai/codex || failures=$((failures + 1))
 run_update "claude code" claude update || failures=$((failures + 1))
-run_update "opencode" opencode upgrade || failures=$((failures + 1))
 
 echo ""
 if [[ "$failures" -eq 0 ]]; then

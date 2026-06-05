@@ -1,6 +1,6 @@
 # Bat configuration
 # Using Dracula theme to match Dracula Pro theming across tools
-# (OpenCode, Zed, Delta, LazyGit, Neovim, Ghostty)
+# (Zed, Delta, LazyGit, Neovim, Ghostty)
 
 # Theme - Custom Dracula Pro theme matching other tools
 # (Delta vampire-bat, Ghostty, Zed, LazyGit, etc.)
