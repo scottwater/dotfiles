@@ -8,7 +8,7 @@ fi
 
 # chezmoi run scripts do not execute inside your interactive shell, so make sure
 # we can detect tools installed into user-local locations on repeat applies.
-export PATH="$HOME/.local/bin:$HOME/.atuin/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.atuin/bin:$PATH"
 
 has_command() {
   command -v "$1" >/dev/null 2>&1
@@ -33,10 +33,22 @@ install_mise_runtimes() {
     return
   fi
 
-  # Use precompiled Ruby binaries when available, falling back to ruby-build only
-  # when mise cannot find a matching binary for the platform/version.
-  mise settings ruby.compile=false
-  mise use -g --pin -y ruby@latest node@24
+  local missing_runtimes=()
+
+  if ! node -v >/dev/null 2>&1; then
+    missing_runtimes+=("node@24")
+  fi
+
+  if ! ruby -v >/dev/null 2>&1; then
+    # Use precompiled Ruby binaries when available, falling back to ruby-build only
+    # when mise cannot find a matching binary for the platform/version.
+    mise settings ruby.compile=false
+    missing_runtimes+=("ruby@latest")
+  fi
+
+  if [ "${#missing_runtimes[@]}" -gt 0 ]; then
+    mise use -g --pin -y "${missing_runtimes[@]}"
+  fi
 }
 
 install_uv() {
