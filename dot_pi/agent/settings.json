@@ -23,7 +23,7 @@
     "https://github.com/scottwater/pi-workflows"
   ],
   "designDeck": {},
-  "theme": "vampire-bat",
+  "theme": "alucard",
   "enabledModels": [
     "openai-codex/gpt-5.3-codex-spark",
     "anthropic/claude-opus-4-6",

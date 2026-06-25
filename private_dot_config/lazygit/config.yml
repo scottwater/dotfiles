@@ -4,30 +4,31 @@ gui:
   switchTabsWithPanelJumpKeys: true
   enlargedSideViewLocation: top
   sidePanelWidth: 0.2
-  # Dracula Pro Theme
+  # Dracula Pro Alucard Theme
   theme:
     activeBorderColor:
-      - "#bd93f9"  # purple
+      - "#644AC9"  # purple
       - bold
     inactiveBorderColor:
-      - "#6272a4"  # comment gray
+      - "#635D97"  # comment
     optionsTextColor:
-      - "#8be9fd"  # cyan
+      - "#036A96"  # cyan
     selectedLineBgColor:
-      - "#44475a"  # selection gray
+      - "#CFCFDE"  # selection
     selectedRangeBgColor:
-      - "#44475a"  # selection gray
+      - "#CFCFDE"  # selection
     cherryPickedCommitBgColor:
-      - "#bd93f9"  # purple
+      - "#E6E6E6"  # subtle background
     cherryPickedCommitFgColor:
-      - "#8be9fd"  # cyan
+      - "#644AC9"  # purple
     unstagedChangesColor:
-      - "#ff5555"  # red
+      - "#CB3A2A"  # red
     defaultFgColor:
-      - "#f8f8f2"  # foreground
+      - "#1F1F1F"  # foreground
     searchingActiveBorderColor:
-      - "#f1fa8c"  # yellow
+      - "#846E15"  # yellow
+      - bold
 git:
   pagers:
-    - pager: delta --paging=never --features=vampire-bat
+    - pager: delta --paging=never --features=alucard
       colorArg: always

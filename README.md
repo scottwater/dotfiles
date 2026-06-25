@@ -41,19 +41,19 @@ The install scripts run automatically via `chezmoi apply`:
 - **zsh** - Shell with syntax highlighting and autosuggestions
 - **[Starship](https://starship.rs/)** - Cross-shell prompt
 - **[Atuin](https://atuin.sh/)** - Shell history sync and search
-- **[Ghostty](https://ghostty.org/)** - Terminal emulator (Dracula Pro theme)
-- **[tmux](https://github.com/tmux/tmux)** - Terminal multiplexer with Dracula Pro (Vampire Bat) theme
+- **[Ghostty](https://ghostty.org/)** - Terminal emulator (Dracula Pro Alucard theme)
+- **[tmux](https://github.com/tmux/tmux)** - Terminal multiplexer with Dracula Pro Alucard theme
 
 ### Development Environment
 
 - **[mise](https://mise.jdx.dev/)** - Runtime version manager with global latest Ruby and Node.js 24 defaults
 - **[Neovim](https://neovim.io/)** - Editor (LazyVim configuration)
-- **[Zed](https://zed.dev/)** - Code editor (Dracula Pro theme)
+- **[Zed](https://zed.dev/)** - Code editor (Dracula Pro Alucard theme)
 
 ### Git & Version Control
 
-- **[delta](https://github.com/dandavison/delta)** - Git diff viewer (Vampire Bat theme)
-- **[bat](https://github.com/sharkdp/bat)** - Syntax-highlighted cat replacement (Vampire Bat theme)
+- **[delta](https://github.com/dandavison/delta)** - Git diff viewer (Dracula Pro Alucard theme)
+- **[bat](https://github.com/sharkdp/bat)** - Syntax-highlighted cat replacement (Dracula Pro Alucard theme)
 - **[lazygit](https://github.com/jesseduffield/lazygit)** - Terminal UI for git
 - **[hunk](https://github.com/modem-dev/hunk)** - Terminal UI for reviewing and staging git diffs
 
@@ -78,7 +78,7 @@ The install scripts run automatically via `chezmoi apply`:
 | `dot_gitconfig` | `~/.gitconfig` | Git configuration with aliases |
 | `dot_gitignore_global` | `~/.gitignore_global` | Global git ignore patterns |
 | `dot_gemrc` | `~/.gemrc` | Ruby gem configuration |
-| `dot_tmux.conf` | `~/.tmux.conf` | Tmux configuration with Vampire Bat theme |
+| `dot_tmux.conf` | `~/.tmux.conf` | Tmux configuration with Dracula Pro Alucard theme |
 | `zsh/` | `~/zsh/` | Zsh plugins and helpers |
 
 ### Local Binaries (`~/.local/bin`)
@@ -101,8 +101,8 @@ The install scripts run automatically via `chezmoi apply`:
 | `lazygit/config.yml` | `~/.config/lazygit/config.yml` | Lazygit config |
 | `nvim/` | `~/.config/nvim/` | Neovim/LazyVim configuration |
 | `zed/` | `~/.config/zed/` | Zed editor settings and themes |
-| `bat/` | `~/.config/bat/` | Bat config and Vampire Bat theme |
-| `hunk/` | `~/.config/hunk/` | Hunk config and Vampire Bat theme |
+| `bat/` | `~/.config/bat/` | Bat config and Dracula Pro Alucard theme |
+| `hunk/` | `~/.config/hunk/` | Hunk config and Dracula Pro Alucard theme |
 | `skills/` | `~/.config/skills/` | Shared AI skills (symlinked) |
 
 ### Claude Directory (`~/.claude`)

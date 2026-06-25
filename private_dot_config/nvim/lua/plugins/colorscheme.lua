@@ -11,7 +11,7 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "dracula_pro",
+      colorscheme = "dracula_pro_alucard",
     },
   },
 }

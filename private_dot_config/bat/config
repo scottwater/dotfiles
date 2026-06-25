@@ -1,10 +1,10 @@
 # Bat configuration
-# Using Dracula theme to match Dracula Pro theming across tools
+# Using Dracula Pro Alucard to match theming across tools
 # (Zed, Delta, LazyGit, Neovim, Ghostty)
 
-# Theme - Custom Dracula Pro theme matching other tools
-# (Delta vampire-bat, Ghostty, Zed, LazyGit, etc.)
---theme="vampire-bat"
+# Theme - Dracula Pro Alucard syntax theme
+# (Delta alucard, Ghostty, Zed, LazyGit, etc.)
+--theme="alucard"
 
 # Show line numbers
 --style="numbers,changes,header,grid"
