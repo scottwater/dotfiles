@@ -1,24 +1,17 @@
 {
-  "lastChangelogVersion": "0.75.3",
+  "lastChangelogVersion": "0.80.2",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
   "quietStartup": true,
   "packages": [
-    "npm:pi-design-deck",
     "https://github.com/nicobailon/visual-explainer",
     "npm:@plannotator/pi-extension",
     "https://github.com/calesennett/pi-codex-fast",
     "npm:glimpseui",
-    "npm:pi-interview",
     "npm:@sherif-fanous/pi-rtk",
-    "https://github.com/davebcn87/pi-autoresearch",
-    "npm:pi-web-access",
     "https://github.com/nicobailon/pi-subagents",
     "git:github.com/dbachelder/pi-btw",
-    "https://github.com/nicobailon/pi-intercom.git",
-    "https://github.com/fluxgear/pi-thinking-steps.git",
-    "https://github.com/nicobailon/pi-mcp-adapter.git",
     "git:github.com/scottwater/pi-stoic",
     "https://github.com/scottwater/pi-workflows"
   ],
@@ -40,3 +33,4 @@
   "workingVibe": "zen",
   "transport": "auto"
 }
+
