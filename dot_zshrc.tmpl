@@ -47,6 +47,10 @@ fpath+=($HOME/.zsh/pure)
 autoload -U promptinit; promptinit
 prompt pure
 
+# zsh-autosuggestions defaults to `fg=8`; in the Alucard light terminal
+# palette that is white, making type-ahead suggestions disappear.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#635D97'
+
 if command -v brew >/dev/null 2>&1; then
   source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
