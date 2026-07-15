@@ -33,6 +33,7 @@ The install scripts run automatically via `chezmoi apply`:
 
 - `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv) and global mise runtimes (latest Ruby, Node.js 24)
 - `run_after_install-linux.sh` - Ubuntu apt installs for CLI tools only
+- `run_onchange_install-destructive-command-guard.sh` - Installs and configures destructive_command_guard on macOS
 
 ## Tools
 
@@ -60,6 +61,7 @@ The install scripts run automatically via `chezmoi apply`:
 ### AI Coding Assistants
 
 - **[Claude Code](https://claude.ai/)** - AI coding assistant with custom skills
+- **[destructive_command_guard](https://github.com/Dicklesworthstone/destructive_command_guard)** - Blocks destructive commands issued by coding agents
 
 ### Ruby/Rails Development
 
