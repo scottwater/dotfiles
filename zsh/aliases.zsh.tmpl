@@ -55,8 +55,8 @@ alias s="stooges"
 alias ss="stooges sync"
 alias sa="stooges add"
 alias bt="bontree"
-alias ycc="claude --dangerously-skip-permissions"
-alias yc="codex --dangerously-bypass-approvals-and-sandbox"
+alias ycc="claude --permission-mode acceptEdits"
+alias yc="codex --profile dev"
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"

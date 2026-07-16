@@ -1,0 +1,12 @@
+# Dev profile — launch with: codex --profile dev  (aliased to `yc`)
+# Replaces --dangerously-bypass-approvals-and-sandbox: everything inside the
+# workspace-write Seatbelt sandbox runs without prompting; only escalations
+# (writes outside the workspace, protected .git operations) ask for approval.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+# Allow network so bundle/npm/git fetch run unprompted. Set to false for
+# stricter isolation (network commands then prompt as escalations).
+network_access = true
+writable_roots = []
