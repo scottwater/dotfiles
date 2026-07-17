@@ -1,20 +1,17 @@
-# For now, this operates under the assumption SSH keys are always forwarded from the Host
-# and that the host is always OS X (which for me is currently always the case)
+# Keys are served from disk (~/.ssh) via the default macOS ssh-agent.
+# 1Password holds copies of the keys as a backup only — copy them down
+# manually if a key is ever missing on a new machine.
 {{- if eq .chezmoi.os "darwin" }}
 Include ~/.orbstack/ssh/config
 
 Host *.ts.net
   ForwardAgent yes
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-
 
 Host *exe.xyz
   ForwardAgent yes
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-
 
 Host *
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
 {{- end }}
-
