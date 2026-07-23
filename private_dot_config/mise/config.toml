@@ -1,0 +1,32 @@
+[tools]
+# Runtimes
+bun = "latest"
+fnox = "latest"
+go = "latest"
+herdr = "latest"
+node = "24.18.0"
+ruby = "4.0.5"
+tuist = "4.195.6"
+
+# CLI tools (cross-platform, replaces Homebrew/apt installs)
+age = "latest"
+bat = "latest"
+delta = "latest"
+flyctl = "latest"
+gh = "latest"
+git-filter-repo = "latest"
+glow = "latest"
+lazygit = "latest"
+neovim = "latest"
+overmind = "latest"
+ripgrep = "latest"
+yazi = "latest"
+zoxide = "latest"
+"npm:hunkdiff" = "latest"
+"ubi:axllent/mailpit" = "latest"
+"ubi:rtk-ai/rtk" = "latest"
+
+[settings]
+
+[settings.ruby]
+compile = false

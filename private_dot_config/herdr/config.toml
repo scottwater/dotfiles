@@ -1,0 +1,40 @@
+# herdr configuration — https://herdr.dev/docs/configuration/
+# Reload with: herdr server reload-config
+
+[theme]
+# Inherit the terminal's palette (Ghostty defines Dracula Pro Alucard).
+name = "terminal"
+
+[theme.custom]
+# Blend panels into the Alucard light background instead of a themed fill.
+panel_bg = "reset"
+# Alucard purple, matching zsh completion/autosuggest highlights.
+accent = "#644AC9"
+red = "#CB3A2A"
+green = "#14710A"
+
+[keys]
+# Match tmux: prefix is ctrl+a. Pane navigation (prefix+h/j/k/l) and
+# new tab (prefix+c) already match the tmux bindings by default.
+prefix = "ctrl+a"
+
+# prefix+g opens lazygit below; move goto off its default prefix+g.
+goto = "prefix+f"
+
+# lazygit popup, same binding and size as tmux (bind g)
+[[keys.command]]
+key = "prefix+g"
+type = "popup"
+command = "lazygit"
+description = "run lazygit"
+width = "80%"
+height = "80%"
+
+# yazi popup, same binding and size as tmux (bind F)
+[[keys.command]]
+key = "prefix+shift+f"
+type = "popup"
+command = "yazi"
+description = "run yazi"
+width = "80%"
+height = "80%"

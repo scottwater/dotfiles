@@ -57,23 +57,30 @@ install_uv() {
   fi
 }
 
+# Homebrew is macOS-only: casks and a few libs (libpq etc). Linux gets
+# everything from mise + apt.
 install_homebrew() {
+  if [ "${CHEZMOI_OS:-}" != "darwin" ]; then
+    return
+  fi
+
   if has_command brew; then
     return
   fi
 
-  if [ "${CHEZMOI_OS:-}" = "darwin" ]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  fi
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  if [ "${CHEZMOI_OS:-}" = "linux" ] && [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  elif [ -x /opt/homebrew/bin/brew ]; then
+  if [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
   elif [ -x /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
+  fi
+}
+
+# Install all tools declared in ~/.config/mise/config.toml (chezmoi-managed).
+install_mise_tools() {
+  if has_command mise; then
+    mise install -y
   fi
 }
 
@@ -94,9 +101,28 @@ install_fnox() {
   fi
 }
 
+install_herdr() {
+  if ! has_command mise; then
+    return
+  fi
+
+  if ! mise registry herdr >/dev/null 2>&1; then
+    mise self-update -y || true
+  fi
+
+  if mise registry herdr >/dev/null 2>&1; then
+    mise use -g herdr
+  else
+    mise use -g --remove herdr || true
+    mise use -g github:ogulcancelik/herdr
+  fi
+}
+
 install_atuin
 install_mise
 install_mise_runtimes
+install_mise_tools
 install_uv
 install_homebrew
 install_fnox
+install_herdr

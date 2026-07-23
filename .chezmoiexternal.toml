@@ -21,3 +21,27 @@
     type = "git-repo"
     url = "https://github.com/sindresorhus/pure.git"
     refreshPeriod = "168h"
+
+# Zsh plugins (previously installed via Homebrew/apt)
+[".zsh/zsh-autosuggestions"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-autosuggestions.git"
+    refreshPeriod = "168h"
+
+[".zsh/zsh-syntax-highlighting"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    refreshPeriod = "168h"
+
+{{ if eq .chezmoi.os "darwin" -}}
+# Nerd Fonts (previously Homebrew casks)
+["Library/Fonts/HackNerdFont"]
+    type = "archive"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+    refreshPeriod = "720h"
+
+["Library/Fonts/SymbolsNerdFont"]
+    type = "archive"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip"
+    refreshPeriod = "720h"
+{{- end }}

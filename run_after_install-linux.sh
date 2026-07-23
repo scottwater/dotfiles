@@ -29,9 +29,9 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   poppler-utils \
   ripgrep \
   tmux \
+  trash-cli \
   wget \
-  zsh \
-  zsh-syntax-highlighting 2>&1 | tee "$tmp_log"
+  zsh 2>&1 | tee "$tmp_log"
 apt_status=${PIPESTATUS[0]}
 set -e
 if [ "$apt_status" -ne 0 ]; then
@@ -49,21 +49,4 @@ fi
 
 if [ "$SHELL" != "$(which zsh)" ]; then
   sudo chsh -s "$(which zsh)" "$USER"
-fi
-
-brew_cmd=""
-if command -v brew >/dev/null 2>&1; then
-  brew_cmd="brew"
-elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
-  brew_cmd="/home/linuxbrew/.linuxbrew/bin/brew"
-elif [ -x /opt/homebrew/bin/brew ]; then
-  brew_cmd="/opt/homebrew/bin/brew"
-elif [ -x /usr/local/bin/brew ]; then
-  brew_cmd="/usr/local/bin/brew"
-fi
-
-if [ -n "$brew_cmd" ]; then
-  "$brew_cmd" bundle
-else
-  echo "Homebrew not on PATH yet. Remember to run: brew bundle" >&2
 fi

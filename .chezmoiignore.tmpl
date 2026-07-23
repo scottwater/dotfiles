@@ -15,6 +15,11 @@
 # macOS
 **/.DS_Store
 
+# Homebrew is macOS-only now (mise handles CLI tools on Linux)
+{{- if ne .chezmoi.os "darwin" }}
+Brewfile
+{{- end }}
+
 # Work-only files
 {{- if not (get . "kode") }}
 .agents/skills/linear/**
