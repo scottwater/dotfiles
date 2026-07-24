@@ -14,13 +14,6 @@ accent = "#644AC9"
 red = "#CB3A2A"
 green = "#14710A"
 
-[keys]
-# Match tmux: prefix is ctrl+a. Pane navigation (prefix+h/j/k/l) and
-# new tab (prefix+c) already match the tmux bindings by default.
-prefix = "ctrl+a"
-
-# prefix+g opens lazygit below; move goto off its default prefix+g.
-goto = "prefix+f"
 
 # lazygit popup, same binding and size as tmux (bind g)
 [[keys.command]]
@@ -28,6 +21,15 @@ key = "prefix+g"
 type = "popup"
 command = "lazygit"
 description = "run lazygit"
+width = "80%"
+height = "80%"
+
+# lazygit popup, same binding and size as tmux (bind g)
+[[keys.command]]
+key = "prefix+d"
+type = "popup"
+command = "hunk diff"
+description = "run hunk"
 width = "80%"
 height = "80%"
 

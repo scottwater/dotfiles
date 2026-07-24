@@ -17,3 +17,5 @@ __tasks/*
 CLAUDE.local.md
 .serena/*
 .mise.toml
+
+**/.claude/.cc-writes/
