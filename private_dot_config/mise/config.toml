@@ -23,6 +23,7 @@ ripgrep = "latest"
 yazi = "latest"
 zoxide = "latest"
 "npm:hunkdiff" = "latest"
+"pipx:dslr" = { version = "latest", uvx_args = "--with psycopg2-binary" }
 "ubi:axllent/mailpit" = "latest"
 "ubi:rtk-ai/rtk" = "latest"
 
