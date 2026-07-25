@@ -114,6 +114,13 @@ The install scripts run automatically via `chezmoi apply`:
 | `settings.json` | `~/.claude/settings.json` | Claude Code settings |
 | `ruby/auto_cop` | `~/.claude/ruby/auto_cop` | Auto-RuboCop hook |
 | `skills` | `~/.claude/skills` | Symlink to shared skills |
+| `symlink_CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink to `~/.config/AGENTS.md` |
+
+### Shared AI Instructions
+
+| Source | Destination | Description |
+|--------|-------------|-------------|
+| `private_dot_config/AGENTS.md` | `~/.config/AGENTS.md` | Shared agent instructions (Claude Code via symlink, other tools) |
 
 ## AI Skills
 
