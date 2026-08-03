@@ -60,6 +60,7 @@ rows = [
 # Spaces before the terminal ever sees it.
 focus_agent = "ctrl+1..9"
 
+switch_workspace = "prefix+shift+1..9"
 # lazygit popup, same binding and size as tmux (bind g)
 [[keys.command]]
 key = "prefix+shift+g"
