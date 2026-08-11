@@ -17,5 +17,5 @@ __tasks/*
 CLAUDE.local.md
 .serena/*
 .mise.toml
-
+.pi-subagents/
 **/.claude/.cc-writes/
