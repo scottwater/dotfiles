@@ -22,8 +22,8 @@ BIN="${PREFIX}/bin/pi"
 STANDALONE_DIR="${PREFIX}/pi"
 PACKAGE="@earendil-works/pi-coding-agent"
 
-# Chezmoi may run before mise has activated Node in PATH. Use mise's configured
-# Node runtime directly in that case.
+# install-core runs earlier in Chezmoi's after phase and provisions Node.
+# Run mise by absolute path because separate Chezmoi scripts do not share PATH changes.
 if command -v npm >/dev/null 2>&1; then
   npm_command=(npm)
 elif command -v mise >/dev/null 2>&1; then
