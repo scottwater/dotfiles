@@ -1,3 +1,14 @@
+{{- if eq .chezmoi.os "linux" }}
+# Some VM shells bypass PAM, so systemd's user-session variables are absent.
+# Recover them from the runtime directory that systemd-logind already created.
+if [[ -z "${XDG_RUNTIME_DIR:-}" && -d "/run/user/$EUID" ]]; then
+  export XDG_RUNTIME_DIR="/run/user/$EUID"
+fi
+if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" && -S "${XDG_RUNTIME_DIR:-}/bus" ]]; then
+  export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+fi
+{{- end }}
+
 # Codex may run non-login, non-interactive zsh; .zprofile/.zshrc are skipped.
 # Keep this narrow: only adjust PATH when running inside Codex.
 if [[ -n "${CODEX_SHELL:-}" || "${__CFBundleIdentifier:-}" == "com.openai.codex" || "${CODEX_INTERNAL_ORIGINATOR_OVERRIDE:-}" == "Codex Desktop" || "$(ps -p "${PPID:-0}" -o comm= 2>/dev/null)" == *"/Codex" ]] && [[ -d "$HOME/.local/share/mise/shims" ]]; then
