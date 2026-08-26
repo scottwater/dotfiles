@@ -58,23 +58,53 @@ install_uv() {
 }
 
 # Homebrew is macOS-only: casks and a few libs (libpq etc). Linux gets
-# everything from mise + apt.
+# everything from mise + apt. Must run before install_mise_tools: mise
+# compiles PHP against Brewfile libraries (libiconv, libzip, icu4c, ...).
 install_homebrew() {
   if [ "${CHEZMOI_OS:-}" != "darwin" ]; then
     return
   fi
 
-  if has_command brew; then
-    return
+  if ! has_command brew; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
-
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
   if [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
   elif [ -x /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
   fi
+
+  local brewfile="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}/Brewfile"
+  if [ -f "$brewfile" ] && ! brew bundle check --file "$brewfile" >/dev/null 2>&1; then
+    brew bundle --file "$brewfile"
+  fi
+}
+
+# The mise php plugin doesn't build ext-zip; compile it via the bundled pecl.
+install_php_zip_extension() {
+  if ! has_command mise; then
+    return
+  fi
+
+  local php_bin
+  php_bin="$(mise which php 2>/dev/null || true)"
+  if [ -z "$php_bin" ]; then
+    return
+  fi
+
+  # No pipe here: `php -m | grep -q` can fail spuriously under pipefail when
+  # grep exits early and php takes a SIGPIPE.
+  if "$php_bin" -r 'exit(extension_loaded("zip") ? 0 : 1);' 2>/dev/null; then
+    return
+  fi
+
+  local php_prefix
+  php_prefix="$(dirname "$(dirname "$php_bin")")"
+  printf "\n" | PKG_CONFIG_PATH="/opt/homebrew/opt/libzip/lib/pkgconfig:${PKG_CONFIG_PATH:-}" \
+    "$php_prefix/bin/pecl" install zip
+  mkdir -p "$php_prefix/conf.d"
+  echo "extension=zip" >"$php_prefix/conf.d/zip.ini"
 }
 
 # Install all tools declared in ~/.config/mise/config.toml (chezmoi-managed).
@@ -121,8 +151,9 @@ install_herdr() {
 install_atuin
 install_mise
 install_mise_runtimes
-install_mise_tools
-install_uv
 install_homebrew
+install_mise_tools
+install_php_zip_extension
+install_uv
 install_fnox
 install_herdr

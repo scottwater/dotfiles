@@ -5,6 +5,7 @@ fnox = "latest"
 go = "latest"
 herdr = "latest"
 node = "24.19.0"
+php = "8.4.25" # compiles from source; build deps in Brewfile; installs composer too
 ruby = "4.0.6"
 tuist = "4.195.6"
 
