@@ -112,6 +112,9 @@ install_herdr() {
 
   if mise registry herdr >/dev/null 2>&1; then
     mise use -g herdr
+    # "latest" is resolved once at install; herdr self-updates, so a stale
+    # mise-pinned version can lag behind. Force it forward on every run.
+    mise upgrade herdr || true
   else
     mise use -g --remove herdr || true
     mise use -g github:ogulcancelik/herdr
