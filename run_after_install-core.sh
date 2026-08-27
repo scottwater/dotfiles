@@ -28,29 +28,6 @@ install_mise() {
   fi
 }
 
-install_mise_runtimes() {
-  if ! has_command mise; then
-    return
-  fi
-
-  local missing_runtimes=()
-
-  if ! node -v >/dev/null 2>&1; then
-    missing_runtimes+=("node@24")
-  fi
-
-  if ! ruby -v >/dev/null 2>&1; then
-    # Use precompiled Ruby binaries when available, falling back to ruby-build only
-    # when mise cannot find a matching binary for the platform/version.
-    mise settings ruby.compile=false
-    missing_runtimes+=("ruby@latest")
-  fi
-
-  if [ "${#missing_runtimes[@]}" -gt 0 ]; then
-    mise use -g --pin -y "${missing_runtimes[@]}"
-  fi
-}
-
 install_uv() {
   if ! has_command uv; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -78,6 +55,9 @@ install_homebrew() {
 }
 
 # Install all tools declared in ~/.config/mise/config.toml (chezmoi-managed).
+# Runtime versions are pinned there; never `mise use --pin` in this script — it
+# re-resolves to the newest release and rewrites the live config, so machines
+# silently drift apart.
 install_mise_tools() {
   if has_command mise; then
     mise install -y
@@ -123,7 +103,6 @@ install_herdr() {
 
 install_atuin
 install_mise
-install_mise_runtimes
 install_mise_tools
 install_uv
 install_homebrew
