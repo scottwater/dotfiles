@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# tshare — serve a file or directory locally and share it over your tailnet.
+# Usage: tshare <file-or-directory>
+set -euo pipefail
+
+usage() {
+  echo "usage: tshare <file-or-directory>" >&2
+  exit 1
+}
+
+[[ $# -eq 1 ]] || usage
+target=$1
+[[ -e $target ]] || { echo "tshare: no such file or directory: $target" >&2; exit 1; }
+
+if command -v tailscale >/dev/null 2>&1; then
+  tailscale=tailscale
+elif [[ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]]; then
+  tailscale=/Applications/Tailscale.app/Contents/MacOS/Tailscale
+else
+  echo "tshare: tailscale CLI not found" >&2
+  exit 1
+fi
+
+# Absolute path; if given a file, serve its parent dir and link straight to the file.
+target=$(cd "$(dirname "$target")" && pwd)/$(basename "$target")
+if [[ -d $target ]]; then
+  dir=$target
+  urlpath=""
+else
+  dir=$(dirname "$target")
+  urlpath="/$(basename "$target")"
+fi
+
+port=$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')
+
+npx serve --no-clipboard -l "$port" "$dir" &
+serve_pid=$!
+
+cleanup() {
+  "$tailscale" serve reset >/dev/null 2>&1 || true
+  kill "$serve_pid" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+for _ in $(seq 1 50); do
+  curl -sf -o /dev/null "http://127.0.0.1:$port" && break
+  sleep 0.2
+done
+
+"$tailscale" serve --bg "$port" >/dev/null
+
+host=$("$tailscale" status --json | python3 -c 'import json, sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')
+
+echo
+echo "Sharing $target"
+echo "Tailscale URL: https://$host$urlpath"
+echo "Press Ctrl-C to stop sharing."
+echo
+
+wait "$serve_pid" || true
