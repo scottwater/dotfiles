@@ -205,42 +205,39 @@ keyring = True
 use_local_timezone = True
 
 # Custom colors for the completion menu, toolbar, etc.
-# Dracula Pro Alucard light palette:
-# bg #F5F5F5, fg #1F1F1F, selection #CFCFDE, comment #635D97,
-# purple #644AC9, pink #A3144D, green #14710A, yellow #846E15,
-# red #CB3A2A, cyan #036A96.
+# Tokyo Night Dark (night variant).
 [colors]
-completion-menu.completion.current = 'bg:#CFCFDE #1F1F1F'
-completion-menu.completion = 'bg:#FFFFFF #1F1F1F'
-completion-menu.meta.completion.current = 'bg:#CFCFDE #635D97'
-completion-menu.meta.completion = 'bg:#FFFFFF #635D97'
-completion-menu.multi-column-meta = 'bg:#E6E6E6 #635D97'
-scrollbar.arrow = 'bg:#635D97'
-scrollbar = 'bg:#CFCFDE'
-selected = '#1F1F1F bg:#CFCFDE'
-search = '#1F1F1F bg:#E6E6E6'
-search.current = '#1F1F1F bg:#846E15'
-bottom-toolbar = 'bg:#FFFFFF #635D97'
-bottom-toolbar.off = 'bg:#FFFFFF #635D97'
-bottom-toolbar.on = 'bg:#FFFFFF #1F1F1F'
-search-toolbar = 'noinherit bg:#FFFFFF #644AC9 bold'
-search-toolbar.text = 'nobold #1F1F1F'
-system-toolbar = 'noinherit bg:#FFFFFF #A3144D bold'
-arg-toolbar = 'noinherit bg:#FFFFFF #036A96 bold'
-arg-toolbar.text = 'nobold #1F1F1F'
-bottom-toolbar.transaction.valid = 'bg:#FFFFFF #14710A bold'
-bottom-toolbar.transaction.failed = 'bg:#FFFFFF #CB3A2A bold'
+completion-menu.completion.current = 'bg:#283457 #C0CAF5'
+completion-menu.completion = 'bg:#16161E #C0CAF5'
+completion-menu.meta.completion.current = 'bg:#283457 #A9B1D6'
+completion-menu.meta.completion = 'bg:#16161E #565F89'
+completion-menu.multi-column-meta = 'bg:#24283B #565F89'
+scrollbar.arrow = 'bg:#565F89'
+scrollbar = 'bg:#414868'
+selected = '#C0CAF5 bg:#283457'
+search = '#C0CAF5 bg:#24283B'
+search.current = '#1A1B26 bg:#E0AF68'
+bottom-toolbar = 'bg:#16161E #A9B1D6'
+bottom-toolbar.off = 'bg:#16161E #565F89'
+bottom-toolbar.on = 'bg:#16161E #C0CAF5'
+search-toolbar = 'noinherit bg:#16161E #7AA2F7 bold'
+search-toolbar.text = 'nobold #C0CAF5'
+system-toolbar = 'noinherit bg:#16161E #BB9AF7 bold'
+arg-toolbar = 'noinherit bg:#16161E #7DCFFF bold'
+arg-toolbar.text = 'nobold #C0CAF5'
+bottom-toolbar.transaction.valid = 'bg:#16161E #9ECE6A bold'
+bottom-toolbar.transaction.failed = 'bg:#16161E #F7768E bold'
 # These three values can be used to further refine the syntax highlighting.
 # They have priority over the theme set with the `syntax_style` setting.
-literal.string = '#846E15'
-literal.number = '#644AC9'
-keyword = '#A3144D bold'
+literal.string = '#9ECE6A'
+literal.number = '#FF9E64'
+keyword = '#BB9AF7 bold'
 
 # style classes for colored table output
-output.header = '#644AC9 bold'
-output.odd-row = 'bg:#F5F5F5'
-output.even-row = 'bg:#FFFFFF'
-output.null = '#635D97'
+output.header = '#7AA2F7 bold'
+output.odd-row = 'bg:#1A1B26'
+output.even-row = 'bg:#16161E'
+output.null = '#565F89'
 
 # Named queries are queries you can execute by name.
 [named queries]

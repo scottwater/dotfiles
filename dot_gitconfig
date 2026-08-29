@@ -7,7 +7,7 @@
   pager = delta
   excludesfile = ~/.gitignore_global
 [delta]
-    features = alucard
+    features = tokyonight-night
 [merge]
     conflictStyle = zdiff3
 [interactive]

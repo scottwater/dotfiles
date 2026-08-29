@@ -4,31 +4,35 @@ gui:
   switchTabsWithPanelJumpKeys: true
   enlargedSideViewLocation: top
   sidePanelWidth: 0.2
-  # Dracula Pro Alucard Theme
+  # Tokyo Night Dark (night variant)
   theme:
     activeBorderColor:
-      - "#644AC9"  # purple
+      - "#ff9e64"
       - bold
     inactiveBorderColor:
-      - "#635D97"  # comment
+      - "#27a1b9"
     optionsTextColor:
-      - "#036A96"  # cyan
+      - "#7aa2f7"
     selectedLineBgColor:
-      - "#CFCFDE"  # selection
+      - "#283457"
     selectedRangeBgColor:
-      - "#CFCFDE"  # selection
+      - "#283457"
     cherryPickedCommitBgColor:
-      - "#E6E6E6"  # subtle background
+      - "#bb9af7"
     cherryPickedCommitFgColor:
-      - "#644AC9"  # purple
+      - "#7aa2f7"
+    markedBaseCommitBgColor:
+      - "#e0af68"
+    markedBaseCommitFgColor:
+      - "#7aa2f7"
     unstagedChangesColor:
-      - "#CB3A2A"  # red
+      - "#db4b4b"
     defaultFgColor:
-      - "#1F1F1F"  # foreground
+      - "#c0caf5"
     searchingActiveBorderColor:
-      - "#846E15"  # yellow
+      - "#ff9e64"
       - bold
 git:
   pagers:
-    - pager: delta --paging=never --features=alucard
+    - pager: delta --paging=never --features=tokyonight-night
       colorArg: always

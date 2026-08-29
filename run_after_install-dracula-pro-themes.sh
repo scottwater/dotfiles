@@ -1,5 +1,9 @@
 #!/bin/bash
-# Copy Dracula Pro themes from the nvim repo to other app theme directories
+# Optional Dracula Pro compatibility hook. Disabled while Tokyo Night Dark is active.
+
+if [ "${DRACULA_PRO_THEMES_ENABLED:-0}" != "1" ]; then
+    exit 0
+fi
 
 DRACULA_REPO="$HOME/.config/nvim/dracula_pro"
 

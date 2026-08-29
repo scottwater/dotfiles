@@ -3,33 +3,29 @@ onboarding = false
 # Reload with: herdr server reload-config
 
 [theme]
-# Inherit the terminal's palette (Ghostty defines Dracula Pro Alucard).
+# Inherit the terminal's Tokyo Night Dark palette.
 name = "terminal"
 
 [theme.custom]
-# Blend the main chrome into Alucard's light background, then rebuild hierarchy
-# with surface/overlay tokens so sidebar, tabs, and dividers still read clearly.
+# Blend the main chrome into the terminal background, then build hierarchy with
+# Tokyo Night Dark surface and overlay tokens.
 panel_bg = "reset"
-# Soft cool-gray ladder on top of #F5F5F5 so UI chrome separates without a dark theme fill.
-surface0 = "#ECECF2"
-surface1 = "#E0E0EC"
-surface_dim = "#E8E8F0"
-# Divider / border contrast between sidebar and work area, and around tabs.
-overlay0 = "#C5C5D4"
-overlay1 = "#A8A8BA"
-# Primary + muted text. subtext0 is used for inactive tabs/secondary labels.
-text = "#1F1F1F"
-subtext0 = "#5C5C6A"
-# Alucard purple, matching zsh completion/autosuggest highlights.
-accent = "#644AC9"
-red = "#CB3A2A"
-green = "#14710A"
-yellow = "#846E15"
-blue = "#036A96"
+surface0 = "#24283B"
+surface1 = "#292E42"
+surface_dim = "#16161E"
+overlay0 = "#414868"
+overlay1 = "#565F89"
+text = "#C0CAF5"
+subtext0 = "#A9B1D6"
+accent = "#7AA2F7"
+red = "#F7768E"
+green = "#9ECE6A"
+yellow = "#E0AF68"
+blue = "#7DCFFF"
 
 [ui]
 # Keep the active accent on borders/highlights explicit (same as theme.custom.accent).
-accent = "#644AC9"
+accent = "#7AA2F7"
 # Make split panes and chrome edges a bit more intentional.
 pane_borders = true
 pane_gaps = true
@@ -39,7 +35,7 @@ pane_gaps = true
 row_gap = 1
 rows = [
   ["state_icon", { token = "workspace", bold = true }],
-  [{ token = "branch", dim = true, fg = "#5C5C6A" }, "git_status"],
+  [{ token = "branch", dim = true, fg = "#565F89" }, "git_status"],
 ]
 
 # Agent entries: same spacing so the lower panel doesn't look like loose text.
@@ -47,7 +43,7 @@ rows = [
 row_gap = 1
 rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
-  [{ token = "agent", dim = true, fg = "#5C5C6A" }],
+  [{ token = "agent", dim = true, fg = "#565F89" }],
 ]
 
 # NOTE: this table must stay above the [[keys.command]] blocks below. In TOML,

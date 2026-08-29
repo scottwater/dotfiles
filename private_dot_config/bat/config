@@ -1,10 +1,6 @@
 # Bat configuration
-# Using Dracula Pro Alucard to match theming across tools
-# (Zed, Delta, LazyGit, Neovim, Ghostty)
-
-# Theme - Dracula Pro Alucard syntax theme
-# (Delta alucard, Ghostty, Zed, LazyGit, etc.)
---theme="alucard"
+# ANSI delegates syntax colors to Ghostty's Tokyo Night Dark palette.
+--theme="ansi"
 
 # Show line numbers
 --style="numbers,changes,header,grid"

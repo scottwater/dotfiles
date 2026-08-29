@@ -1,81 +1,54 @@
-# To use these themes, first include this file in your own gitconfig file:
-#
-# [include]
-#     path = PATH/TO/delta/themes.gitconfig
-#
-# Then, in your own gitconfig file, activate the chosen theme, e.g.
-#
-# [delta]
-#    features = alucard
-#
-# Please add your own themes to this file, and open a PR.
-#
-# Instructions:
-#
-# 1. The name of the theme must be the name of some sort of wild organism:
-#    mammal, bird, plant, mollusk -- whatever. It can be in any language.
-#
-# 2. Use `delta --show-config` to list all the style settings that are active in
-#    your current delta environment, but only include settings in your theme
-#    that are essential to its appearance.
-#
-# 3. Include either `dark = true` or `light = true` according to whether it is
-#    designed for a light or dark terminal background. (This marks a feature as
-#    a "theme", causing it to be picked up by `delta --show-themes`).
-#
-# 4. Feel free to include a comment line indicating who is the author of the
-#    theme. E.g. a link to your github user page.
-
-
-[delta "alucard"]
-    # Dracula Pro Alucard light palette
-    light = true
+# Tokyo Night Dark (night variant), based on folke/tokyonight.nvim extras.
+[delta "tokyonight-night"]
+    dark = true
     navigate = true
     side-by-side = true
-    syntax-theme = alucard
+    syntax-theme = ansi
     # File styling
-    file-style = "#644AC9" bold
-    file-decoration-style = "#635D97" ul
+    file-style = "#7AA2F7" bold
+    file-decoration-style = "#565F89" ul
     file-added-label = [+]
     file-copied-label = [==]
     file-modified-label = [*]
     file-removed-label = [-]
     file-renamed-label = [->]
     # Commit styling
-    commit-decoration-style = "#644AC9" box
-    commit-style = "#1F1F1F" bold
+    commit-decoration-style = "#7AA2F7" box
+    commit-style = "#C0CAF5" bold
     # Hunk headers
-    hunk-header-decoration-style = "#CFCFDE" box ul
-    hunk-header-file-style = "#036A96" bold
-    hunk-header-line-number-style = "#A34D14" bold
+    hunk-header-decoration-style = "#414868" box ul
+    hunk-header-file-style = "#7DCFFF" bold
+    hunk-header-line-number-style = "#FF9E64" bold
     hunk-header-style = file line-number syntax bold
     # Line numbers
     line-numbers = true
     line-numbers-left-format = " {nm:>3} │"
     line-numbers-right-format = " {np:>3} │"
-    line-numbers-left-style = "#635D97"
-    line-numbers-right-style = "#635D97"
-    line-numbers-minus-style = "#CB3A2A" bold
-    line-numbers-plus-style = "#14710A" bold
-    line-numbers-zero-style = "#635D97"
+    line-numbers-left-style = "#565F89"
+    line-numbers-right-style = "#565F89"
+    line-numbers-minus-style = "#914C54" bold
+    line-numbers-plus-style = "#449DAB" bold
+    line-numbers-zero-style = "#3B4261"
     # Diff content styling
-    minus-style = syntax "#F5E5E5"
-    minus-emph-style = "#1F1F1F" "#F5CCCC" bold
-    minus-non-emph-style = syntax "#F5E5E5"
-    plus-style = syntax "#E5F5E5"
-    plus-emph-style = "#1F1F1F" "#CCF0CC" bold
-    plus-non-emph-style = syntax "#E5F5E5"
+    minus-style = syntax "#4A272F"
+    minus-emph-style = syntax "#713137" bold
+    minus-non-emph-style = syntax "#4A272F"
+    minus-empty-line-marker-style = syntax "#4A272F"
+    plus-style = syntax "#243E4A"
+    plus-emph-style = syntax "#2C5A66" bold
+    plus-non-emph-style = syntax "#243E4A"
+    plus-empty-line-marker-style = syntax "#243E4A"
     zero-style = syntax
     # Whitespace errors
-    whitespace-error-style = "#CB3A2A" reverse
+    whitespace-error-style = "#F7768E" reverse
     # Blame
     blame-code-style = syntax
     blame-format = "{author:<18} ({commit:>8}) {timestamp:<15}"
-    blame-palette = "#FFFFFF" "#F5F5F5" "#E6E6E6" "#CFCFDE"
+    blame-palette = "#16161E" "#1A1B26" "#24283B" "#292E42"
     # Merge conflicts
     merge-conflict-begin-symbol = ⌃
     merge-conflict-end-symbol = ⌄
-    merge-conflict-ours-diff-header-style = "#846E15" bold
-    merge-conflict-theirs-diff-header-style = "#A34D14" bold
-    merge-conflict-ours-diff-header-decoration-style = "#CFCFDE" box
-    merge-conflict-theirs-diff-header-decoration-style = "#CFCFDE" box
+    merge-conflict-ours-diff-header-style = "#E0AF68" bold
+    merge-conflict-theirs-diff-header-style = "#FF9E64" bold
+    merge-conflict-ours-diff-header-decoration-style = "#414868" box
+    merge-conflict-theirs-diff-header-decoration-style = "#414868" box

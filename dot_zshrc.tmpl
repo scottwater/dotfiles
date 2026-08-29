@@ -42,9 +42,8 @@ fpath+=($HOME/.zsh/pure)
 autoload -U promptinit; promptinit
 prompt pure
 
-# zsh-autosuggestions defaults to `fg=8`; in the Alucard light terminal
-# palette that is white, making type-ahead suggestions disappear.
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#635D97'
+# Tokyo Night Dark muted foreground for type-ahead suggestions.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#565F89'
 
 source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
@@ -52,22 +51,22 @@ source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source $HOME/zsh/zsh-z.plugin.zsh
 autoload -U compinit; compinit
 zstyle ':completion:*' menu select
-# Dracula Pro Alucard completion colors for light terminal backgrounds.
+# Tokyo Night Dark completion colors.
 # ow/tw/st cover world-writable dirs (stooges/herdr worktrees are mode 777);
 # without them zsh falls back to the unreadable GNU default blue-on-green.
 zstyle ':completion:*' list-colors \
-  'no=38;2;31;31;31' \
-  'fi=38;2;31;31;31' \
-  'di=38;2;3;106;150' \
-  'ow=38;2;3;106;150' \
-  'tw=38;2;3;106;150' \
-  'st=38;2;3;106;150' \
-  'ln=38;2;100;74;201' \
-  'ex=38;2;20;113;10' \
-  'ma=48;2;207;207;222;38;2;31;31;31'
-zstyle ':completion:*:descriptions' format '%F{#644AC9}%d%f'
-zstyle ':completion:*:messages' format '%F{#635D97}%d%f'
-zstyle ':completion:*:warnings' format '%F{#CB3A2A}No matches for: %d%f'
+  'no=38;2;192;202;245' \
+  'fi=38;2;192;202;245' \
+  'di=38;2;122;162;247' \
+  'ow=38;2;122;162;247' \
+  'tw=38;2;122;162;247' \
+  'st=38;2;122;162;247' \
+  'ln=38;2;187;154;247' \
+  'ex=38;2;158;206;106' \
+  'ma=48;2;40;52;87;38;2;192;202;245'
+zstyle ':completion:*:descriptions' format '%F{#7AA2F7}%d%f'
+zstyle ':completion:*:messages' format '%F{#565F89}%d%f'
+zstyle ':completion:*:warnings' format '%F{#F7768E}No matches for: %d%f'
 
 export EDITOR=nvim
 set -o emacs
@@ -88,7 +87,7 @@ if command -v dcg &>/dev/null && command -v jq &>/dev/null; then
 fi
 
 # Mur Pretty Delta
-export DELTA_FEATURES="diff-so-fancy alucard"
+export DELTA_FEATURES="diff-so-fancy tokyonight-night"
 
 # Source local overrides if present
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
