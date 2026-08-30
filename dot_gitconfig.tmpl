@@ -59,8 +59,10 @@
 
 [format]
 	pretty=format:%C(yellow)%h%Creset -%C(red)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset
+{{ if eq .chezmoi.os "darwin" }}
 [credential]
 	helper = osxkeychain
+{{ end }}
 [push]
 	default = matching
 

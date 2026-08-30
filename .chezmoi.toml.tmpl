@@ -1,0 +1,6 @@
+{{- $roles := list "workstation" "bb-worker" -}}
+{{- $role := promptChoiceOnce . "role" "role" $roles "workstation" -}}
+{{- $kode := promptBoolOnce . "kode" "kode" false -}}
+[data]
+    role = {{ $role | quote }}
+    kode = {{ $kode }}

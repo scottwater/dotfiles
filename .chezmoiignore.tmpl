@@ -1,3 +1,5 @@
+{{- $role := get . "role" | default "workstation" -}}
+
 # Zed auto-managed
 .config/zed/prompts/**
 .config/zed/conversations/**
@@ -18,6 +20,14 @@
 # Homebrew is macOS-only now (mise handles CLI tools on Linux)
 {{- if ne .chezmoi.os "darwin" }}
 Brewfile
+.local/bin/disable-macos-animations
+{{- end }}
+
+# Workstation-only configuration
+{{- if eq $role "bb-worker" }}
+.config/atuin/**
+.config/ghostty/**
+.config/zed/**
 {{- end }}
 
 # Work-only files

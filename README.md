@@ -25,6 +25,35 @@ Next steps on Linux (SSH-only):
 chezmoi apply
 ```
 
+## Machine roles
+
+Initialization asks once for a machine role and stores it in the machine-local
+Chezmoi config. `workstation` is the default and preserves the full desktop
+setup. `bb-worker` installs the terminal development and agent environment but
+omits workstation-only applications and services.
+
+A worker image can select its role without an interactive prompt:
+
+```bash
+chezmoi init git@github.com:scottwater/dotfiles.git \
+  --promptChoice role=bb-worker \
+  --promptBool kode=false \
+  --apply
+```
+
+The existing `kode` flag is independent of the machine role. Existing installs
+without a stored role continue to render as `workstation`; run `chezmoi update
+--init` when you want to persist the choice on one of those machines. Verify a
+machine before sealing a worker image with:
+
+```bash
+chezmoi data --format=json | jq '{role, kode}'
+```
+
+The `bb-worker` role includes the full zsh environment, Neovim, LazyGit, Hunk,
+Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, Pi packages, and shared
+agent skills. Authentication remains a separate provisioning step.
+
 The managed theme is [Tokyo Night Dark](https://wixdaq.github.io/Tokyo-Night-Website/palette.html), the `night` variant with a `#1a1b26` background. TPM remains managed through `.chezmoiexternal.toml`; the private Dracula Pro external is disabled.
 
 Theme coverage: Ghostty, tmux, Neovim, Zed, bat, delta, LazyGit, Hunk, Yazi, pgcli, Herdr, Pi, and zsh completion UI.
@@ -43,9 +72,10 @@ The existing `bat/themes/alucard.tmTheme` and Pi `themes/alucard.json` files are
 
 The install scripts run automatically via `chezmoi apply`:
 
-- `run_after_install-core.sh` - Cross-platform CLI installs via curl (mise, atuin, uv) and global mise runtimes (latest Ruby, Node.js 24)
-- `run_after_install-linux.sh` - Ubuntu apt installs for CLI tools only
-- `run_onchange_install-destructive-command-guard.sh` - Installs and configures destructive_command_guard on macOS
+- `run_after_install-core.sh.tmpl` - Cross-platform mise, runtime, Herdr, fnox, uv, and role-aware Atuin setup
+- `run_after_install-linux.sh` - Ubuntu build dependencies and terminal utilities
+- `run_onchange_after_install-pi.sh` - Installs Pi, Codex, Claude Code, and managed Pi packages
+- `run_onchange_after_install-safety-guard.sh` - Installs and configures destructive_command_guard on macOS and Linux
 - `run_after_set-pi-tokyonight-theme.sh` - Selects the managed Pi theme without replacing other Pi settings
 - `run_after_install-dracula-pro-themes.sh` - Dormant Dracula Pro copy hook; requires `DRACULA_PRO_THEMES_ENABLED=1`
 
@@ -54,14 +84,14 @@ The install scripts run automatically via `chezmoi apply`:
 ### Shell & Terminal
 
 - **zsh** - Shell with syntax highlighting and autosuggestions
-- **[Starship](https://starship.rs/)** - Cross-shell prompt
+- **[Pure](https://github.com/sindresorhus/pure)** - Zsh prompt
 - **[Atuin](https://atuin.sh/)** - Shell history sync and search
 - **[Ghostty](https://ghostty.org/)** - Terminal emulator (Tokyo Night Dark palette)
 - **[tmux](https://github.com/tmux/tmux)** - Terminal multiplexer (Tokyo Night Dark status and pane styling)
 
 ### Development Environment
 
-- **[mise](https://mise.jdx.dev/)** - Runtime version manager with global latest Ruby and Node.js 24 defaults
+- **[mise](https://mise.jdx.dev/)** - Runtime manager with pinned Ruby 4.0.6 and Node.js 24.19 defaults
 - **[Neovim](https://neovim.io/)** - Editor (LazyVim configuration)
 - **[Zed](https://zed.dev/)** - Code editor (Tokyo Night theme with Dark terminal overrides; install the `Tokyo Night` extension on a fresh machine)
 
@@ -75,7 +105,9 @@ The install scripts run automatically via `chezmoi apply`:
 
 ### AI Coding Assistants
 
-- **[Claude Code](https://claude.ai/)** - AI coding assistant with custom skills
+- **[Pi](https://github.com/badlogic/pi-mono)** - Extensible coding harness with managed packages and settings
+- **[Codex](https://github.com/openai/codex)** - OpenAI coding harness
+- **[Claude Code](https://claude.ai/)** - Anthropic coding harness with shared skills
 - **[destructive_command_guard](https://github.com/Dicklesworthstone/destructive_command_guard)** - Blocks destructive commands issued by coding agents
 
 ### Ruby/Rails Development
@@ -90,9 +122,9 @@ The install scripts run automatically via `chezmoi apply`:
 
 | Source | Destination | Description |
 |--------|-------------|-------------|
-| `dot_zshrc` | `~/.zshrc` | Zsh configuration with aliases and functions |
-| `dot_zprofile` | `~/.zprofile` | Zsh profile (login shell) |
-| `dot_gitconfig` | `~/.gitconfig` | Git configuration with aliases |
+| `dot_zshrc.tmpl` | `~/.zshrc` | Zsh configuration with aliases and functions |
+| `dot_zprofile.tmpl` | `~/.zprofile` | Role-aware Zsh profile |
+| `dot_gitconfig.tmpl` | `~/.gitconfig` | OS-aware Git configuration with aliases |
 | `dot_gitignore_global` | `~/.gitignore_global` | Global git ignore patterns |
 | `dot_gemrc` | `~/.gemrc` | Ruby gem configuration |
 | `private_dot_config/tmux/` | `~/.config/tmux/` | Tmux configuration with Tokyo Night Dark theme |
@@ -111,7 +143,6 @@ The install scripts run automatically via `chezmoi apply`:
 
 | Source | Destination | Description |
 |--------|-------------|-------------|
-| `starship.toml` | `~/.config/starship.toml` | Starship prompt config |
 | `ghostty/config` | `~/.config/ghostty/config` | Ghostty terminal config |
 | `atuin/config.toml` | `~/.config/atuin/config.toml` | Atuin history config |
 | `delta/themes.gitconfig` | `~/.config/delta/themes.gitconfig` | Delta themes |

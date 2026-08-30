@@ -1,18 +1,24 @@
+{{- $role := get . "role" | default "workstation" -}}
 [tools]
-# Runtimes
-bun = "latest"
+# Runtimes shared by workstations and disposable development workers.
 fnox = "latest"
-go = "latest"
 herdr = "latest"
 node = "24.19.0"
 ruby = "4.0.6"
-tuist = "4.195.6"
 
-# CLI tools (cross-platform, replaces Homebrew/apt installs)
+{{ if ne $role "bb-worker" -}}
+# Workstation-only runtimes.
+bun = "latest"
+go = "latest"
+{{ if eq .chezmoi.os "darwin" -}}
+tuist = "4.195.6"
+{{ end -}}
+{{ end -}}
+
+# Terminal development tools shared by workstations and BB workers.
 age = "latest"
 bat = "latest"
 delta = "latest"
-flyctl = "latest"
 gh = "latest"
 git-filter-repo = "latest"
 glow = "latest"
@@ -23,8 +29,13 @@ ripgrep = "latest"
 yazi = "latest"
 zoxide = "latest"
 "npm:hunkdiff" = { version = "latest", trust_policy_excludes = ["@pierre/theme@2.0.0"] }
+
+{{ if ne $role "bb-worker" -}}
+# Workstation-only services and deployment helpers.
+flyctl = "latest"
 "pipx:dslr" = { version = "latest", uvx_args = "--with psycopg2-binary" }
 "ubi:axllent/mailpit" = "latest"
+{{ end -}}
 
 [settings]
 idiomatic_version_file_enable_tools = ["ruby"]

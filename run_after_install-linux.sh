@@ -18,19 +18,33 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   -o DPkg::Post-Invoke-Success::= \
   -o APT::Update::Post-Invoke::= \
   -o APT::Update::Post-Invoke-Success::= \
-  bat \
+  build-essential \
+  curl \
+  dnsutils \
   fd-find \
   fzf \
   git \
+  git-lfs \
   jq \
-  libyaml-dev \
   libffi-dev \
-  neovim \
+  libgmp-dev \
+  libpq-dev \
+  libreadline-dev \
+  libssl-dev \
+  libyaml-dev \
+  lsof \
+  netcat-openbsd \
+  pkg-config \
   poppler-utils \
-  ripgrep \
+  procps \
+  rsync \
+  sqlite3 \
   tmux \
   trash-cli \
+  unzip \
   wget \
+  zip \
+  zlib1g-dev \
   zsh 2>&1 | tee "$tmp_log"
 apt_status=${PIPESTATUS[0]}
 set -e

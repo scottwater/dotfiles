@@ -1,5 +1,8 @@
+{{- $role := get . "role" | default "workstation" -}}
 #!/usr/bin/env bash
 set -euo pipefail
+
+CHEZMOI_ROLE={{ $role | quote }}
 
 if [ "${CHEZMOI_OS:-}" != "linux" ] && [ "${CHEZMOI_OS:-}" != "darwin" ]; then
   echo "Unsupported OS: ${CHEZMOI_OS:-unknown}" >&2
@@ -15,6 +18,10 @@ has_command() {
 }
 
 install_atuin() {
+  if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
+    return
+  fi
+
   if ! has_command atuin; then
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --non-interactive
   elif ! atuin doctor >/dev/null 2>&1; then

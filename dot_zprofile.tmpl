@@ -1,4 +1,4 @@
-
+{{- $role := get . "role" | default "workstation" -}}
 export PATH="$HOME/.local/bin:$PATH"
 
 {{ if eq .chezmoi.os "darwin" -}}
@@ -9,7 +9,11 @@ fi
 {{- end }}
 
 export XDG_CONFIG_HOME="$HOME/.config"
+{{- if eq $role "bb-worker" }}
+export RAILS_EDITOR="nvim"
+{{- else }}
 export RAILS_EDITOR="zed"
+{{- end }}
 
 if command -v mise >/dev/null 2>&1; then
   # Non-interactive login shells (Codex) skip .zshrc; ensure shims exist there.
