@@ -15,7 +15,8 @@
     "npm:sideshow",
     "npm:@plannotator/pi-extension",
     "npm:pi-messenger",
-    "npm:pi-intercom"
+    "npm:pi-intercom",
+    "npm:pi-mcp-adapter"
   ],
   "theme": "Tokyo Night",
   "enabledModels": [
