@@ -18,5 +18,5 @@ CLAUDE.local.md
 .serena/*
 .mise.toml
 .pi-subagents/
-.pi/subagents
+.pi/
 **/.claude/.cc-writes/
