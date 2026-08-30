@@ -25,7 +25,6 @@ zoxide = "latest"
 "npm:hunkdiff" = { version = "latest", trust_policy_excludes = ["@pierre/theme@2.0.0"] }
 "pipx:dslr" = { version = "latest", uvx_args = "--with psycopg2-binary" }
 "ubi:axllent/mailpit" = "latest"
-"ubi:rtk-ai/rtk" = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["ruby"]
