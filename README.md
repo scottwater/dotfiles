@@ -121,7 +121,7 @@ The install scripts run automatically via `chezmoi apply`:
 | `bat/` | `~/.config/bat/` | Bat config with terminal-palette syntax colors and optional legacy Alucard theme |
 | `hunk/` | `~/.config/hunk/` | Hunk config with Tokyo Night Dark theme |
 | `yazi/` | `~/.config/yazi/` | Yazi config with Tokyo Night Dark theme |
-| `skills/` | `~/.config/skills/` | Shared AI skills (symlinked) |
+| `scottwater/skills` | `~/.agents/skills/` | Canonical global AI skills installed by the `skills` CLI |
 
 ### Claude Directory (`~/.claude`)
 
@@ -129,7 +129,7 @@ The install scripts run automatically via `chezmoi apply`:
 |--------|-------------|-------------|
 | `settings.json` | `~/.claude/settings.json` | Claude Code settings |
 | `ruby/auto_cop` | `~/.claude/ruby/auto_cop` | Auto-RuboCop hook |
-| `skills` | `~/.claude/skills` | Symlink to shared skills |
+| `scottwater/skills` | `~/.claude/skills` | Per-skill symlinks to `~/.agents/skills` |
 | `symlink_CLAUDE.md` | `~/.claude/CLAUDE.md` | Symlink to `~/.config/AGENTS.md` |
 
 ### Shared AI Instructions
@@ -140,10 +140,15 @@ The install scripts run automatically via `chezmoi apply`:
 
 ## AI Skills
 
-Custom skills shared across AI assistants:
+Every `chezmoi apply` installs all skills from
+[`scottwater/skills`](https://github.com/scottwater/skills) globally through the
+`skills` CLI. Canonical copies live in `~/.agents/skills`; Claude Code receives
+per-skill symlinks in `~/.claude/skills`.
 
-- **gemini-imagegen** - Image generation via Gemini API (Nano Banana Pro)
-- **committing-with-guidelines** - Git commit message standards
+The apply hook adds new skills and refreshes existing ones. The CLI does not
+currently offer non-interactive repository-scoped pruning, so a skill removed
+upstream is not automatically deleted locally. Run `npx skills update -g`
+interactively to review and confirm detected upstream deletions.
 
 ## Usage
 
