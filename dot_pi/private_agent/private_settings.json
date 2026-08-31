@@ -8,13 +8,13 @@
     "https://github.com/nicobailon/visual-explainer",
     "https://github.com/calesennett/pi-codex-fast",
     "npm:glimpseui",
-    "https://github.com/nicobailon/pi-subagents",
     "git:github.com/dbachelder/pi-btw",
     "git:github.com/scottwater/pi-stoic",
     "npm:pi-grok-cli",
     "npm:sideshow",
     "npm:@plannotator/pi-extension",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:@tintinweb/pi-subagents"
   ],
   "theme": "Tokyo Night",
   "enabledModels": [
