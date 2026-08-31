@@ -4,13 +4,48 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 
 ## Setup Instructions
 
+The `lb` installer places Chezmoi in `~/.local/bin`, so none of these options
+require a separate Chezmoi installation.
+
+### Interactive bootstrap
+
+The original command remains the default. On a fresh machine it asks for the
+machine role and whether it is a Kode machine before applying the dotfiles.
 
 ```bash
 sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply git@github.com:scottwater/dotfiles.git
 ```
 
-Note the `lb` - This will ensure chezmoi is installed in $HOME/.local/bin
+### Explicit workstation bootstrap
 
+Use this when the machine should receive the complete workstation setup without
+role prompts:
+
+```bash
+sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- \
+  init --apply \
+  --promptChoice role=workstation \
+  --promptBool kode=false \
+  git@github.com:scottwater/dotfiles.git
+```
+
+Set `kode=true` for a Kode workstation.
+
+### Explicit BB worker bootstrap
+
+Use this while preparing the reusable worker image:
+
+```bash
+sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- \
+  init --apply \
+  --promptChoice role=bb-worker \
+  --promptBool kode=false \
+  git@github.com:scottwater/dotfiles.git
+```
+
+The SSH repository URL requires GitHub access during the initial clone. An
+interactive template build can use a forwarded SSH agent; copied workers retain
+the initialized Chezmoi source and role configuration.
 
 Next steps on macOS (local machine only):
 
@@ -32,19 +67,11 @@ Chezmoi config. `workstation` is the default and preserves the full desktop
 setup. `bb-worker` installs the terminal development and agent environment but
 omits workstation-only applications and services.
 
-A worker image can select its role without an interactive prompt:
-
-```bash
-chezmoi init git@github.com:scottwater/dotfiles.git \
-  --promptChoice role=bb-worker \
-  --promptBool kode=false \
-  --apply
-```
-
-The existing `kode` flag is independent of the machine role. Existing installs
-without a stored role continue to render as `workstation`; run `chezmoi update
---init` when you want to persist the choice on one of those machines. Verify a
-machine before sealing a worker image with:
+The bootstrap examples above can select either role without an interactive
+prompt. The existing `kode` flag is independent of the machine role. Existing
+installs without a stored role continue to render as `workstation`. Run
+`chezmoi update --init` to persist the choice on one of those machines. Verify
+a machine before sealing a worker image with:
 
 ```bash
 chezmoi data --format=json | jq '{role, kode}'
