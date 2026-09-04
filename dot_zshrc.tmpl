@@ -74,9 +74,6 @@ set -o emacs
 source "$HOME/zsh/aliases.zsh"
 source "$HOME/zsh/agents.zsh"
 
-# PI
-export PI_SUBAGENT_RUNTIME_ROOT="$HOME/.pi/agent/git/github.com/nicobailon/pi-subagents"
-
 # dcg: warn if hook was silently removed from Claude Code settings
 if command -v dcg &>/dev/null && command -v jq &>/dev/null; then
   if [ -f "$HOME/.claude/settings.json" ] && \
