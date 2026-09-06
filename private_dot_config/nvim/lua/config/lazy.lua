@@ -18,6 +18,8 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    -- Keep PHP support synced: lazyvim.json is intentionally ignored by Chezmoi.
+    { import = "lazyvim.plugins.extras.lang.php" },
     -- import/override with your plugins
     { import = "plugins" },
   },
