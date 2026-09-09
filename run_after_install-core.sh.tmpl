@@ -17,6 +17,13 @@ has_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
+install_worker_directories() {
+  if [ "$CHEZMOI_ROLE" != "bb-worker" ]; then
+    return
+  fi
+  mkdir -p "$HOME/code"
+}
+
 install_atuin() {
   if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
     return
@@ -130,6 +137,7 @@ install_herdr() {
   fi
 }
 
+install_worker_directories
 install_atuin
 install_mise
 install_mise_tools

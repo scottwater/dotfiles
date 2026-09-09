@@ -11,6 +11,10 @@ fi
 export XDG_CONFIG_HOME="$HOME/.config"
 {{- if eq $role "bb-worker" }}
 export RAILS_EDITOR="nvim"
+# Worker login directory: leave explicit project paths and noninteractive jobs alone.
+if [[ -o interactive && "$PWD" = "$HOME" && -d "$HOME/code" ]]; then
+  builtin cd -- "$HOME/code"
+fi
 {{- else }}
 export RAILS_EDITOR="zed"
 {{- end }}

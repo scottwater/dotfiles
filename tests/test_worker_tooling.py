@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -121,6 +122,64 @@ class WorkerToolingTests(unittest.TestCase):
                     if name.endswith("executable_update-ai-tools"):
                         expected = ["--prefix", f"{temp}/.local/share/orbi/agents", "--version"]
                     self.assertEqual(json.loads(result.stdout), expected)
+
+    def test_herdr_code_defaults_are_worker_only(self):
+        for role in ("bb-worker", "workstation", None):
+            with self.subTest(role=role):
+                config = tomllib.loads(self.render("private_dot_config/herdr/config.toml.tmpl", role))
+                if role == "bb-worker":
+                    self.assertEqual(config["terminal"]["new_cwd"], "~/code")
+                    self.assertEqual(config["worktrees"]["directory"], "~/code/herdr-worktrees")
+                else:
+                    self.assertNotIn("terminal", config)
+                    self.assertNotIn("worktrees", config)
+                self.assertEqual(config["theme"]["name"], "terminal")
+                self.assertTrue(config["keys"]["command"])
+                self.assertTrue(config["experimental"]["kitty_graphics"])
+
+    def test_code_directory_is_worker_only_and_preserves_projects(self):
+        core = source("run_after_install-core.sh.tmpl")
+        body = core.split("install_worker_directories() {", 1)[1].split("\n}\n", 1)[0]
+        script = "install_worker_directories() {" + body + "\n}\ninstall_worker_directories\n"
+        self.assertIn("install_worker_directories\ninstall_atuin", core)
+        for role in ("bb-worker", "workstation"):
+            with self.subTest(role=role), tempfile.TemporaryDirectory() as temp:
+                env = {**os.environ, "HOME": temp, "CHEZMOI_ROLE": role}
+                subprocess.run(["bash", "-eu"], input=script, env=env, text=True, check=True)
+                code = Path(temp) / "code"
+                self.assertEqual(code.is_dir(), role == "bb-worker")
+                if role == "bb-worker":
+                    project = code / "project"
+                    project.mkdir()
+                    sentinel = project / "keep.txt"
+                    sentinel.write_text("existing work")
+                    subprocess.run(["bash", "-eu"], input=script, env=env, text=True, check=True)
+                    self.assertEqual(sentinel.read_text(), "existing work")
+
+    @unittest.skipUnless(shutil.which("zsh"), "zsh is required for login directory checks")
+    def test_worker_login_defaults_to_code_without_changing_explicit_cwd(self):
+        rendered = self.render("dot_zprofile.tmpl", "bb-worker")
+        block = rendered.split("# Worker login directory:", 1)[1].split("\nfi", 1)[0]
+        block = "# Worker login directory:" + block + '\nfi\nprintf "%s\\n" "$PWD"\n'
+        for role in ("workstation", None):
+            self.assertNotIn('"$HOME/code"', self.render("dot_zprofile.tmpl", role))
+        with tempfile.TemporaryDirectory() as temp:
+            home = Path(temp).resolve()
+            code = home / "code"
+            code.mkdir()
+            project = code / "project"
+            project.mkdir()
+            for interactive, cwd, expected in ((True, home, code), (True, project, project), (False, home, home)):
+                with self.subTest(interactive=interactive, cwd=cwd):
+                    command = [shutil.which("zsh"), "-d", "-f", "-l"]
+                    if interactive:
+                        command.append("-i")
+                    result = subprocess.run(command + ["-c", block], cwd=cwd, env={**os.environ, "HOME": str(home)}, text=True, capture_output=True, check=True)
+                    self.assertEqual(result.stdout.strip(), str(expected))
+            project.rmdir()
+            code.rmdir()
+            result = subprocess.run([shutil.which("zsh"), "-d", "-f", "-l", "-i", "-c", block], cwd=home, env={**os.environ, "HOME": str(home)}, text=True, capture_output=True, check=True)
+            self.assertEqual(result.stdout.strip(), str(home))
 
     def test_worker_linux_omits_app_build_dependencies(self):
         script = source("run_after_install-linux.sh")

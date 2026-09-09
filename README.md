@@ -90,6 +90,17 @@ runtime. Initial `node`, `npm`, and `npx` links point to tooling Node only when
 absent; later Chezmoi runs preserve profile-selected app links. Worker agent
 updates use the isolated prefix and runtime too. Workstation defaults are unchanged.
 
+Worker bootstrap creates `~/code` without modifying existing projects. Interactive
+zsh logins starting in the home directory enter `~/code`; noninteractive commands
+and logins already in a project keep their working directory. Worker Herdr servers
+use `terminal.new_cwd = "~/code"` for new panes, tabs, and workspaces, with explicit
+`--cwd` taking precedence. This replaces Herdr's usual follow-current-pane default
+on workers. Herdr-created worktrees live under `~/code/herdr-worktrees`.
+
+BB source clones need an explicit worker `--target-path` under `/home/exedev/code`
+(or register an existing checkout there). Shell defaults do not relocate BB's
+managed worktrees or personal workspaces. No BB data directories are moved.
+
 The managed theme is [Tokyo Night Dark](https://wixdaq.github.io/Tokyo-Night-Website/palette.html), the `night` variant with a `#1a1b26` background. TPM remains managed through `.chezmoiexternal.toml`; the private Dracula Pro external is disabled.
 
 Theme coverage: Ghostty, tmux, Neovim, Zed, bat, delta, LazyGit, Hunk, Yazi, pgcli, Herdr, Pi, and zsh completion UI.

@@ -1,4 +1,13 @@
+{{- $role := get . "role" | default "workstation" -}}
 onboarding = false
+{{ if eq $role "bb-worker" }}
+# New terminals default to the worker's code root. Explicit --cwd wins.
+[terminal]
+new_cwd = "~/code"
+
+[worktrees]
+directory = "~/code/herdr-worktrees"
+{{ end }}
 # herdr configuration — https://herdr.dev/docs/configuration/
 # Reload with: herdr server reload-config
 
