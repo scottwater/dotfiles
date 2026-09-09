@@ -9,6 +9,16 @@ if ! command -v apt-get >/dev/null 2>&1; then
   echo "apt-get not available. Skipping Linux package installs." >&2
   exit 0
 fi
+CHEZMOI_ROLE="workstation"
+if command -v chezmoi >/dev/null 2>&1; then
+  CHEZMOI_ROLE="$(chezmoi execute-template '{{ get . "role" | default "workstation" }}')" || exit 1
+fi
+
+app_build_deps=()
+if [ "$CHEZMOI_ROLE" != "bb-worker" ]; then
+  app_build_deps=(libffi-dev libgmp-dev libpq-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev)
+fi
+
 sudo apt-get update
 tmp_log="$(mktemp)"
 trap 'rm -f "$tmp_log"' EXIT
@@ -18,6 +28,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   -o DPkg::Post-Invoke-Success::= \
   -o APT::Update::Post-Invoke::= \
   -o APT::Update::Post-Invoke-Success::= \
+  "${app_build_deps[@]}" \
   build-essential \
   curl \
   dnsutils \
@@ -26,12 +37,6 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   git \
   git-lfs \
   jq \
-  libffi-dev \
-  libgmp-dev \
-  libpq-dev \
-  libreadline-dev \
-  libssl-dev \
-  libyaml-dev \
   lsof \
   netcat-openbsd \
   pkg-config \
@@ -44,7 +49,6 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   unzip \
   wget \
   zip \
-  zlib1g-dev \
   zsh 2>&1 | tee "$tmp_log"
 apt_status=${PIPESTATUS[0]}
 set -e

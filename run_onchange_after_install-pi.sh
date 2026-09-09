@@ -6,13 +6,24 @@
 # uses exe.dev's supported updater there, its own updater when already present,
 # and the upstream installer as a fresh-install fallback.
 #
+# BB workers instead use an isolated prefix and a dedicated tooling Node.
 # This is bootstrap logic. Ongoing manual updates use update-ai-tools.
 set -euo pipefail
 
 PREFIX="${HOME}/.local"
 export PATH="${PREFIX}/bin:${HOME}/.local/share/mise/shims:${PATH}"
 
-if command -v npm >/dev/null 2>&1; then
+CHEZMOI_ROLE="workstation"
+if command -v chezmoi >/dev/null 2>&1; then
+  CHEZMOI_ROLE="$(chezmoi execute-template '{{ get . "role" | default "workstation" }}')" || exit 1
+fi
+
+HARNESS_BIN="${PREFIX}/bin"
+if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
+  PREFIX="$HOME/.local/share/orbi/agents"
+  TOOLING_BIN="$HOME/.local/share/orbi/tooling-node/bin"
+  npm_command=(env "PATH=$TOOLING_BIN:$PATH" "$TOOLING_BIN/node" "$TOOLING_BIN/npm")
+elif command -v npm >/dev/null 2>&1; then
   npm_command=(npm)
 elif command -v mise >/dev/null 2>&1; then
   npm_command=(mise exec node -- npm)
@@ -23,7 +34,7 @@ else
   exit 1
 fi
 
-mkdir -p "${PREFIX}/bin"
+mkdir -p "${PREFIX}/bin" "${HARNESS_BIN}"
 
 install_npm_harness() {
   local name="$1"
@@ -83,11 +94,27 @@ install_claude() {
 
 install_claude
 
+if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
+  for executable in pi codex; do
+    # Remove old npm symlinks before writing; never overwrite their targets.
+    rm -f "${HARNESS_BIN}/${executable}"
+    cat > "${HARNESS_BIN}/${executable}" <<EOF
+#!/usr/bin/env bash
+exec "\$HOME/.local/share/orbi/tooling-node/bin/node" "\$HOME/.local/share/orbi/agents/bin/${executable}" "\$@"
+EOF
+    chmod +x "${HARNESS_BIN}/${executable}"
+  done
+fi
+
 # Managed Pi package URLs are already present in settings.json when after
 # scripts run. Fetch/update those extensions now so a fresh machine is ready.
-"${PREFIX}/bin/pi" update --all
+if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
+  env "PATH=$TOOLING_BIN:$PATH" "${HARNESS_BIN}/pi" update --all
+else
+  "${HARNESS_BIN}/pi" update --all
+fi
 
 printf 'Installed coding harnesses:\n'
-printf '  %s\n' "$("${PREFIX}/bin/pi" --version 2>/dev/null | tail -1)"
-printf '  %s\n' "$("${PREFIX}/bin/codex" --version 2>/dev/null | tail -1)"
+printf '  %s\n' "$("${HARNESS_BIN}/pi" --version 2>/dev/null | tail -1)"
+printf '  %s\n' "$("${HARNESS_BIN}/codex" --version 2>/dev/null | tail -1)"
 printf '  %s\n' "$(claude --version 2>/dev/null | tail -1)"

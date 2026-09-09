@@ -81,6 +81,15 @@ The `bb-worker` role includes the full zsh environment, Neovim, LazyGit, Hunk,
 Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, Pi packages, and shared
 agent skills. Authentication remains a separate provisioning step.
 
+Workers have no global app Node, Ruby, or PHP runtime; profiles supply app
+runtimes and their build dependencies. General build tools and SQLite remain.
+Coding agents use mise-installed Node 24.19.0 through
+`~/.local/share/orbi/tooling-node`, with Pi/Codex packages under
+`~/.local/share/orbi/agents`. Their `~/.local/bin` wrappers always use that
+runtime. Initial `node`, `npm`, and `npx` links point to tooling Node only when
+absent; later Chezmoi runs preserve profile-selected app links. Worker agent
+updates use the isolated prefix and runtime too. Workstation defaults are unchanged.
+
 The managed theme is [Tokyo Night Dark](https://wixdaq.github.io/Tokyo-Night-Website/palette.html), the `night` variant with a `#1a1b26` background. TPM remains managed through `.chezmoiexternal.toml`; the private Dracula Pro external is disabled.
 
 Theme coverage: Ghostty, tmux, Neovim, Zed, bat, delta, LazyGit, Hunk, Yazi, pgcli, Herdr, Pi, and zsh completion UI.
@@ -123,7 +132,8 @@ Orbie's `provisioning/bin/update-worker` invokes this installed command remotely
 for one VM or sequentially for `--all`. Workers need no control-server SSH key.
 Refresh the template's Chezmoi configuration before building new worker images.
 
-Run the updater tests from this source repository:
+Run the updater and worker tooling tests from this source repository (template
+checks require `chezmoi`; no installers are executed):
 
 ```bash
 python3 -m unittest discover -s tests -q
@@ -152,7 +162,7 @@ The install scripts run automatically via `chezmoi apply`:
 
 ### Development Environment
 
-- **[mise](https://mise.jdx.dev/)** - Runtime manager with pinned Ruby 4.0.6 and Node.js 24.19 defaults
+- **[mise](https://mise.jdx.dev/)** - Runtime manager with workstation defaults pinned to Ruby 4.0.6 and Node.js 24.19.0
 - **[Neovim](https://neovim.io/)** - Editor (LazyVim configuration)
 - **[Zed](https://zed.dev/)** - Code editor (Tokyo Night theme with Dark terminal overrides; install the `Tokyo Night` extension on a fresh machine)
 

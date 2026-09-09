@@ -71,6 +71,28 @@ install_mise_tools() {
   fi
 }
 
+# Coding agents have a fixed runtime independent of profile-selected app Node.
+install_tooling_node() {
+  if [ "$CHEZMOI_ROLE" != "bb-worker" ]; then
+    return
+  fi
+
+  mise install -y node@24.19.0
+  local runtime
+  runtime="$(mise where node@24.19.0)"
+  mkdir -p "$HOME/.local/share/orbi" "$HOME/.local/bin"
+  ln -sfn "$runtime" "$HOME/.local/share/orbi/tooling-node"
+
+  local executable target
+  for executable in node npm npx; do
+    target="$HOME/.local/bin/$executable"
+    # Preserve app runtime links, including dangling ones, on subsequent applies.
+    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+      ln -s "$HOME/.local/share/orbi/tooling-node/bin/$executable" "$target"
+    fi
+  done
+}
+
 install_fnox() {
   if ! has_command mise; then
     return
@@ -111,6 +133,7 @@ install_herdr() {
 install_atuin
 install_mise
 install_mise_tools
+install_tooling_node
 install_uv
 install_homebrew
 install_fnox
