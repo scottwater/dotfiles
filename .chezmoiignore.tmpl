@@ -30,6 +30,11 @@ Brewfile
 .config/zed/**
 {{- end }}
 
+# Worker-local maintenance
+{{- if ne $role "bb-worker" }}
+.local/bin/orbi-update
+{{- end }}
+
 # Work-only files
 {{- if not (get . "kode") }}
 .agents/skills/linear/**
@@ -40,5 +45,6 @@ Brewfile
 backup/
 
 # Project-specific files (not for syncing)
+tests/**
 CLAUDE.md
 AGENTS.md

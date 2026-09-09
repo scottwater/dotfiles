@@ -95,6 +95,40 @@ The old private theme remains available as a dormant fallback:
 
 The existing `bat/themes/alucard.tmTheme` and Pi `themes/alucard.json` files are intentionally retained for that fallback.
 
+## Worker updates
+
+Role `bb-worker` installs `~/.local/bin/orbi-update`. Finish active work and push
+your dotfile changes before running it on a VM:
+
+```bash
+orbi-update --dry-run
+orbi-update
+orbi-update --component agents --component herdr
+orbi-update --yes
+```
+
+The default sequence is `chezmoi update`, `update-ai-tools` (Pi, Codex, Claude),
+`mise upgrade herdr`, then a check that enrolled BB host services are active and
+configured for automatic updates. BB follows the control server; this command
+does not manually update or restart BB or Herdr. Chezmoi hooks may also update
+tools, regardless of component selection.
+
+The command checks the worker role, refuses dirty Chezmoi source changes, and
+locks against concurrent updates. Failures stop later components without rolling
+back earlier changes. Dry run prints the plan without running commands. Updates
+to the updater itself take effect on the next invocation: Python loads the
+current program before Chezmoi can replace its file.
+
+Orbie's `provisioning/bin/update-worker` invokes this installed command remotely
+for one VM or sequentially for `--all`. Workers need no control-server SSH key.
+Refresh the template's Chezmoi configuration before building new worker images.
+
+Run the updater tests from this source repository:
+
+```bash
+python3 -m unittest discover -s tests -q
+```
+
 ## Installation Scripts
 
 The install scripts run automatically via `chezmoi apply`:

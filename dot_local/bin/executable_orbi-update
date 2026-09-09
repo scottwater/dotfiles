@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Worker-local maintenance. Python loads this file before Chezmoi replaces it."""
+from __future__ import annotations
+
+import argparse
+import fcntl
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+
+COMPONENTS = ("chezmoi", "agents", "herdr", "bb")
+
+
+def run(*command: str, capture: bool = False) -> str:
+    print("→ " + shlex.join(command), flush=True)
+    result = subprocess.run(command, check=True, text=True, capture_output=capture)
+    return result.stdout.strip() if capture else ""
+
+
+def update(component: str) -> None:
+    if component == "chezmoi":
+        source = run("chezmoi", "source-path", capture=True)
+        if run("git", "-C", source, "status", "--porcelain", capture=True):
+            raise RuntimeError("Chezmoi source has local changes; commit or move them first")
+        run("chezmoi", "update")
+    elif component == "agents":
+        run("update-ai-tools")
+        for tool in ("pi", "codex", "claude"):
+            run(tool, "--version")
+    elif component == "herdr":
+        run("mise", "upgrade", "herdr")
+        run("herdr", "--version")
+    elif component == "bb":
+        # Enrollment installs --auto-update. Do not replace its server-matched
+        # package with npm's latest, or require control-server SSH from workers.
+        units = sorted((Path.home() / ".config/systemd/user").glob("bb-host-daemon-*.service"))
+        if not units:
+            raise RuntimeError("No enrolled BB host service found")
+        for unit in units:
+            if "--auto-update" not in unit.read_text():
+                raise RuntimeError(f"BB auto-update is not configured in {unit}")
+            run("systemctl", "--user", "is-active", unit.name)
+        print("BB uses server-managed automatic updates; no manual install or restart performed.")
+        print("Update the control server separately. Check convergence with list-workers on the Mac.")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Update this BB worker's configuration and coding tools.")
+    parser.add_argument("--component", action="append", choices=COMPONENTS, help="Repeat to select components (default: all)")
+    parser.add_argument("-n", "--dry-run", action="store_true", help="Show the plan without running commands")
+    parser.add_argument("-y", "--yes", action="store_true", help="Confirm updates and possible session interruptions")
+    args = parser.parse_args(argv)
+    components = [c for c in COMPONENTS if args.component is None or c in args.component]
+    descriptions = {
+        "chezmoi": "Check for local source changes, then chezmoi update (pull/apply pushed changes)",
+        "agents": "update-ai-tools (Pi, Codex, Claude), then print versions",
+        "herdr": "mise upgrade herdr, then print version; do not restart sessions",
+        "bb": "Check enrolled host service and auto-update configuration; no manual BB update",
+    }
+    print("Worker update plan:", flush=True)
+    for c in components:
+        print(f"  {c}: {descriptions[c]}", flush=True)
+    print("Finish active work first. Chezmoi hooks may also update tools and interrupt sessions.", flush=True)
+    if args.dry_run:
+        print("Dry run: no commands or remote-state checks performed.")
+        return 0
+    if not args.yes:
+        if not sys.stdin.isatty():
+            print("Confirmation requires a TTY; pass --yes.", file=sys.stderr)
+            return 1
+        try:
+            if input("Update this worker? [y/N] ").strip().lower() not in {"y", "yes"}:
+                return 1
+        except (EOFError, KeyboardInterrupt):
+            return 1
+    home = Path.home()
+    os.environ["PATH"] = f"{home}/.local/bin:{home}/.local/share/mise/shims:" + os.environ.get("PATH", "")
+    try:
+        role = json.loads(run("chezmoi", "data", "--format=json", capture=True)).get("role")
+        if role != "bb-worker":
+            raise RuntimeError(f"Expected Chezmoi role bb-worker, got {role!r}")
+        state = home / ".local/state/orbi-update"
+        state.mkdir(parents=True, exist_ok=True)
+        with (state / "lock").open("a") as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise RuntimeError("Another orbi-update is running") from None
+            # The lock is non-inheritable; updater children cannot retain it.
+            for c in components:
+                print(f"=== {c} ===", flush=True)
+                update(c)
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError, KeyboardInterrupt) as error:
+        print(f"Update failed: {error}. Earlier steps may have completed; no rollback performed.", file=sys.stderr)
+        return 1
+    print("Update steps complete. Start fresh agent sessions to use new versions.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
