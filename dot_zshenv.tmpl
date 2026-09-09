@@ -10,8 +10,10 @@ fi
 {{- end }}
 
 # Codex may run non-login, non-interactive zsh; .zprofile/.zshrc are skipped.
-# Keep this narrow: only adjust PATH when running inside Codex.
-if [[ -n "${CODEX_SHELL:-}" || "${__CFBundleIdentifier:-}" == "com.openai.codex" || "${CODEX_INTERNAL_ORIGINATOR_OVERRIDE:-}" == "Codex Desktop" || "$(ps -p "${PPID:-0}" -o comm= 2>/dev/null)" == *"/Codex" ]] && [[ -d "$HOME/.local/share/mise/shims" ]]; then
-  path=("$HOME/.local/share/mise/shims" ${path:#$HOME/.local/share/mise/shims})
-  export PATH
+# Load project tools and environment, including on directory changes.
+# Interactive terminals activate mise in .zshrc instead.
+if [[ ! -o interactive && -z "${CODEX_MISE_INITIALIZING:-}" ]] && [[ -n "${CODEX_SHELL:-}" || "${__CFBundleIdentifier:-}" == "com.openai.codex" || "${CODEX_INTERNAL_ORIGINATOR_OVERRIDE:-}" == "Codex Desktop" || "$(ps -p "${PPID:-0}" -o comm= 2>/dev/null)" == *"/Codex" ]] && [[ -x "$HOME/.local/bin/mise" ]]; then
+  export CODEX_MISE_INITIALIZING=1
+  eval "$("$HOME/.local/bin/mise" activate zsh)"
+  unset CODEX_MISE_INITIALIZING
 fi
