@@ -22,7 +22,8 @@ HARNESS_BIN="${PREFIX}/bin"
 if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
   PREFIX="$HOME/.local/share/orbi/agents"
   TOOLING_BIN="$HOME/.local/share/orbi/tooling-node/bin"
-  npm_command=(env "PATH=$TOOLING_BIN:$PATH" "$TOOLING_BIN/node" "$TOOLING_BIN/npm")
+  # mise wraps bin/npm in Bash for reshim; Node must execute npm's JS entry.
+  npm_command=(env "PATH=$TOOLING_BIN:$PATH" "$TOOLING_BIN/node" "$TOOLING_BIN/../lib/node_modules/npm/bin/npm-cli.js")
 elif command -v npm >/dev/null 2>&1; then
   npm_command=(npm)
 elif command -v mise >/dev/null 2>&1; then
