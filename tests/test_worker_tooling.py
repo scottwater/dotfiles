@@ -40,9 +40,12 @@ class WorkerToolingTests(unittest.TestCase):
                     rendered = self.render("private_dot_config/mise/config.toml.tmpl", role, system)
                     self.assertEqual('node = "24.19.0"' in rendered, role != "bb-worker")
                     self.assertEqual('ruby = "4.0.6"' in rendered, role != "bb-worker")
+                    self.assertEqual('"npm:yarn" = "1.22.22"' in rendered, role != "bb-worker")
                     self.assertNotIn('php =', rendered)
                     for tool in ("fnox", "herdr", "neovim", "overmind", "gh", "yazi"):
                         self.assertIn(f'{tool} = "latest"', rendered)
+                    tools = tomllib.loads(rendered)["tools"]
+                    self.assertEqual(tools.get("aqua:1password/cli"), "latest")
 
     def test_core_runtime_is_explicit_not_global(self):
         for role in ("bb-worker", "workstation", None):

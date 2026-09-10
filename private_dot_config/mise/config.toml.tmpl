@@ -3,11 +3,13 @@
 # Tools shared by workstations and disposable development workers.
 fnox = "latest"
 herdr = "latest"
+"aqua:1password/cli" = "latest"
 
 {{ if ne $role "bb-worker" -}}
 # Workstation-only runtimes. Workers get app runtimes from their profile.
 node = "24.19.0"
 ruby = "4.0.6"
+"npm:yarn" = "1.22.22"
 bun = "latest"
 go = "latest"
 {{ if eq .chezmoi.os "darwin" -}}

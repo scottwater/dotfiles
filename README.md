@@ -81,6 +81,12 @@ The `bb-worker` role includes the full zsh environment, Neovim, LazyGit, Hunk,
 Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, Pi packages, and shared
 agent skills. Authentication remains a separate provisioning step.
 
+Mise installs the 1Password CLI (`op`) for all roles on Linux and macOS through
+`aqua:1password/cli`. Account sign-in remains manual; Chezmoi does not configure
+authentication or enroll accounts. Workstations also pin Yarn Classic to
+`1.22.22` via `npm:yarn`; Rails worker profiles install that same version with
+their application Node, keeping it out of the lean base.
+
 Workers have no global app Node, Ruby, or PHP runtime; profiles supply app
 runtimes and their build dependencies. General build tools and SQLite remain.
 Coding agents use mise-installed Node 24.19.0 through
