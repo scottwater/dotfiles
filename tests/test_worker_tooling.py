@@ -127,12 +127,12 @@ class WorkerToolingTests(unittest.TestCase):
                         expected = ["--prefix", f"{temp}/.local/share/orbi/agents", "--version"]
                     self.assertEqual(json.loads(result.stdout), expected)
 
-    def test_herdr_code_defaults_are_worker_only(self):
+    def test_herdr_preserves_default_cwd_and_worker_worktree_location(self):
         for role in ("bb-worker", "workstation", None):
             with self.subTest(role=role):
                 config = tomllib.loads(self.render("private_dot_config/herdr/config.toml.tmpl", role))
+                self.assertNotIn("new_cwd", config.get("terminal", {}))
                 if role == "bb-worker":
-                    self.assertEqual(config["terminal"]["new_cwd"], "~/code")
                     self.assertEqual(config["worktrees"]["directory"], "~/code/herdr-worktrees")
                 else:
                     self.assertNotIn("terminal", config)

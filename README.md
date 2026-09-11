@@ -110,10 +110,11 @@ updates use the isolated prefix and runtime too. Workstation defaults are unchan
 
 Worker bootstrap creates `~/code` without modifying existing projects. Interactive
 zsh logins starting in the home directory enter `~/code`; noninteractive commands
-and logins already in a project keep their working directory. Worker Herdr servers
-use `terminal.new_cwd = "~/code"` for new panes, tabs, and workspaces, with explicit
-`--cwd` taking precedence. This replaces Herdr's usual follow-current-pane default
-on workers. Herdr-created worktrees live under `~/code/herdr-worktrees`.
+and logins already in a project keep their working directory. Herdr's new-terminal
+working directory is not overridden: new tabs and splits retain its normal
+follow-current-pane behavior instead of being forced back to `~/code`. Remote
+attachment does not relocate existing panes. Herdr-created worktrees live under
+`~/code/herdr-worktrees`.
 
 BB source clones need an explicit worker `--target-path` under `/home/exedev/code`
 (or register an existing checkout there). Shell defaults do not relocate BB's
