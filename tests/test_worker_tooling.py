@@ -184,6 +184,41 @@ class WorkerToolingTests(unittest.TestCase):
             result = subprocess.run([shutil.which("zsh"), "-d", "-f", "-l", "-i", "-c", block], cwd=home, env={**os.environ, "HOME": str(home)}, text=True, capture_output=True, check=True)
             self.assertEqual(result.stdout.strip(), str(home))
 
+    def test_worker_installs_only_requested_herdr_integrations_on_each_apply(self):
+        name = "run_after_zz-install-herdr-integrations.sh.tmpl"
+        with tempfile.TemporaryDirectory() as temp:
+            home = Path(temp)
+            bins = home / ".local/bin"
+            bins.mkdir(parents=True)
+            for executable in ("herdr", "pi", "claude", "codex"):
+                path = bins / executable
+                body = '#!/bin/sh\nexit 0\n'
+                if executable == "herdr":
+                    body = '#!/bin/sh\nprintf "%s\\n" "$*" >> "$HOME/calls"\nif [ "$*" = "integration install ${FAIL_INTEGRATION:-none}" ]; then exit 1; fi\n'
+                path.write_text(body)
+                path.chmod(0o755)
+            env = {**os.environ, "HOME": temp, "PATH": "/usr/bin:/bin", "PI_CODING_AGENT_DIR": str(home / ".pi/agent"), "CLAUDE_CONFIG_DIR": str(home / ".claude"), "CODEX_HOME": str(home / ".codex")}
+            for role in ("workstation", None):
+                subprocess.run(["bash", "-eu"], input=self.render(name, role), env=env, text=True, check=True)
+                self.assertFalse((home / "calls").exists())
+            worker = self.render(name, "bb-worker")
+            expected = ["integration install pi", "integration install claude", "integration install codex", "integration status"]
+            for attempt in (1, 2):
+                subprocess.run(["bash", "-eu"], input=worker, env=env, text=True, check=True)
+                self.assertEqual((home / "calls").read_text().splitlines(), expected * attempt)
+                for directory in (".pi/agent", ".claude", ".codex"):
+                    self.assertTrue((home / directory).is_dir())
+            (home / "calls").unlink()
+            result = subprocess.run(["bash", "-eu"], input=worker, env={**env, "FAIL_INTEGRATION": "claude"}, text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual((home / "calls").read_text().splitlines(), expected[:2])
+            (home / "calls").unlink()
+            (bins / "codex").unlink()
+            result = subprocess.run(["bash", "-eu"], input=worker, env=env, text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("missing codex", result.stderr)
+            self.assertFalse((home / "calls").exists())
+
     def test_worker_linux_omits_app_build_dependencies(self):
         script = source("run_after_install-linux.sh")
         setup = script.split("app_build_deps=()", 1)[1].split("sudo apt-get update", 1)[0]

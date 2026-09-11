@@ -81,6 +81,16 @@ The `bb-worker` role includes the full zsh environment, Neovim, LazyGit, Hunk,
 Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, Pi packages, and shared
 agent skills. Authentication remains a separate provisioning step.
 
+After installing the coding harnesses, worker applies automatically run
+`herdr integration install pi`, `herdr integration install claude`, and
+`herdr integration install codex`. This installs Herdr's state-reporting hooks
+and extension, preserves unrelated agent hooks/settings, and refreshes the
+integrations on subsequent applies. It does not start agents, sign in, or enable
+OpenCode/other integrations. Workstation integration choices are unchanged.
+Restart already-running coding agents to load newly installed integrations;
+`herdr integration status` reports their installed versions. See
+[Herdr's integration documentation](https://herdr.dev/docs/integrations/).
+
 Mise installs the 1Password CLI (`op`) for all roles on Linux and macOS through
 `aqua:1password/cli`. Account sign-in remains manual; Chezmoi does not configure
 authentication or enroll accounts. Workstations also pin Yarn Classic to
@@ -150,7 +160,8 @@ for one VM or sequentially for `--all`. Workers need no control-server SSH key.
 Refresh the template's Chezmoi configuration before building new worker images.
 
 Run the updater and worker tooling tests from this source repository (template
-checks require `chezmoi`; no installers are executed):
+checks require `chezmoi`; when `herdr` is available, its local integration
+installers are tested in an isolated temporary home, never against live settings):
 
 ```bash
 python3 -m unittest discover -s tests -q

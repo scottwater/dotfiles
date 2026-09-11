@@ -1,0 +1,29 @@
+{{- $role := get . "role" | default "workstation" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if ne $role "bb-worker" -}}
+# Workstations retain their existing integration choices.
+exit 0
+{{ else -}}
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+
+# Run after install-pi and the other after scripts. Repeat on every apply to
+# repair missing integrations and refresh hooks after Herdr updates.
+for executable in herdr pi claude codex; do
+  command -v "$executable" >/dev/null 2>&1 || {
+    echo "Cannot enable Herdr integrations: missing $executable" >&2
+    exit 1
+  }
+done
+
+# Fresh CLI installations may not create these until their first launch.
+# Creating the directories does not sign in or start an agent.
+mkdir -p "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}" \
+  "${CLAUDE_CONFIG_DIR:-$HOME/.claude}" "${CODEX_HOME:-$HOME/.codex}"
+
+for agent in pi claude codex; do
+  herdr integration install "$agent"
+done
+herdr integration status
+{{ end -}}
