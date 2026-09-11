@@ -45,7 +45,8 @@ class WorkerToolingTests(unittest.TestCase):
                     for tool in ("fnox", "herdr", "neovim", "overmind", "gh", "yazi"):
                         self.assertIn(f'{tool} = "latest"', rendered)
                     tools = tomllib.loads(rendered)["tools"]
-                    self.assertEqual(tools.get("aqua:1password/cli"), "latest")
+                    self.assertEqual(tools.get("vfox:mise-plugins/vfox-1password"), "latest")
+                    self.assertNotIn("aqua:1password/cli", tools)
 
     def test_core_runtime_is_explicit_not_global(self):
         for role in ("bb-worker", "workstation", None):

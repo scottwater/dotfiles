@@ -92,7 +92,9 @@ Restart already-running coding agents to load newly installed integrations;
 [Herdr's integration documentation](https://herdr.dev/docs/integrations/).
 
 Mise installs the 1Password CLI (`op`) for all roles on Linux and macOS through
-`aqua:1password/cli`. Account sign-in remains manual; Chezmoi does not configure
+`vfox:mise-plugins/vfox-1password`, mise's preferred backend for `op`. The Aqua
+backend cannot discover releases with mise 2026.9.1. Account sign-in remains
+manual; Chezmoi does not configure
 authentication or enroll accounts. Workstations also pin Yarn Classic to
 `1.22.22` via `npm:yarn`; Rails worker profiles install that same version with
 their application Node, keeping it out of the lean base.
