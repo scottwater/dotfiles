@@ -1,8 +1,8 @@
 {
-  "lastChangelogVersion": "0.85.0",
+  "lastChangelogVersion": "0.85.1",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
-  "defaultThinkingLevel": "high",
+  "defaultModel": "gpt-6-astra",
+  "defaultThinkingLevel": "medium",
   "quietStartup": true,
   "packages": [
     "https://github.com/nicobailon/visual-explainer",
@@ -10,7 +10,6 @@
     "npm:glimpseui",
     "git:github.com/dbachelder/pi-btw",
     "git:github.com/scottwater/pi-stoic",
-    "npm:pi-grok-cli",
     "npm:sideshow",
     "npm:@plannotator/pi-extension",
     "npm:pi-mcp-adapter",
@@ -21,12 +20,12 @@
     "opencode-go/glm-5.3",
     "opencode-go/minimax-m3",
     "opencode-go/kimi-k2.7-code",
-    "grok-cli/grok-4.6",
     "openai-codex/gpt-5.6-luna",
     "openai-codex/gpt-5.6-sol",
     "openai-codex/gpt-5.6-terra",
     "opencode-go/kimi-k3",
-    "grok-cli/grok-composer-2.5-fast"
+    "openai-codex/gpt-6-astra",
+    "xai/grok-4.6"
   ],
   "pi-codex-fast": {
     "enabled": false
@@ -34,5 +33,6 @@
   "powerline": "default",
   "workingVibe": "zen",
   "transport": "auto",
-  "tuiMode": "regular"
+  "tuiMode": "regular",
+  "steeringMode": "all"
 }
