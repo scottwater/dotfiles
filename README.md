@@ -99,14 +99,14 @@ authentication or enroll accounts. Workstations also pin Yarn Classic to
 `1.22.22` via `npm:yarn`; Rails worker profiles install that same version with
 their application Node, keeping it out of the lean base.
 
-Workers have no global app Node, Ruby, or PHP runtime; profiles supply app
-runtimes and their build dependencies. General build tools and SQLite remain.
+Workers have no base app Node, Ruby, or PHP default; profiles supply app
+runtimes, mise defaults, and build dependencies. General build tools and SQLite remain.
 Coding agents use mise-installed Node 24.19.0 through
 `~/.local/share/orbi/tooling-node`, with Pi/Codex packages under
-`~/.local/share/orbi/agents`. Their `~/.local/bin` wrappers always use that
-runtime. Initial `node`, `npm`, and `npx` links point to tooling Node only when
-absent; later Chezmoi runs preserve profile-selected app links. Worker agent
-updates use the isolated prefix and runtime too. Workstation defaults are unchanged.
+`~/.local/share/orbi/agents`. Their launchers and updates use this private
+runtime, never generic `node`, `npm`, or `npx` links. Worker zsh shells put mise
+shims before `~/.local/bin`, including noninteractive and nonlogin shells, so
+apps use mise-selected runtimes. Workstation defaults are unchanged.
 
 Worker bootstrap creates `~/code` without modifying existing projects. Interactive
 zsh logins starting in the home directory enter `~/code`; noninteractive commands

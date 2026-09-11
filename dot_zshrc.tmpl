@@ -1,3 +1,4 @@
+{{- $role := get . "role" | default "workstation" -}}
 if [ -z "${ZSH_VERSION:-}" ]; then
   if [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv bash)"
@@ -7,7 +8,11 @@ if [ -z "${ZSH_VERSION:-}" ]; then
   return 0 2>/dev/null || exit 0
 fi
 
+{{ if eq $role "bb-worker" -}}
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+{{- else }}
 export PATH="$HOME/.local/bin:$PATH"
+{{- end }}
 if [ -f "$HOME/.atuin/bin/env" ]; then
   . "$HOME/.atuin/bin/env"
 fi

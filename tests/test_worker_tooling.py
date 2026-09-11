@@ -62,22 +62,70 @@ class WorkerToolingTests(unittest.TestCase):
         self.assertIn('ln -sfn "$runtime" "$HOME/.local/share/orbi/tooling-node"', block)
         self.assertIn("install_mise_tools\ninstall_tooling_node", core)
 
-    def test_initial_links_preserve_app_paths_including_dangling_links(self):
-        # Execute only the link loop, not the installer function or script.
+    def test_core_never_exposes_generic_runtime_aliases(self):
         core = source("run_after_install-core.sh.tmpl")
-        loop = core.split("  for executable in node npm npx; do", 1)[1].split("\n  done", 1)[0]
-        loop = "for executable in node npm npx; do" + loop + "\ndone\n"
-        with tempfile.TemporaryDirectory() as temp:
-            bins = Path(temp) / ".local/bin"
-            bins.mkdir(parents=True)
-            (bins / "node").write_text("app node")
-            (bins / "npm").symlink_to("/nonexistent/app/npm")
-            for _ in range(2):
-                subprocess.run(["bash", "-eu"], input=loop, text=True,
-                               env={**os.environ, "HOME": temp}, check=True)
-                self.assertEqual((bins / "node").read_text(), "app node")
-                self.assertEqual(os.readlink(bins / "npm"), "/nonexistent/app/npm")
-                self.assertEqual(os.readlink(bins / "npx"), f"{temp}/.local/share/orbi/tooling-node/bin/npx")
+        body = core.split("install_tooling_node() {", 1)[1].split("\n}\n", 1)[0]
+        script = 'mise() { [ "$1" != where ] || printf "%s\\n" "$HOME/runtime"; }\n'
+        script += "install_tooling_node() {" + body + "\n}\ninstall_tooling_node\n"
+        for existing in (False, True):
+            with self.subTest(existing=existing), tempfile.TemporaryDirectory() as temp:
+                home = Path(temp)
+                bins = home / ".local/bin"
+                bins.mkdir(parents=True)
+                if existing:
+                    for name in ("node", "npm", "npx"):
+                        (bins / name).symlink_to(f"/nonexistent/app/{name}")
+                for _ in range(2):
+                    subprocess.run(["bash", "-eu"], input=script, text=True,
+                                   env={**os.environ, "HOME": temp, "CHEZMOI_ROLE": "bb-worker"}, check=True)
+                    self.assertEqual(os.readlink(home / ".local/share/orbi/tooling-node"), f"{temp}/runtime")
+                    for name in ("node", "npm", "npx"):
+                        self.assertEqual(os.path.lexists(bins / name), existing)
+                        if existing:
+                            self.assertEqual(os.readlink(bins / name), f"/nonexistent/app/{name}")
+
+    @unittest.skipUnless(shutil.which("zsh"), "zsh is required for shell PATH checks")
+    def test_rendered_shell_runtime_path_order(self):
+        for role in ("bb-worker", "workstation", None):
+            with tempfile.TemporaryDirectory() as temp:
+                home = Path(temp).resolve()
+                bins = home / ".local/bin"
+                shims = home / ".local/share/mise/shims"
+                for directory, label in ((bins, "local"), (shims, "mise")):
+                    directory.mkdir(parents=True)
+                    for name in ("node", "npm", "npx"):
+                        executable = directory / name
+                        executable.write_text(f'#!/bin/sh\necho {label}\n')
+                        executable.chmod(0o755)
+                # Isolate shell initialization from installed tools and real user config.
+                for name in ("mise", "atuin", "stooges", "fnox"):
+                    executable = bins / name
+                    executable.write_text('#!/bin/sh\nexit 0\n')
+                    executable.chmod(0o755)
+                for name in ("zshenv", "zprofile", "zshrc"):
+                    (home / f".{name}").write_text(self.render(f"dot_{name}.tmpl", role))
+                for login in (False, True):
+                    for interactive in (False, True):
+                        with self.subTest(role=role, login=login, interactive=interactive):
+                            command = [shutil.which("zsh"), "-d"]
+                            if login:
+                                command.append("-l")
+                            if interactive:
+                                command.append("-i")
+                            command += ["-c", 'printf "PATH_RESULT=%s\\n" "$PATH"; node; npm; npx']
+                            env = {"HOME": str(home), "ZDOTDIR": str(home),
+                                   "PATH": f"{bins}:/usr/bin:/bin", "TERM": "dumb"}
+                            result = subprocess.run(command, env=env, cwd=home,
+                                                    text=True, capture_output=True, check=True)
+                            lines = result.stdout.splitlines()
+                            path = next(line.removeprefix("PATH_RESULT=") for line in lines if line.startswith("PATH_RESULT="))
+                            paths = path.split(":")
+                            if role == "bb-worker":
+                                self.assertLess(paths.index(str(shims)), paths.index(str(bins)))
+                            else:
+                                self.assertNotIn(str(shims), paths)
+                            self.assertNotIn(str(home / ".local/share/orbi/tooling-node/bin"), paths)
+                            self.assertEqual(lines[-3:], ["mise" if role == "bb-worker" else "local"] * 3)
 
     def test_install_and_update_use_isolated_npm_and_role_data(self):
         install = source("run_onchange_after_install-pi.sh")

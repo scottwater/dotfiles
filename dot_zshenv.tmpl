@@ -1,3 +1,9 @@
+{{- $role := get . "role" | default "workstation" -}}
+{{- if eq $role "bb-worker" }}
+# All worker shells resolve app runtimes through mise, not local fallback links.
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+{{- end }}
+
 {{- if eq .chezmoi.os "linux" }}
 # Some VM shells bypass PAM, so systemd's user-session variables are absent.
 # Recover them from the runtime directory that systemd-logind already created.
