@@ -20,3 +20,5 @@ CLAUDE.local.md
 .pi-subagents/
 .pi/
 **/.claude/.cc-writes/
+
+**/.claude/settings.local.json

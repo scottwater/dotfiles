@@ -7,6 +7,9 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "preview_tabs": {
+    "enabled": false
+  },
   "session": {
     "trust_all_worktrees": true
   },
@@ -46,7 +49,7 @@
   "scrollbar": {
     "show": "never",
   },
-  "icon_theme": "Bearded Icon Theme",
+  "icon_theme": "Colored Zed Icons Theme Dark",
   "project_panel": {
     "sort_mode": "mixed",
     "default_width": 200.0,
@@ -56,7 +59,6 @@
     "hide_root": true,
     "entry_spacing": "standard",
     "dock": "left",
-    "folder_icons": false,
     "auto_fold_dirs": true,
     "auto_reveal_entries": true,
     "scrollbar": {
