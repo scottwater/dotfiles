@@ -55,7 +55,14 @@ rows = [
 # bare keys after an array-of-tables land inside that table, and herdr rejects
 # them as unknown keys.
 [keys]
-# Prefix stays on the default ctrl+b: ctrl+a is readline beginning-of-line.
+prefix = "ctrl+space"
+detach = "prefix+d"
+
+# Match the workstation's directional pane navigation.
+focus_pane_left = "ctrl+alt+left"
+focus_pane_down = "ctrl+alt+down"
+focus_pane_up = "ctrl+alt+up"
+focus_pane_right = "ctrl+alt+right"
 
 # Focus agent rows 1-9 directly. Default is alt+1..9, which macOS eats for
 # Spaces before the terminal ever sees it.
