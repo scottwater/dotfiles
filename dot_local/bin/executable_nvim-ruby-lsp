@@ -37,6 +37,15 @@ main() {
   if [[ -n "$project_ruby" ]]; then
     project_ruby_bin="$(dirname "$project_ruby")"
     prepend_path "$project_ruby_bin"
+
+    # Gems belong to each Ruby installation; a new Ruby may not have the server yet.
+    if [[ ! -x "$project_ruby_bin/ruby-lsp" ]]; then
+      echo "nvim-ruby-lsp: installing ruby-lsp for ${project_ruby}" >&2
+      if ! "$project_ruby" -S gem install --no-document ruby-lsp >&2; then
+        echo "nvim-ruby-lsp: ruby-lsp installation failed for ${project_ruby}" >&2
+        exit 1
+      fi
+    fi
   fi
 
   local composed_bundle="${PWD}/${COMPOSED_BUNDLE_GEMFILE}"
