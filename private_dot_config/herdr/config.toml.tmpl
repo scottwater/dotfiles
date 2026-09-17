@@ -64,6 +64,26 @@ focus_pane_down = "ctrl+alt+down"
 focus_pane_up = "ctrl+alt+up"
 focus_pane_right = "ctrl+alt+right"
 
+resize_mode = ["prefix+ctrl+left", "prefix+ctrl+down", "prefix+ctrl+up", "prefix+ctrl+right"]
+resize_pane_left = "ctrl+alt+shift+left"
+resize_pane_down = "ctrl+alt+shift+down"
+resize_pane_up = "ctrl+alt+shift+up"
+resize_pane_right = "ctrl+alt+shift+right"
+
+# Match Omarchy's tab and workspace navigation.
+previous_tab = ["prefix+p", "alt+left"]
+next_tab = ["prefix+n", "alt+right"]
+move_tab_previous = "alt+shift+left"
+move_tab_next = "alt+shift+right"
+previous_workspace = "alt+up"
+next_workspace = "alt+down"
+new_workspace = ["prefix+shift+n", "prefix+shift+c"]
+
+rename_tab = "prefix+r"
+rename_workspace = "prefix+shift+r"
+# Free Shift+R for workspace renaming, matching Omarchy.
+reload_config = "prefix+q"
+
 # Focus agent rows 1-9 directly. Default is alt+1..9, which macOS eats for
 # Spaces before the terminal ever sees it.
 focus_agent = "ctrl+1..9"
