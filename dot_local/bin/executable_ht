@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+herd composer test:parallel -- --no-ansi \
+  --log-junit=storage/logs/tests.xml \
+  2>&1 | tee storage/logs/tests.log
