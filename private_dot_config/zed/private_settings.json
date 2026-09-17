@@ -71,11 +71,27 @@
   "buffer_font_size": 20,
   "theme": "Tokyo Night",
   "languages": {
+    "PHP": {
+      "language_servers": ["intelephense", "laravel", "!phpactor", "!phptools", "!phpantom", "!laravel-lsp", "..."],
+    },
+    "Blade": {
+      "language_servers": ["laravel", "!laravel-lsp", "..."],
+    },
     "Ruby": {
       "language_servers": ["ruby-lsp"],
     },
   },
   "lsp": {
+    "intelephense": {
+      "settings": {
+        "diagnostics": {
+          "argumentCount": "declared",
+        },
+        "files": {
+          "maxSize": 5000000,
+        },
+      },
+    },
     "rubocop": {
       "initialization_options": {
         "safeAutocorrect": false,

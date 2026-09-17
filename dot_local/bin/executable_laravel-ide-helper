@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: laravel-ide-helper [PROJECT_DIRECTORY]
+
+Generate _ide_helper.php in the nearest Laravel project root.
+Defaults to the current directory; works from project subdirectories.
+Requires PHP on PATH and barryvdh/laravel-ide-helper installed in the project.
+EOF
+}
+
+if [[ $# -eq 1 && ( "$1" == '--help' || "$1" == '-h' ) ]]; then
+  usage
+  exit 0
+fi
+if [[ $# -gt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+fail() { printf '%s\n' "$*" >&2; exit 1; }
+
+project_dir="${1:-$PWD}"
+[[ -d "$project_dir" ]] || fail "Directory not found: $project_dir"
+project_dir="$(cd -- "$project_dir" && pwd -P)"
+while [[ ! -f "$project_dir/artisan" || ! -f "$project_dir/composer.json" ]]; do
+  [[ "$project_dir" != '/' ]] || fail 'No Laravel project found in this directory or its parents.'
+  project_dir="$(dirname "$project_dir")"
+done
+
+command -v php >/dev/null 2>&1 || fail 'PHP is not on PATH. Enable your Herd PHP or another local PHP installation.'
+[[ -f "$project_dir/vendor/autoload.php" ]] || fail 'Project dependencies are missing. Run composer install in the project first.'
+[[ -d "$project_dir/vendor/barryvdh/laravel-ide-helper" ]] || fail 'IDE Helper is missing. Run composer require --dev barryvdh/laravel-ide-helper in the project first.'
+
+cd -- "$project_dir"
+printf 'Generating Laravel editor definitions in %s\n' "$project_dir"
+exec php artisan ide-helper:generate _ide_helper.php --no-interaction

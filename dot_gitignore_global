@@ -22,3 +22,6 @@ CLAUDE.local.md
 **/.claude/.cc-writes/
 
 **/.claude/settings.local.json
+
+# Generated Laravel editor definitions (per project).
+/_ide_helper.php
