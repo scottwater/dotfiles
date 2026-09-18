@@ -35,6 +35,12 @@ accent = "#7AA2F7"
 pane_borders = true
 pane_gaps = true
 
+# Show the zoom indicator and server hostname at the top-right of the tab bar.
+tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
+
+# Show the server hostname and current workspace in the outer terminal title.
+window_title = "{hostname}: {workspace}"
+
 # Space entries: bold name, dim branch, and a blank row between each space.
 [ui.sidebar.spaces]
 row_gap = 1
@@ -57,6 +63,7 @@ rows = [
 [keys]
 prefix = "ctrl+space"
 detach = "prefix+d"
+zoom = "prefix+z"
 
 # Match the workstation's directional pane navigation.
 focus_pane_left = "ctrl+alt+left"
