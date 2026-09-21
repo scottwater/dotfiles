@@ -35,8 +35,13 @@ accent = "#7AA2F7"
 pane_borders = true
 pane_gaps = true
 
-# Show the zoom indicator and server hostname at the top-right of the tab bar.
-tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
+# Show zoom, hostname, and non-default session name at the top-right of the tab bar.
+# Herdr leaves HERDR_SESSION unset for the default session; empty entries are hidden.
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "hostname" },
+  { type = "command", command = 'case "${HERDR_SESSION:-default}" in default) ;; *) printf "%s\n" "$HERDR_SESSION" ;; esac', interval_seconds = 60, timeout_seconds = 2 },
+]
 
 # Show the server hostname and current workspace in the outer terminal title.
 window_title = "{hostname}: {workspace}"
