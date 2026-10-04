@@ -1,9 +1,12 @@
 {
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "1.0.2",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "medium",
   "quietStartup": true,
+  "skills": [
+    "!/Users/scott/.pi/agent/skills/**"
+  ],
   "packages": [
     "https://github.com/nicobailon/visual-explainer",
     "https://github.com/calesennett/pi-codex-fast",
@@ -12,28 +15,24 @@
     "git:github.com/scottwater/pi-stoic",
     "npm:sideshow",
     "npm:@plannotator/pi-extension",
-    "npm:pi-mcp-adapter",
     "npm:@tintinweb/pi-subagents"
   ],
   "theme": "Tokyo Night",
   "enabledModels": [
-    "openai-codex/gpt-5.5",
-    "openai-codex/gpt-5.6-luna",
-    "openai-codex/gpt-5.6-sol",
-    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-6-luna",
+    "openai-codex/gpt-6.1-sol",
     "openai-codex/gpt-6-astra",
     "opencode-go/minimax-m3",
     "opencode-go/qwen3.8-flash",
     "opencode-go/deepseek-v4-flash",
-    "opencode-go/deepseek-v4-pro",
+    "opencode-go/deepseek-v4.1-flash",
     "opencode-go/glm-5.3",
     "opencode-go/glm-5.3-flash",
     "opencode-go/kimi-k3",
-    "opencode-go/minimax-m2.7",
-    "opencode-go/qwen3.8-max",
+    "opencode-go/grok-4.7",
+    "opencode-go/muse-spark-1.2-contributor",
     "opencode-go/muse-spark-1.3-contributor",
-    "opencode-go/deepseek-v4.1-flash",
-    "xai/grok-4.6"
+    "xai/grok-4.7"
   ],
   "pi-codex-fast": {
     "enabled": false
