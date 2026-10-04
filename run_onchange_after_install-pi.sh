@@ -76,7 +76,8 @@ rm -rf "${PREFIX}/pi"
 install_npm_harness \
   "Codex" \
   "codex" \
-  "@openai/codex"
+  "@openai/codex" \
+  --include=optional
 
 install_claude() {
   if command -v exeuntu >/dev/null 2>&1; then

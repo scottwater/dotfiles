@@ -31,10 +31,10 @@ if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
   npm_command=(env "PATH=$TOOLING_BIN:$PATH" "$TOOLING_BIN/node" "$TOOLING_BIN/../lib/node_modules/npm/bin/npm-cli.js" --prefix "$HOME/.local/share/orbi/agents")
   run_update "pi runtime" "${npm_command[@]}" install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent || failures=$((failures + 1))
   run_update "pi" env "PATH=$TOOLING_BIN:$PATH" "$HOME/.local/bin/pi" update --all || failures=$((failures + 1))
-  run_update "codex" "${npm_command[@]}" install -g @openai/codex || failures=$((failures + 1))
+  run_update "codex" "${npm_command[@]}" install -g @openai/codex --include=optional || failures=$((failures + 1))
 else
   run_update "pi" pi update --all || failures=$((failures + 1))
-  run_update "codex" npm --prefix "$HOME/.local" install -g @openai/codex || failures=$((failures + 1))
+  run_update "codex" npm --prefix "$HOME/.local" install -g @openai/codex --include=optional || failures=$((failures + 1))
 fi
 run_update "claude code" claude update || failures=$((failures + 1))
 
