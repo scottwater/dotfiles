@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Install the three coding harnesses used on every development machine.
 #
-# Pi and Codex are installed into ~/.local through npm so their executables are
-# user-owned and take precedence over exe.dev's bundled binaries. Claude Code
-# uses exe.dev's supported updater there, its own updater when already present,
-# and the upstream installer as a fresh-install fallback.
+# Pi uses its managed installer and Codex is installed into ~/.local through
+# npm, so their executables are user-owned and take precedence over exe.dev's
+# bundled binaries. Claude Code uses exe.dev's supported updater there, its own
+# updater when already present, and the upstream installer as a fresh-install
+# fallback.
 #
 # BB workers instead use an isolated prefix and a dedicated tooling Node.
 # This is bootstrap logic. Ongoing manual updates use update-ai-tools.
@@ -65,12 +66,25 @@ install_npm_harness() {
   fi
 }
 
-install_npm_harness \
-  "Pi" \
-  "pi" \
-  "@earendil-works/pi-coding-agent" \
-  --ignore-scripts \
-  --min-release-age=0
+# Workstations use Pi's managed installer, which pins dependencies. Remove any
+# plain npm copy first so the installer can claim ~/.local/bin/pi; piping its
+# output through cat skips the "Start pi now?" prompt.
+install_managed_pi() (
+  set -o pipefail
+  "${npm_command[@]}" --prefix "${PREFIX}" uninstall -g @earendil-works/pi-coding-agent &&
+    curl -fsSL https://pi.dev/install.sh | sh | cat
+)
+
+if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
+  install_npm_harness \
+    "Pi" \
+    "pi" \
+    "@earendil-works/pi-coding-agent" \
+    --ignore-scripts \
+    --min-release-age=0
+elif [ ! -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/install/managed-install.json" ]; then
+  install_managed_pi
+fi
 rm -rf "${PREFIX}/pi"
 
 install_npm_harness \

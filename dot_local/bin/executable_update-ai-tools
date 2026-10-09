@@ -18,6 +18,14 @@ run_update() {
   fi
 }
 
+# Remove the npm copy first so the installer can claim ~/.local/bin/pi.
+# Piping its output through cat skips the "Start pi now?" prompt.
+install_managed_pi() (
+  set -o pipefail
+  npm --prefix "$HOME/.local" uninstall -g @earendil-works/pi-coding-agent &&
+    curl -fsSL https://pi.dev/install.sh | env "PATH=$HOME/.local/bin:$PATH" sh | cat
+)
+
 CHEZMOI_ROLE="workstation"
 if command -v chezmoi >/dev/null 2>&1; then
   CHEZMOI_ROLE="$(chezmoi execute-template '{{ get . "role" | default "workstation" }}')" || exit 1
@@ -33,7 +41,11 @@ if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
   run_update "pi" env "PATH=$TOOLING_BIN:$PATH" "$HOME/.local/bin/pi" update --all || failures=$((failures + 1))
   run_update "codex" "${npm_command[@]}" install -g @openai/codex --include=optional || failures=$((failures + 1))
 else
-  run_update "pi" pi update --all || failures=$((failures + 1))
+  # Pi's installer pins dependencies; plain npm installs are migrated once.
+  if [ ! -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/install/managed-install.json" ]; then
+    run_update "pi installer" install_managed_pi || failures=$((failures + 1))
+  fi
+  run_update "pi" env "PATH=$HOME/.local/bin:$PATH" pi update --all || failures=$((failures + 1))
   run_update "codex" npm --prefix "$HOME/.local" install -g @openai/codex --include=optional || failures=$((failures + 1))
 fi
 run_update "claude code" claude update || failures=$((failures + 1))
