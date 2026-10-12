@@ -18,12 +18,23 @@ run_update() {
   fi
 }
 
-# Remove the npm copy first so the installer can claim ~/.local/bin/pi.
-# Piping its output through cat skips the "Start pi now?" prompt.
+# Remove npm copies first so the installer can claim ~/.local/bin/pi; ones
+# under older mise node versions keep a dead pi shim ahead of ~/.local/bin.
+# The installer prompts through /dev/tty, which piping cannot silence; a new
+# session without a controlling terminal makes it use its defaults.
 install_managed_pi() (
   set -o pipefail
+  for node_bin in "$HOME"/.local/share/mise/installs/node/*/bin; do
+    if [ -e "$node_bin/pi" ]; then
+      env "PATH=$node_bin:$PATH" "$node_bin/npm" uninstall -g @earendil-works/pi-coding-agent || exit
+    fi
+  done
+  if command -v mise >/dev/null 2>&1; then
+    mise reshim
+  fi
   npm --prefix "$HOME/.local" uninstall -g @earendil-works/pi-coding-agent &&
-    curl -fsSL https://pi.dev/install.sh | env "PATH=$HOME/.local/bin:$PATH" sh | cat
+    curl -fsSL https://pi.dev/install.sh |
+    env "PATH=$HOME/.local/bin:$PATH" perl -MPOSIX -e 'POSIX::setsid(); exec @ARGV' sh
 )
 
 CHEZMOI_ROLE="workstation"

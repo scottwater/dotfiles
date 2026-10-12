@@ -67,12 +67,22 @@ install_npm_harness() {
 }
 
 # Workstations use Pi's managed installer, which pins dependencies. Remove any
-# plain npm copy first so the installer can claim ~/.local/bin/pi; piping its
-# output through cat skips the "Start pi now?" prompt.
+# plain npm copy first so the installer can claim ~/.local/bin/pi. Copies left
+# under older mise node versions keep a dead pi shim ahead of ~/.local/bin, so
+# remove those too. The installer prompts through /dev/tty, which piping cannot
+# silence; a new session without a controlling terminal makes it use defaults.
 install_managed_pi() (
   set -o pipefail
+  for node_bin in "$HOME"/.local/share/mise/installs/node/*/bin; do
+    if [ -e "$node_bin/pi" ]; then
+      env "PATH=$node_bin:$PATH" "$node_bin/npm" uninstall -g @earendil-works/pi-coding-agent || exit
+    fi
+  done
+  if command -v mise >/dev/null 2>&1; then
+    mise reshim
+  fi
   "${npm_command[@]}" --prefix "${PREFIX}" uninstall -g @earendil-works/pi-coding-agent &&
-    curl -fsSL https://pi.dev/install.sh | sh | cat
+    curl -fsSL https://pi.dev/install.sh | perl -MPOSIX -e 'POSIX::setsid(); exec @ARGV' sh
 )
 
 if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
