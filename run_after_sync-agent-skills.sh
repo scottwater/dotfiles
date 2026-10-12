@@ -5,7 +5,13 @@ set -euo pipefail
 # scripts do not share PATH changes, so include the user-local tool locations.
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
-if command -v npx >/dev/null 2>&1; then
+# Workers have no global app Node, so their mise npx shim cannot run. Prefer
+# the private tooling Node that install-core provisions for coding agents.
+tooling_bin="$HOME/.local/share/orbi/tooling-node/bin"
+if [ -x "$tooling_bin/npx" ]; then
+  export PATH="$tooling_bin:$PATH"
+  npx_command=("$tooling_bin/npx")
+elif command -v npx >/dev/null 2>&1; then
   npx_command=(npx)
 elif command -v mise >/dev/null 2>&1; then
   npx_command=(mise exec node -- npx)
