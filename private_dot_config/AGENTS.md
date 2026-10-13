@@ -18,3 +18,4 @@ You should have access to the following (and their may be more)
 - SideShow
 - Jots
 - Posthog
+- Linear
