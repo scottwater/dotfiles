@@ -250,6 +250,24 @@ def rotate_key(args: dict[str, object]) -> tuple[int, str]:
     return 0, f"switched to key {hashlib.sha256(key.encode()).hexdigest()[:16]}\n"
 
 
+def configure_gateway(apply_dotfiles: bool) -> tuple[int, str]:
+    """Points the tools at the gateway after the key arrives. Machines that
+    take the shared dotfiles apply them, which runs the configure hook; a
+    machine that keeps its own dotfiles (fleetd says dotfiles=false, or there
+    is no chezmoi) runs orbie-configure-gateway, the same script installed
+    by hand."""
+    if apply_dotfiles and shutil.which("chezmoi", path=tool_path()):
+        return run_job("apply-dotfiles")
+    script = shutil.which("orbie-configure-gateway", path=tool_path())
+    if not script:
+        return 127, "neither chezmoi nor orbie-configure-gateway is installed; the tools are not configured\n"
+    try:
+        result = run([script], timeout=120)
+    except (subprocess.SubprocessError, OSError) as error:
+        return 1, f"orbie-configure-gateway: {error}\n"
+    return result.returncode, (result.stdout or "") + (result.stderr or "")
+
+
 def run_job(kind: str, args: dict[str, object] | None = None) -> tuple[int, str]:
     if kind == "rotate-key":
         return rotate_key(args or {})
@@ -288,8 +306,9 @@ def main(argv: list[str]) -> int:
             return 1
         if answer.get("key"):
             write_proxy_env(str(answer.get("gatewayUrl") or ""), str(answer["key"]), str(answer.get("machine") or body["hostname"]))
-            code, output = run_job("apply-dotfiles")
-            print(f"gateway key received; dotfiles applied with exit {code}", file=sys.stderr if code else sys.stdout)
+            code, output = configure_gateway(bool(answer.get("dotfiles", True)))
+            print(f"gateway key received; tools configured with exit {code}" + (f": {output.strip()[-300:]}" if code else ""),
+                  file=sys.stderr if code else sys.stdout)
         for job in answer.get("jobs") or []:
             args = job.get("args") if isinstance(job.get("args"), dict) else {}
             code, output = run_job(str(job.get("kind")), args)

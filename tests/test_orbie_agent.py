@@ -99,6 +99,26 @@ class AgentTests(unittest.TestCase):
         self.assertEqual(self.agent.PROXY_ENV.stat().st_mode & 0o777, 0o600)
         self.assertEqual(FakeFleetd.received[0][0], "/api/report")
 
+    def test_a_machine_with_its_own_dotfiles_runs_the_configure_script_instead(self):
+        FakeFleetd.answers = [{"status": "approved", "jobs": [], "dotfiles": False, "key": "omarchy-" + "d" * 32,
+                               "gatewayUrl": "https://g.example.ts.net", "machine": "omarchy"}]
+        script = self.home / ".local/bin/orbie-configure-gateway"
+        script.parent.mkdir(parents=True)
+        script.write_text("#!/bin/sh\necho configured\n")
+        script.chmod(0o755)
+        with mock.patch.dict(os.environ, {"ORBIE_FLEET_URL": self.url}), \
+                mock.patch.object(self.agent, "run_job") as run_job, mock.patch("sys.stdout") as out:
+            self.assertEqual(self.agent.main([]), 0)
+        run_job.assert_not_called()
+        self.assertIn("exit 0", "".join(str(c.args[0]) for c in out.write.call_args_list))
+        self.assertIn("ORBIE_GATEWAY_KEY=omarchy-", self.agent.PROXY_ENV.read_text())
+        # Without chezmoi or the script, the failure is reported rather than hidden.
+        script.unlink()
+        with mock.patch.object(self.agent.shutil, "which", return_value=None):
+            code, output = self.agent.configure_gateway(True)
+        self.assertEqual(code, 127)
+        self.assertIn("not configured", output)
+
     def test_jobs_run_from_the_allowlist_and_results_are_posted(self):
         FakeFleetd.answers = [{"status": "approved", "jobs": [{"id": 7, "kind": "update-agents"}, {"id": 8, "kind": "rotate-key"}]}]
         with mock.patch.dict(os.environ, {"ORBIE_FLEET_URL": self.url}), \
@@ -165,6 +185,19 @@ class AgentTests(unittest.TestCase):
             self.assertEqual(self.agent.main(["--dry-run"]), 0)
         self.assertTrue(out.write.called)
         self.assertEqual(FakeFleetd.received, [])
+
+
+class AiDirectTests(unittest.TestCase):
+    def test_ai_direct_overrides_only_for_one_session(self):
+        script = ROOT / "dot_local/bin/executable_ai-direct"
+        subprocess.run(["bash", "-n", str(script)], check=True)
+        text = script.read_text()
+        self.assertIn('"apiKeyHelper": ""', text)
+        self.assertIn('"ANTHROPIC_BASE_URL": ""', text)
+        self.assertIn("model_provider", text)
+        result = subprocess.run(["bash", str(script)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("usage", result.stderr)
 
 
 class UnitFileTests(unittest.TestCase):
