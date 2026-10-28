@@ -109,7 +109,45 @@ class AgentTests(unittest.TestCase):
         results = {path: body for path, body in FakeFleetd.received if "/jobs/" in path}
         self.assertEqual(results["/api/jobs/7/result"], {"exitCode": 0, "output": "updated\n"})
         self.assertEqual(results["/api/jobs/8/result"]["exitCode"], 2)
-        self.assertIn("not implemented", results["/api/jobs/8/result"]["output"])
+        self.assertIn("carried no key", results["/api/jobs/8/result"]["output"])
+
+    def test_rotate_key_switches_only_after_the_gateway_accepts_the_new_key(self):
+        self.agent.PROXY_ENV.parent.mkdir(parents=True)
+        self.agent.PROXY_ENV.write_text("ORBIE_GATEWAY_URL=https://g.example.ts.net\nORBIE_GATEWAY_KEY=air-old\nORBIE_MACHINE=air\n")
+        new_key = "air-" + "c" * 32
+        args = {"key": new_key, "gatewayUrl": "https://g.example.ts.net", "machine": "air"}
+        checked = []
+
+        class Accepted:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+
+        def accept(request, timeout=0):
+            checked.append((request.full_url, request.get_header("Authorization")))
+            return Accepted()
+
+        with mock.patch.object(self.agent.urllib.request, "urlopen", accept):
+            self.assertEqual(self.agent.rotate_key(args), (0, "switched to key " + self.agent.hashlib.sha256(new_key.encode()).hexdigest()[:16] + "\n"))
+        self.assertEqual(checked, [("https://g.example.ts.net/v1/models", f"Bearer {new_key}")])
+        self.assertIn(f"ORBIE_GATEWAY_KEY={new_key}\n", self.agent.PROXY_ENV.read_text())
+
+        def refuse(request, timeout=0):
+            raise self.agent.urllib.error.HTTPError(request.full_url, 401, "Unauthorized", {}, None)
+
+        with mock.patch.object(self.agent.urllib.request, "urlopen", refuse):
+            code, output = self.agent.rotate_key({**args, "key": "air-refused"})
+        self.assertEqual(code, 1)
+        self.assertIn("refused", output)
+        self.assertIn(f"ORBIE_GATEWAY_KEY={new_key}\n", self.agent.PROXY_ENV.read_text())  # unchanged
+
+    def test_job_args_reach_the_job(self):
+        FakeFleetd.answers = [{"status": "approved", "jobs": [{"id": 9, "kind": "rotate-key", "args": {"key": "air-x", "gatewayUrl": "http://127.0.0.1:9", "machine": "air"}}]}]
+        with mock.patch.dict(os.environ, {"ORBIE_FLEET_URL": self.url}):
+            self.assertEqual(self.agent.main([]), 0)
+        results = {path: body for path, body in FakeFleetd.received if "/jobs/" in path}
+        self.assertEqual(results["/api/jobs/9/result"]["exitCode"], 1)
+        self.assertIn("refused the new key", results["/api/jobs/9/result"]["output"])
 
     def test_job_commands(self):
         self.assertEqual(self.agent.job_command("apply-dotfiles"), ["chezmoi", "update", "--force"])

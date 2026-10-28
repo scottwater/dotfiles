@@ -232,7 +232,27 @@ def job_command(kind: str) -> list[str] | None:
     }.get(kind)
 
 
-def run_job(kind: str) -> tuple[int, str]:
+def rotate_key(args: dict[str, object]) -> tuple[int, str]:
+    """Switches to the key fleetd handed over, after checking that the gateway
+    accepts it. fleetd removes the old key only on a zero exit, so a refused
+    key leaves this machine as it was."""
+    key, url, machine = str(args.get("key") or ""), str(args.get("gatewayUrl") or "").rstrip("/"), str(args.get("machine") or "")
+    if not key or not url:
+        return 2, "rotate-key: the job carried no key\n"
+    request = urllib.request.Request(f"{url}/v1/models", headers={"Authorization": f"Bearer {key}", "User-Agent": "orbie-agent/1"})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            if response.status != 200:
+                return 1, f"rotate-key: the gateway answered {response.status} to the new key\n"
+    except (urllib.error.URLError, OSError) as error:
+        return 1, f"rotate-key: the gateway refused the new key: {error}\n"
+    write_proxy_env(url, key, machine or socket.gethostname().split(".")[0])
+    return 0, f"switched to key {hashlib.sha256(key.encode()).hexdigest()[:16]}\n"
+
+
+def run_job(kind: str, args: dict[str, object] | None = None) -> tuple[int, str]:
+    if kind == "rotate-key":
+        return rotate_key(args or {})
     command = job_command(kind)
     if command is None:
         return 2, f"{kind} is not implemented by this agent\n"
@@ -271,7 +291,8 @@ def main(argv: list[str]) -> int:
             code, output = run_job("apply-dotfiles")
             print(f"gateway key received; dotfiles applied with exit {code}", file=sys.stderr if code else sys.stdout)
         for job in answer.get("jobs") or []:
-            code, output = run_job(str(job.get("kind")))
+            args = job.get("args") if isinstance(job.get("args"), dict) else {}
+            code, output = run_job(str(job.get("kind")), args)
             try:
                 post(f"{base}/api/jobs/{int(job['id'])}/result", {"exitCode": code, "output": output})
             except (urllib.error.URLError, OSError, ValueError) as error:
