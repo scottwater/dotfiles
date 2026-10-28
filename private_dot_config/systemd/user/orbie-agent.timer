@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the Orbie fleet agent every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+Unit=orbie-agent.service
+
+[Install]
+WantedBy=timers.target

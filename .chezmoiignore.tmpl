@@ -23,6 +23,13 @@ Brewfile
 .local/bin/disable-macos-animations
 {{- end }}
 
+# The Orbie fleet agent's timer: launchd on macOS, systemd elsewhere
+{{- if eq .chezmoi.os "darwin" }}
+.config/systemd/**
+{{- else }}
+Library/**
+{{- end }}
+
 # Workstation-only configuration
 {{- if eq $role "bb-worker" }}
 .config/atuin/**

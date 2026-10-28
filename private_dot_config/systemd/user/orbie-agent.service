@@ -1,0 +1,7 @@
+[Unit]
+Description=Orbie fleet agent: report to fleetd and run queued jobs
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/orbie-agent
+TimeoutStartSec=45min
