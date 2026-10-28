@@ -78,8 +78,8 @@ chezmoi data --format=json | jq '{role, kode}'
 ```
 
 The `bb-worker` role includes the full zsh environment, Neovim, LazyGit, Hunk,
-Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, Pi packages, and shared
-agent skills. Authentication remains a separate provisioning step.
+Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, and Pi packages. Shared
+agent skills and authentication are the Orbie fleet's job, not the dotfiles'.
 
 After installing the coding harnesses, worker applies automatically run
 `herdr integration install pi`, `herdr integration install claude`, and
