@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Prints this machine's fleet gateway key for tools that take a key command:
+# Claude Code's apiKeyHelper, Codex's auth command and Pi's "!command" apiKey.
+# The key lives only in proxy.env, written by `orbie` when the machine is
+# enrolled with the fleet gateway. See fleet/design.md in the orbie repository.
+exec sed -n 's/^ORBIE_GATEWAY_KEY=//p' "$HOME/.config/orbie/proxy.env"

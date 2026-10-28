@@ -1,6 +1,9 @@
+{{- /* Machines enrolled with the fleet gateway (proxy.env present) use its
+       providers from models.json, written by run_after_configure-fleet-gateway.sh. */ -}}
+{{- $fleet := stat (joinPath .chezmoi.homeDir ".config/orbie/proxy.env") -}}
 {
   "lastChangelogVersion": "1.0.2",
-  "defaultProvider": "openai-codex",
+  "defaultProvider": {{ if $fleet }}"fleet-codex"{{ else }}"openai-codex"{{ end }},
   "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "medium",
   "quietStartup": true,
@@ -19,6 +22,11 @@
   ],
   "theme": "Tokyo Night",
   "enabledModels": [
+{{- if $fleet }}
+    "fleet-codex/*",
+    "fleet-claude/*",
+    "fleet/*"
+{{- else }}
     "openai-codex/gpt-6-luna",
     "openai-codex/gpt-6.1-sol",
     "openai-codex/gpt-6-astra",
@@ -33,6 +41,7 @@
     "opencode-go/muse-spark-1.2-contributor",
     "opencode-go/muse-spark-1.3-contributor",
     "xai/grok-4.7"
+{{- end }}
   ],
   "pi-codex-fast": {
     "enabled": false

@@ -180,6 +180,7 @@ The install scripts run automatically via `chezmoi apply`:
 - `run_onchange_after_install-safety-guard.sh` - Installs and configures destructive_command_guard on macOS and Linux
 - `run_after_set-pi-tokyonight-theme.sh` - Selects the managed Pi theme without replacing other Pi settings
 - `run_after_install-dracula-pro-themes.sh` - Dormant Dracula Pro copy hook; requires `DRACULA_PRO_THEMES_ENABLED=1`
+- `run_after_configure-fleet-gateway.sh` - Points Claude Code, Codex and Pi at the Orbie fleet gateway when `~/.config/orbie/proxy.env` exists (written by `orbie`); the key is read through `~/.local/bin/orbie-gateway-key`, and Pi's `settings.json` template selects the gateway providers on the same condition
 
 ## Tools
 
