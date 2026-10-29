@@ -133,7 +133,9 @@ class PiSettingsTemplateTests(unittest.TestCase):
     def test_enrolled_machines_use_the_gateway_providers(self):
         settings = self.render(enrolled=True)
         self.assertEqual(settings["defaultProvider"], "fleet-codex")
-        self.assertEqual(settings["enabledModels"], ["fleet-codex/*", "fleet-claude/*", "fleet/*"])
+        # Pi matches these with minimatch, where "*" stops at a slash, so the
+        # fleet provider's "go/..." ids need "**".
+        self.assertEqual(settings["enabledModels"], ["fleet-codex/*", "fleet-claude/*", "fleet/**"])
         self.assertEqual(settings["defaultModel"], "gpt-6-astra")
 
     def test_other_machines_keep_their_own_providers(self):

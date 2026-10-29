@@ -1,5 +1,7 @@
 {{- /* Machines enrolled with the fleet gateway (proxy.env present) use its
-       providers from models.json, written by run_after_configure-fleet-gateway.sh. */ -}}
+       providers from models.json, written by run_after_configure-fleet-gateway.sh.
+       Pi matches enabledModels with minimatch, where "*" stops at a slash, so
+       the fleet provider's "go/..." ids need "**". */ -}}
 {{- $fleet := stat (joinPath .chezmoi.homeDir ".config/orbie/proxy.env") -}}
 {
   "lastChangelogVersion": "1.3.0",
@@ -19,7 +21,7 @@
 {{- if $fleet }}
     "fleet-codex/*",
     "fleet-claude/*",
-    "fleet/*"
+    "fleet/**"
 {{- else }}
     "openai-codex/gpt-6-luna",
     "openai-codex/gpt-6.1-sol",
