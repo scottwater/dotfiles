@@ -181,7 +181,7 @@ class AgentTests(unittest.TestCase):
         tooling = self.home / ".local/share/orbi/tooling-node/bin"
         tooling.mkdir(parents=True)
         for name in ("node", "npx"):
-            (tooling / name).write_text("#!/bin/sh\ncommand -v node\n")
+            (tooling / name).write_text("#!/bin/sh\ncommand -v node\necho \"job=${ORBIE_AGENT_JOB:-}\"\n")
             (tooling / name).chmod(0o755)
         shim = self.home / ".local/share/mise/shims"
         shim.mkdir(parents=True)
@@ -189,7 +189,8 @@ class AgentTests(unittest.TestCase):
         (shim / "node").chmod(0o755)
         code, output = self.agent.run_job("sync-skills")
         self.assertEqual(code, 0)
-        self.assertEqual(output.strip(), str(tooling / "node"))
+        # Jobs also carry ORBIE_AGENT_JOB so the dotfiles hooks know their caller.
+        self.assertEqual(output.strip().splitlines(), [str(tooling / "node"), "job=1"])
 
     def test_unreachable_fleetd_fails_without_touching_anything(self):
         with mock.patch.dict(os.environ, {"ORBIE_FLEET_URL": "http://127.0.0.1:9"}):
@@ -229,6 +230,38 @@ class UnitFileTests(unittest.TestCase):
         ignore = (ROOT / ".chezmoiignore.tmpl").read_text()
         self.assertIn('{{- if eq .chezmoi.os "darwin" }}\n.config/systemd/**', ignore)
         self.assertIn("Library/**", ignore)
+
+    def run_enable_script_on_fake_darwin(self, under_agent: bool) -> tuple[subprocess.CompletedProcess, list[str]]:
+        """Runs the enable script with a fake uname (Darwin) and a fake
+        launchctl that says the job is loaded and records its calls."""
+        with tempfile.TemporaryDirectory() as temp:
+            home, fake = Path(temp) / "home", Path(temp) / "fake"
+            fake.mkdir()
+            (home / "Library/LaunchAgents").mkdir(parents=True)
+            (home / "Library/LaunchAgents/com.orbie.agent.plist").write_text("<plist/>")
+            (fake / "uname").write_text("#!/bin/sh\necho Darwin\n")
+            (fake / "launchctl").write_text("#!/bin/sh\necho \"$*\" >>\"$FAKE_LOG\"\nexit 0\n")
+            for name in ("uname", "launchctl"):
+                (fake / name).chmod(0o755)
+            env = {"PATH": f"{fake}:/usr/bin:/bin", "HOME": str(home), "FAKE_LOG": str(Path(temp) / "calls")}
+            if under_agent:
+                env["ORBIE_AGENT_JOB"] = "1"
+            result = subprocess.run(["bash", str(ROOT / "run_after_enable-orbie-agent.sh")], env=env, capture_output=True, text=True)
+            calls = (Path(temp) / "calls").read_text().splitlines() if (Path(temp) / "calls").exists() else []
+        return result, calls
+
+    def test_the_enable_script_does_not_reload_the_launchagent_from_inside_the_agent(self):
+        # Booting out the loaded job from the agent's own apply-dotfiles run
+        # kills that agent before the bootstrap, leaving the Mac unloaded.
+        result, calls = self.run_enable_script_on_fake_darwin(under_agent=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not reloaded", result.stdout)
+        self.assertFalse([c for c in calls if c.startswith("bootout") or c.startswith("bootstrap")], calls)
+
+    def test_the_enable_script_reloads_the_launchagent_from_a_terminal(self):
+        result, calls = self.run_enable_script_on_fake_darwin(under_agent=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([c.split()[0] for c in calls], ["print", "bootout", "bootstrap"])
 
 
 if __name__ == "__main__":

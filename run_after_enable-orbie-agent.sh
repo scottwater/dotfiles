@@ -26,6 +26,14 @@ case "$(uname -s)" in
     plist="$HOME/Library/LaunchAgents/com.orbie.agent.plist"
     domain="gui/$(id -u)"
     if launchctl print "$domain/com.orbie.agent" >/dev/null 2>&1; then
+      # Reloading from inside the agent's own apply-dotfiles job would boot
+      # out the agent running this script, and the LaunchAgent would stay
+      # unloaded. The loaded job keeps running; a changed plist takes effect
+      # on the next apply from a terminal or at the next login.
+      if [ -n "${ORBIE_AGENT_JOB:-}" ]; then
+        echo "Orbie agent LaunchAgent already loaded (not reloaded from inside the agent)"
+        exit 0
+      fi
       launchctl bootout "$domain/com.orbie.agent" 2>/dev/null || true
     fi
     launchctl bootstrap "$domain" "$plist"
