@@ -58,9 +58,10 @@ def tool_path() -> str:
     return os.pathsep.join([str(p) for p in EXTRA_PATH] + [os.environ.get("PATH", "")])
 
 
-def run(command: list[str], timeout: int = 20) -> subprocess.CompletedProcess[str]:
+def run(command: list[str], timeout: int = 20, path_prefix: tuple[Path, ...] = ()) -> subprocess.CompletedProcess[str]:
+    path = os.pathsep.join([str(p) for p in path_prefix] + [tool_path()])
     return subprocess.run(command, capture_output=True, text=True, timeout=timeout, check=False,
-                          env={**os.environ, "PATH": tool_path(), "HOME": str(HOME)})
+                          env={**os.environ, "PATH": path, "HOME": str(HOME)})
 
 
 def version_of(tool: str) -> str | None:
@@ -215,8 +216,11 @@ def write_proxy_env(gateway_url: str, key: str, machine: str) -> None:
 
 # Jobs -------------------------------------------------------------------------
 
+TOOLING_NODE = HOME / ".local/share/orbi/tooling-node/bin"
+
+
 def skills_command() -> list[str]:
-    tooling = HOME / ".local/share/orbi/tooling-node/bin/npx"
+    tooling = TOOLING_NODE / "npx"
     npx = [str(tooling)] if tooling.exists() else ["npx"]
     return npx + ["--yes", "skills@latest", "add", "scottwater/skills", "--global", "--skill", "*",
                   "--agent", "universal", "claude-code", "--yes"]
@@ -274,8 +278,12 @@ def run_job(kind: str, args: dict[str, object] | None = None) -> tuple[int, str]
     command = job_command(kind)
     if command is None:
         return 2, f"{kind} is not implemented by this agent\n"
+    # The tooling npx is a script that runs whatever node is first on PATH. On
+    # a machine whose mise sets no global node that is an empty shim, so the
+    # tooling's own node goes first.
+    prefix = (TOOLING_NODE,) if kind == "sync-skills" and TOOLING_NODE.exists() else ()
     try:
-        result = run(command, timeout=JOB_TIMEOUT)
+        result = run(command, timeout=JOB_TIMEOUT, path_prefix=prefix)
     except subprocess.TimeoutExpired:
         return 124, f"{kind} timed out after {JOB_TIMEOUT // 60} minutes\n"
     except OSError as error:

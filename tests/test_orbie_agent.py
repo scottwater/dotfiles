@@ -175,6 +175,22 @@ class AgentTests(unittest.TestCase):
         self.assertIsNone(self.agent.job_command("rotate-key"))
         self.assertIsNone(self.agent.job_command("rm"))
 
+    def test_sync_skills_runs_with_the_tooling_node_first_on_path(self):
+        # The tooling npx is a script whose node comes from PATH; a mise shim
+        # with no global node, as on the fleet VM, must not win.
+        tooling = self.home / ".local/share/orbi/tooling-node/bin"
+        tooling.mkdir(parents=True)
+        for name in ("node", "npx"):
+            (tooling / name).write_text("#!/bin/sh\ncommand -v node\n")
+            (tooling / name).chmod(0o755)
+        shim = self.home / ".local/share/mise/shims"
+        shim.mkdir(parents=True)
+        (shim / "node").write_text("#!/bin/sh\necho 'mise ERROR No version is set for shim: node' 1>&2\nexit 1\n")
+        (shim / "node").chmod(0o755)
+        code, output = self.agent.run_job("sync-skills")
+        self.assertEqual(code, 0)
+        self.assertEqual(output.strip(), str(tooling / "node"))
+
     def test_unreachable_fleetd_fails_without_touching_anything(self):
         with mock.patch.dict(os.environ, {"ORBIE_FLEET_URL": "http://127.0.0.1:9"}):
             self.assertEqual(self.agent.main([]), 1)
