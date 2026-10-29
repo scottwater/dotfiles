@@ -42,12 +42,13 @@ touch "$config"
 } >"$config.new"
 mv "$config.new" "$config"
 
-# Pi: gateway providers. The Codex models need the Responses API, Claude the
-# Messages API, everything else chat completions. settings.json (managed by
+# Pi: gateway providers. The Codex models need the Responses API, everything
+# else chat completions. No Claude provider: the gateway serves claude-* from
+# the Claude subscription logins, which Anthropic's terms reserve for Claude
+# Code, and OpenCode Go has no Claude models. settings.json (managed by
 # chezmoi) selects these providers when proxy.env exists.
 jq -n --arg url "$url" --arg key "!$helper" '
   def big($id): {id: $id, reasoning: true, input: ["text", "image"], contextWindow: 400000, maxTokens: 128000};
-  def claude($id): {id: $id, reasoning: true, input: ["text", "image"], contextWindow: 1000000, maxTokens: 64000};
   def chat($id; $context): {id: $id, reasoning: true, contextWindow: $context};
   {
     "$schema": "https://pi.dev/schemas/models.schema.json",
@@ -55,10 +56,6 @@ jq -n --arg url "$url" --arg key "!$helper" '
       "fleet-codex": {
         name: "Orbie fleet (Codex)", baseUrl: ($url + "/v1"), api: "openai-responses", apiKey: $key,
         models: [big("gpt-6-astra"), big("gpt-6.1-sol"), big("gpt-6-luna")]
-      },
-      "fleet-claude": {
-        name: "Orbie fleet (Claude)", baseUrl: $url, api: "anthropic-messages", apiKey: $key,
-        models: [claude("claude-opus-5-5"), claude("claude-sonnet-5-5"), claude("claude-fable-5-1")]
       },
       "fleet": {
         name: "Orbie fleet", baseUrl: ($url + "/v1"), api: "openai-completions", apiKey: $key,

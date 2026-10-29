@@ -1,10 +1,19 @@
+{{- /* chezmoi:modify-template */ -}}
 {{- /* Machines enrolled with the fleet gateway (proxy.env present) use its
        providers from models.json, written by run_after_configure-fleet-gateway.sh.
        Pi matches enabledModels with minimatch, where "*" stops at a slash, so
-       the fleet provider's "go/..." ids need "**". */ -}}
+       the fleet provider's "go/..." ids need "**".
+       Pi bumps lastChangelogVersion after every update, so this modify template
+       keeps the value from the file on disk (.chezmoi.stdin) and the field never
+       shows in a diff. Pi only ever writes valid JSON there. */ -}}
 {{- $fleet := stat (joinPath .chezmoi.homeDir ".config/orbie/proxy.env") -}}
+{{- $version := "1.3.0" -}}
+{{- if .chezmoi.stdin -}}
+{{-   $current := fromJson .chezmoi.stdin -}}
+{{-   if hasKey $current "lastChangelogVersion" -}}{{- $version = $current.lastChangelogVersion -}}{{- end -}}
+{{- end -}}
 {
-  "lastChangelogVersion": "1.3.0",
+  "lastChangelogVersion": {{ $version | quote }},
   "defaultProvider": {{ if $fleet }}"fleet-codex"{{ else }}"openai-codex"{{ end }},
   "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "medium",
@@ -20,7 +29,6 @@
   "enabledModels": [
 {{- if $fleet }}
     "fleet-codex/*",
-    "fleet-claude/*",
     "fleet/**"
 {{- else }}
     "openai-codex/gpt-6-luna",

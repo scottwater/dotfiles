@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
 HOOK = (ROOT / "run_after_configure-fleet-gateway.sh").read_text()
 HELPER = (ROOT / "dot_local/bin/executable_orbie-gateway-key").read_text()
-PI_SETTINGS = (ROOT / "dot_pi/private_agent/private_settings.json.tmpl").read_text()
+PI_SETTINGS = ROOT / "dot_pi/private_agent/modify_private_settings.json"
 URL = "https://fleet.example.ts.net"
 KEY = "w1-0123456789abcdef0123456789abcdef"
 
@@ -77,10 +77,14 @@ class FleetGatewayHookTests(unittest.TestCase):
 
         pi = json.loads((self.home / ".pi/agent/models.json").read_text())
         providers = pi["providers"]
-        self.assertEqual(set(providers), {"fleet-codex", "fleet-claude", "fleet"})
+        # No Claude provider: the gateway would serve claude-* from the Claude
+        # subscription, which Anthropic reserves for Claude Code.
+        self.assertEqual(set(providers), {"fleet-codex", "fleet"})
         self.assertEqual(providers["fleet-codex"]["api"], "openai-responses")
-        self.assertEqual(providers["fleet-claude"]["api"], "anthropic-messages")
         self.assertEqual(providers["fleet"]["api"], "openai-completions")
+        for provider in providers.values():
+            self.assertNotEqual(provider["api"], "anthropic-messages")
+            self.assertFalse([m["id"] for m in provider["models"] if m["id"].startswith("claude")])
         self.assertIn({"id": "go/glm-5.3", "reasoning": True, "contextWindow": 200000}, providers["fleet"]["models"])
         for provider in providers.values():
             self.assertTrue(provider["apiKey"].startswith("!"))
@@ -112,7 +116,10 @@ class FleetGatewayHookTests(unittest.TestCase):
 
 
 class PiSettingsTemplateTests(unittest.TestCase):
-    def render(self, enrolled):
+    def render(self, enrolled, current=None):
+        """Apply the template into a temporary home and return the result. A
+        real apply, not execute-template, so the modify template sees the file
+        already there as .chezmoi.stdin."""
         if not CHEZMOI:
             self.skipTest("chezmoi is required for template rendering")
         with tempfile.TemporaryDirectory() as temp:
@@ -120,23 +127,38 @@ class PiSettingsTemplateTests(unittest.TestCase):
             (home / ".config/orbie").mkdir(parents=True)
             if enrolled:
                 (home / ".config/orbie/proxy.env").write_text("ORBIE_GATEWAY_URL=x\n")
+            target = home / ".pi/agent/settings.json"
+            target.parent.mkdir(parents=True)
+            if current is not None:
+                target.write_text(current)
+            source = Path(temp) / "source" / PI_SETTINGS.parent.relative_to(ROOT)
+            source.mkdir(parents=True)
+            shutil.copy(PI_SETTINGS, source / PI_SETTINGS.name)
             config = Path(temp) / "chezmoi.toml"
             config.write_text("")
-            rendered = subprocess.run(
-                [CHEZMOI, "--config", str(config), "--source", temp, "--destination", str(home),
-                 "--persistent-state", str(Path(temp) / "state.boltdb"),
-                 "--override-data", json.dumps({"chezmoi": {"homeDir": str(home)}}), "execute-template"],
-                input=PI_SETTINGS, text=True, capture_output=True, check=True,
-            ).stdout
-        return json.loads(rendered)
+            subprocess.run(
+                [CHEZMOI, "--config", str(config), "--source", str(Path(temp) / "source"),
+                 "--destination", str(home), "--persistent-state", str(Path(temp) / "state.boltdb"),
+                 "--override-data", json.dumps({"chezmoi": {"homeDir": str(home)}}), "apply"],
+                text=True, capture_output=True, check=True,
+            )
+            return json.loads(target.read_text())
 
     def test_enrolled_machines_use_the_gateway_providers(self):
         settings = self.render(enrolled=True)
         self.assertEqual(settings["defaultProvider"], "fleet-codex")
         # Pi matches these with minimatch, where "*" stops at a slash, so the
         # fleet provider's "go/..." ids need "**".
-        self.assertEqual(settings["enabledModels"], ["fleet-codex/*", "fleet-claude/*", "fleet/**"])
+        self.assertEqual(settings["enabledModels"], ["fleet-codex/*", "fleet/**"])
         self.assertEqual(settings["defaultModel"], "gpt-6-astra")
+        self.assertFalse([m for m in settings["enabledModels"] if "claude" in m])
+        self.assertEqual(settings["lastChangelogVersion"], "1.3.0")
+
+    def test_the_changelog_version_pi_wrote_is_kept(self):
+        current = json.dumps({"lastChangelogVersion": "9.9.9", "enabledModels": ["stale/model"]})
+        settings = self.render(enrolled=True, current=current)
+        self.assertEqual(settings["lastChangelogVersion"], "9.9.9")
+        self.assertEqual(settings["enabledModels"], ["fleet-codex/*", "fleet/**"])
 
     def test_other_machines_keep_their_own_providers(self):
         settings = self.render(enrolled=False)
