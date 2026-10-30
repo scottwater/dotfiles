@@ -31,8 +31,12 @@ HOME = Path.home()
 PROXY_ENV = HOME / ".config/orbie/proxy.env"
 DEFAULT_FLEET_URL = "https://orbie-fleet.ladon-justice.ts.net:9443"
 TOOLS = ("claude", "codex", "pi", "grok", "muse", "t3", "mise")
+# ~/.t3/bin holds the t3 command the T3 Code desktop app writes, which runs
+# the app's bundled server, so on a desktop it reports the app's version.
 EXTRA_PATH = (HOME / ".local/bin", HOME / ".local/share/mise/shims", HOME / ".local/share/orbi/agents/bin",
-              Path("/opt/homebrew/bin"), Path("/usr/local/bin"))
+              HOME / ".t3/bin", Path("/opt/homebrew/bin"), Path("/usr/local/bin"))
+SKILLS_SOURCE = "scottwater/skills"
+SKILL_LOCK = HOME / ".agents/.skill-lock.json"
 JOB_TIMEOUT = 30 * 60
 VERSION_RE = re.compile(r"\d+(?:\.\d+)+(?:[-+.][0-9A-Za-z.]+)?")
 
@@ -169,6 +173,23 @@ def git_commit(path: Path) -> str:
         return ""
 
 
+def skills() -> dict[str, object]:
+    """The shared skills as the skills CLI recorded them: a revision digest of
+    each skill's folder hash in the source repository, how many there are,
+    and when they were last synced. Empty when they were never synced."""
+    try:
+        entries = json.loads(SKILL_LOCK.read_text()).get("skills") or {}
+    except (OSError, ValueError, AttributeError):
+        return {}
+    shared = sorted((name, entry) for name, entry in entries.items()
+                    if isinstance(entry, dict) and entry.get("source") == SKILLS_SOURCE)
+    if not shared:
+        return {}
+    digest = hashlib.sha256("".join(f"{name}:{entry.get('skillFolderHash', '')}\n" for name, entry in shared).encode())
+    return {"revision": digest.hexdigest()[:12], "count": len(shared),
+            "syncedAt": max(str(entry.get("updatedAt") or "") for _, entry in shared)}
+
+
 def metrics() -> dict[str, object]:
     usage = shutil.disk_usage(HOME)
     load = os.getloadavg()[0] if hasattr(os, "getloadavg") else None
@@ -192,9 +213,9 @@ def report() -> dict[str, object]:
         "metrics": metrics(),
         "versions": versions(),
         "dotfilesCommit": git_commit(HOME / ".local/share/chezmoi"),
-        "skillsCommit": git_commit(HOME / ".agents/skills"),
+        "skills": skills(),
         "keyFingerprint": hashlib.sha256(key.encode()).hexdigest()[:16] if key else "",
-        "agentVersion": 1,
+        "agentVersion": 2,
     }
 
 
@@ -224,7 +245,7 @@ TOOLING_NODE = HOME / ".local/share/orbi/tooling-node/bin"
 def skills_command() -> list[str]:
     tooling = TOOLING_NODE / "npx"
     npx = [str(tooling)] if tooling.exists() else ["npx"]
-    return npx + ["--yes", "skills@latest", "add", "scottwater/skills", "--global", "--skill", "*",
+    return npx + ["--yes", "skills@latest", "add", SKILLS_SOURCE, "--global", "--skill", "*",
                   "--agent", "universal", "claude-code", "--yes"]
 
 
