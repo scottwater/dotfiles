@@ -35,6 +35,8 @@ TOOLS = ("claude", "codex", "pi", "grok", "muse", "t3", "mise")
 # the app's bundled server, so on a desktop it reports the app's version.
 EXTRA_PATH = (HOME / ".local/bin", HOME / ".local/share/mise/shims", HOME / ".local/share/orbi/agents/bin",
               HOME / ".t3/bin", Path("/opt/homebrew/bin"), Path("/usr/local/bin"))
+T3_SERVICE_UNIT = HOME / ".config/systemd/user/t3code.service"
+T3_SERVICE_STATE = HOME / ".t3/runtime/service-state.json"
 SKILLS_SOURCE = "scottwater/skills"
 SKILL_LOCK = HOME / ".agents/.skill-lock.json"
 JOB_TIMEOUT = 30 * 60
@@ -85,8 +87,25 @@ def version_of(tool: str) -> str | None:
     return match.group(0) if match else "present"
 
 
+def t3_service_version() -> str | None:
+    """The version the T3 Code background service runs, where one is installed.
+    The app's "Update server" hands a new build to the service launcher and
+    leaves the t3 command on PATH pointing at the build that installed the
+    service, so on a worker `t3 --version` is the provisioning-day version."""
+    if not T3_SERVICE_UNIT.exists():
+        return None
+    try:
+        version = json.loads(T3_SERVICE_STATE.read_text()).get("activeVersion")
+    except (OSError, ValueError, AttributeError):
+        return None
+    return str(version) if version else None
+
+
 def versions() -> dict[str, str | None]:
-    return {tool: version_of(tool) for tool in TOOLS}
+    found = {tool: version_of(tool) for tool in TOOLS}
+    if found["t3"]:
+        found["t3"] = t3_service_version() or found["t3"]
+    return found
 
 
 # Metrics ----------------------------------------------------------------------

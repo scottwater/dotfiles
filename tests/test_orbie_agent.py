@@ -85,6 +85,22 @@ class AgentTests(unittest.TestCase):
         with mock.patch.object(self.agent.shutil, "which", return_value=None):
             self.assertIsNone(self.agent.version_of("grok"))
 
+    def test_t3_reports_the_service_version_where_a_service_is_installed(self):
+        with mock.patch.object(self.agent.shutil, "which", return_value="/bin/x"), \
+                mock.patch.object(self.agent, "run") as run:
+            run.return_value = subprocess.CompletedProcess([], 0, "t3 v0.0.46-nightly.20261012.3021\n", "")
+            self.agent.T3_SERVICE_STATE.parent.mkdir(parents=True)
+            self.agent.T3_SERVICE_STATE.write_text('{"protocol": 3, "activeVersion": "0.1.6-nightly.20261031.3977"}')
+            # A desktop has the state file but no service: the command's version stands.
+            self.assertEqual(self.agent.versions()["t3"], "0.0.46-nightly.20261012.3021")
+            self.agent.T3_SERVICE_UNIT.parent.mkdir(parents=True)
+            self.agent.T3_SERVICE_UNIT.write_text("[Unit]\n")
+            self.assertEqual(self.agent.versions()["t3"], "0.1.6-nightly.20261031.3977")
+            self.agent.T3_SERVICE_STATE.write_text("not json")
+            self.assertEqual(self.agent.versions()["t3"], "0.0.46-nightly.20261012.3021")
+        with mock.patch.object(self.agent.shutil, "which", return_value=None):
+            self.assertIsNone(self.agent.versions()["t3"])
+
     def test_first_approved_report_writes_proxy_env_and_applies_dotfiles(self):
         FakeFleetd.answers = [{"status": "approved", "jobs": [], "key": "air-" + "b" * 32,
                                "gatewayUrl": "https://g.example.ts.net", "machine": "air"}]
