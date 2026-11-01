@@ -208,6 +208,33 @@ class AgentTests(unittest.TestCase):
         # Jobs also carry ORBIE_AGENT_JOB so the dotfiles hooks know their caller.
         self.assertEqual(output.strip().splitlines(), [str(tooling / "node"), "job=1"])
 
+    def test_sync_skills_removes_shared_skills_the_source_no_longer_has(self):
+        # A fake skills CLI: "add" stamps the two skills the source still has
+        # and leaves a third, installed when the source had more, untouched.
+        lock = self.agent.SKILL_LOCK
+        lock.parent.mkdir(parents=True)
+        entry = lambda stamp, source="scottwater/skills": {"source": source, "skillFolderHash": "x", "updatedAt": stamp}
+        lock.write_text(json.dumps({"skills": {"how": entry("old"), "why": entry("old"), "gone": entry("old"), "tdd": entry("old", "mattpocock/skills")}}))
+        fresh = {"skills": {"how": entry("new"), "why": entry("new"), "gone": entry("old"), "tdd": entry("old", "mattpocock/skills")}}
+        tooling = self.home / ".local/share/orbi/tooling-node/bin"
+        tooling.mkdir(parents=True)
+        (tooling / "node").write_text("#!/bin/sh\n")
+        (tooling / "npx").write_text(f"#!/bin/sh\necho \"npx $*\" >> {self.home}/calls\n"
+                                     f"[ \"$3\" = add ] && printf '%s' '{json.dumps(fresh)}' > {lock}\nexit 0\n")
+        for name in ("node", "npx"):
+            (tooling / name).chmod(0o755)
+        code, output = self.agent.run_job("sync-skills")
+        self.assertEqual(code, 0)
+        self.assertIn("Removed 1 skill(s) the source no longer has: gone", output)
+        calls = (self.home / "calls").read_text().splitlines()
+        self.assertEqual(calls[1], "npx --yes skills@latest remove gone --global --yes")
+        # A sync that stamped nothing did not run through: nothing is removed.
+        (self.home / "calls").write_text("")
+        (tooling / "npx").write_text("#!/bin/sh\necho \"npx $*\" >> " + str(self.home / "calls") + "\n")
+        self.assertEqual(self.agent.run_job("sync-skills")[0], 0)
+        self.assertEqual(len((self.home / "calls").read_text().splitlines()), 1)
+        self.assertEqual(self.agent.stale_skills({}, {}), [])
+
     def test_unreachable_fleetd_fails_without_touching_anything(self):
         with mock.patch.dict(os.environ, {"ORBIE_FLEET_URL": "http://127.0.0.1:9"}):
             self.assertEqual(self.agent.main([]), 1)

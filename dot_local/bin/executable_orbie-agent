@@ -261,11 +261,35 @@ def write_proxy_env(gateway_url: str, key: str, machine: str) -> None:
 TOOLING_NODE = HOME / ".local/share/orbi/tooling-node/bin"
 
 
-def skills_command() -> list[str]:
+def skills_npx() -> list[str]:
     tooling = TOOLING_NODE / "npx"
-    npx = [str(tooling)] if tooling.exists() else ["npx"]
-    return npx + ["--yes", "skills@latest", "add", SKILLS_SOURCE, "--global", "--skill", "*",
-                  "--agent", "universal", "claude-code", "--yes"]
+    return [str(tooling) if tooling.exists() else "npx", "--yes", "skills@latest"]
+
+
+def skills_command() -> list[str]:
+    return skills_npx() + ["add", SKILLS_SOURCE, "--global", "--skill", "*",
+                           "--agent", "universal", "claude-code", "--yes"]
+
+
+def shared_skill_stamps() -> dict[str, str]:
+    """Each shared skill's updatedAt from the skills lock file."""
+    try:
+        entries = json.loads(SKILL_LOCK.read_text()).get("skills") or {}
+    except (OSError, ValueError, AttributeError):
+        return {}
+    return {name: str(entry.get("updatedAt") or "") for name, entry in entries.items()
+            if isinstance(entry, dict) and entry.get("source") == SKILLS_SOURCE}
+
+
+def stale_skills(before: dict[str, str], after: dict[str, str]) -> list[str]:
+    """Shared skills the sync left untouched: ones the source no longer has.
+    `skills add` stamps every skill it installs but never removes one, so a
+    machine synced when the source had more skills keeps the extras, and its
+    revision never matches the others'. Nothing is stale when the sync
+    stamped nothing, since then it did not run through."""
+    if not any(after[name] != before.get(name) for name in after):
+        return []
+    return sorted(name for name in after if after[name] == before.get(name))
 
 
 def job_command(kind: str) -> list[str] | None:
@@ -324,8 +348,16 @@ def run_job(kind: str, args: dict[str, object] | None = None) -> tuple[int, str]
     # a machine whose mise sets no global node that is an empty shim, so the
     # tooling's own node goes first.
     prefix = (TOOLING_NODE,) if kind == "sync-skills" and TOOLING_NODE.exists() else ()
+    before = shared_skill_stamps() if kind == "sync-skills" else {}
     try:
         result = run(command, timeout=JOB_TIMEOUT, path_prefix=prefix)
+        stale = stale_skills(before, shared_skill_stamps()) if kind == "sync-skills" and result.returncode == 0 else []
+        if stale:
+            removal = run(skills_npx() + ["remove", *stale, "--global", "--yes"], timeout=JOB_TIMEOUT, path_prefix=prefix)
+            result = subprocess.CompletedProcess(
+                command, removal.returncode,
+                (result.stdout or "") + f"\nRemoved {len(stale)} skill(s) the source no longer has: {', '.join(stale)}\n" + (removal.stdout or ""),
+                (result.stderr or "") + (removal.stderr or ""))
     except subprocess.TimeoutExpired:
         return 124, f"{kind} timed out after {JOB_TIMEOUT // 60} minutes\n"
     except OSError as error:
