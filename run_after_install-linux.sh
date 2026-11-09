@@ -9,15 +9,7 @@ if ! command -v apt-get >/dev/null 2>&1; then
   echo "apt-get not available. Skipping Linux package installs." >&2
   exit 0
 fi
-CHEZMOI_ROLE="workstation"
-if command -v chezmoi >/dev/null 2>&1; then
-  CHEZMOI_ROLE="$(chezmoi execute-template '{{ get . "role" | default "workstation" }}')" || exit 1
-fi
-
-app_build_deps=()
-if [ "$CHEZMOI_ROLE" != "bb-worker" ]; then
-  app_build_deps=(libffi-dev libgmp-dev libpq-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev)
-fi
+app_build_deps=(libffi-dev libgmp-dev libpq-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev)
 
 sudo apt-get update
 tmp_log="$(mktemp)"

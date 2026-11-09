@@ -7,25 +7,14 @@
 # updater when already present, and the upstream installer as a fresh-install
 # fallback.
 #
-# BB workers instead use an isolated prefix and a dedicated tooling Node.
 # This is bootstrap logic. Ongoing manual updates use update-ai-tools.
 set -euo pipefail
 
 PREFIX="${HOME}/.local"
 export PATH="${PREFIX}/bin:${HOME}/.local/share/mise/shims:${PATH}"
 
-CHEZMOI_ROLE="workstation"
-if command -v chezmoi >/dev/null 2>&1; then
-  CHEZMOI_ROLE="$(chezmoi execute-template '{{ get . "role" | default "workstation" }}')" || exit 1
-fi
-
 HARNESS_BIN="${PREFIX}/bin"
-if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
-  PREFIX="$HOME/.local/share/orbi/agents"
-  TOOLING_BIN="$HOME/.local/share/orbi/tooling-node/bin"
-  # mise wraps bin/npm in Bash for reshim; Node must execute npm's JS entry.
-  npm_command=(env "PATH=$TOOLING_BIN:$PATH" "$TOOLING_BIN/node" "$TOOLING_BIN/../lib/node_modules/npm/bin/npm-cli.js")
-elif command -v npm >/dev/null 2>&1; then
+if command -v npm >/dev/null 2>&1; then
   npm_command=(npm)
 elif command -v mise >/dev/null 2>&1; then
   npm_command=(mise exec node -- npm)
@@ -85,14 +74,7 @@ install_managed_pi() (
     curl -fsSL https://pi.dev/install.sh | perl -MPOSIX -e 'POSIX::setsid(); exec @ARGV' sh
 )
 
-if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
-  install_npm_harness \
-    "Pi" \
-    "pi" \
-    "@earendil-works/pi-coding-agent" \
-    --ignore-scripts \
-    --min-release-age=0
-elif [ ! -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/install/managed-install.json" ]; then
+if [ ! -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/install/managed-install.json" ]; then
   install_managed_pi
 fi
 rm -rf "${PREFIX}/pi"
@@ -120,25 +102,9 @@ install_claude() {
 
 install_claude
 
-if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
-  for executable in pi codex; do
-    # Remove old npm symlinks before writing; never overwrite their targets.
-    rm -f "${HARNESS_BIN}/${executable}"
-    cat > "${HARNESS_BIN}/${executable}" <<EOF
-#!/usr/bin/env bash
-exec "\$HOME/.local/share/orbi/tooling-node/bin/node" "\$HOME/.local/share/orbi/agents/bin/${executable}" "\$@"
-EOF
-    chmod +x "${HARNESS_BIN}/${executable}"
-  done
-fi
-
 # Managed Pi package URLs are already present in settings.json when after
 # scripts run. Fetch/update those extensions now so a fresh machine is ready.
-if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
-  env "PATH=$TOOLING_BIN:$PATH" "${HARNESS_BIN}/pi" update --all
-else
-  "${HARNESS_BIN}/pi" update --all
-fi
+"${HARNESS_BIN}/pi" update --all
 
 printf 'Installed coding harnesses:\n'
 printf '  %s\n' "$("${HARNESS_BIN}/pi" --version 2>/dev/null | tail -1)"

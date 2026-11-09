@@ -37,28 +37,14 @@ install_managed_pi() (
     env "PATH=$HOME/.local/bin:$PATH" perl -MPOSIX -e 'POSIX::setsid(); exec @ARGV' sh
 )
 
-CHEZMOI_ROLE="workstation"
-if command -v chezmoi >/dev/null 2>&1; then
-  CHEZMOI_ROLE="$(chezmoi execute-template '{{ get . "role" | default "workstation" }}')" || exit 1
-fi
-
 failures=0
 
-if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
-  TOOLING_BIN="$HOME/.local/share/orbi/tooling-node/bin"
-  # mise's bin/npm may be Bash, not JavaScript; bypass it for this isolated prefix.
-  npm_command=(env "PATH=$TOOLING_BIN:$PATH" "$TOOLING_BIN/node" "$TOOLING_BIN/../lib/node_modules/npm/bin/npm-cli.js" --prefix "$HOME/.local/share/orbi/agents")
-  run_update "pi runtime" "${npm_command[@]}" install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent || failures=$((failures + 1))
-  run_update "pi" env "PATH=$TOOLING_BIN:$PATH" "$HOME/.local/bin/pi" update --all || failures=$((failures + 1))
-  run_update "codex" "${npm_command[@]}" install -g @openai/codex --include=optional || failures=$((failures + 1))
-else
-  # Pi's installer pins dependencies; plain npm installs are migrated once.
-  if [ ! -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/install/managed-install.json" ]; then
-    run_update "pi installer" install_managed_pi || failures=$((failures + 1))
-  fi
-  run_update "pi" env "PATH=$HOME/.local/bin:$PATH" pi update --all || failures=$((failures + 1))
-  run_update "codex" npm --prefix "$HOME/.local" install -g @openai/codex --include=optional || failures=$((failures + 1))
+# Pi's installer pins dependencies; plain npm installs are migrated once.
+if [ ! -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/install/managed-install.json" ]; then
+  run_update "pi installer" install_managed_pi || failures=$((failures + 1))
 fi
+run_update "pi" env "PATH=$HOME/.local/bin:$PATH" pi update --all || failures=$((failures + 1))
+run_update "codex" npm --prefix "$HOME/.local" install -g @openai/codex --include=optional || failures=$((failures + 1))
 run_update "claude code" claude update || failures=$((failures + 1))
 
 echo ""

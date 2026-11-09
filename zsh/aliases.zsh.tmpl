@@ -1,4 +1,3 @@
-{{- $role := get . "role" | default "workstation" -}}
 # Shared aliases and shell helpers
 
 # Editor and dotfiles
@@ -33,9 +32,7 @@ alias br="bin/rails"
 alias popo="bin/rubocop -f github"
 alias prime="bin/rails dev:prime"
 alias mwt='eval "$(bin/wt --select)"'
-{{- if ne $role "bb-worker" }}
 alias zw='bin/wt --select --open zed'
-{{- end }}
 alias h="hunk diff"
 alias hs="hunk diff --staged"
 alias c="chezmoi"

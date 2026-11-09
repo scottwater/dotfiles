@@ -1,8 +1,5 @@
-{{- $role := get . "role" | default "workstation" -}}
 #!/usr/bin/env bash
 set -euo pipefail
-
-CHEZMOI_ROLE={{ $role | quote }}
 
 if [ "${CHEZMOI_OS:-}" != "linux" ] && [ "${CHEZMOI_OS:-}" != "darwin" ]; then
   echo "Unsupported OS: ${CHEZMOI_OS:-unknown}" >&2
@@ -17,18 +14,7 @@ has_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
-install_worker_directories() {
-  if [ "$CHEZMOI_ROLE" != "bb-worker" ]; then
-    return
-  fi
-  mkdir -p "$HOME/code"
-}
-
 install_atuin() {
-  if [ "$CHEZMOI_ROLE" = "bb-worker" ]; then
-    return
-  fi
-
   if ! has_command atuin; then
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --non-interactive
   elif ! atuin doctor >/dev/null 2>&1; then
@@ -78,19 +64,6 @@ install_mise_tools() {
   fi
 }
 
-# Coding agents have a fixed runtime independent of profile-selected app Node.
-install_tooling_node() {
-  if [ "$CHEZMOI_ROLE" != "bb-worker" ]; then
-    return
-  fi
-
-  mise install -y node@24.19.0
-  local runtime
-  runtime="$(mise where node@24.19.0)"
-  mkdir -p "$HOME/.local/share/orbi" "$HOME/.local/bin"
-  ln -sfn "$runtime" "$HOME/.local/share/orbi/tooling-node"
-}
-
 install_fnox() {
   if ! has_command mise; then
     return
@@ -128,11 +101,9 @@ install_herdr() {
   fi
 }
 
-install_worker_directories
 install_atuin
 install_mise
 install_mise_tools
-install_tooling_node
 install_uv
 install_homebrew
 install_fnox

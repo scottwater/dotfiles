@@ -1,12 +1,9 @@
-{{- $role := get . "role" | default "workstation" -}}
 [tools]
-# Tools shared by workstations and disposable development workers.
 fnox = "latest"
 herdr = "latest"
 "vfox:mise-plugins/vfox-1password" = "latest"
 
-{{ if ne $role "bb-worker" -}}
-# Workstation-only runtimes. Workers get app runtimes from their profile.
+# Runtimes
 node = "24"
 ruby = "4.0.6"
 "npm:yarn" = "1.22.22"
@@ -15,9 +12,8 @@ go = "latest"
 {{ if eq .chezmoi.os "darwin" -}}
 tuist = "4.195.6"
 {{ end -}}
-{{ end -}}
 
-# Terminal development tools shared by workstations and BB workers.
+# Terminal development tools
 age = "latest"
 bat = "latest"
 delta = "latest"
@@ -32,12 +28,10 @@ yazi = "latest"
 zoxide = "latest"
 hunk = "latest"
 
-{{ if ne $role "bb-worker" -}}
-# Workstation-only services and deployment helpers.
+# Services and deployment helpers
 flyctl = "latest"
 "pipx:dslr" = { version = "latest", uvx_args = "--with psycopg2-binary" }
 "github:axllent/mailpit" = "latest"
-{{ end -}}
 
 [settings]
 idiomatic_version_file_enable_tools = ["ruby"]

@@ -1,9 +1,4 @@
-{{- $role := get . "role" | default "workstation" -}}
-{{ if eq $role "bb-worker" -}}
-export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
-{{- else }}
 export PATH="$HOME/.local/bin:$PATH"
-{{- end }}
 
 {{ if eq .chezmoi.os "darwin" -}}
 if [ -x /opt/homebrew/bin/brew ]; then
@@ -13,15 +8,7 @@ fi
 {{- end }}
 
 export XDG_CONFIG_HOME="$HOME/.config"
-{{- if eq $role "bb-worker" }}
-export RAILS_EDITOR="nvim"
-# Worker login directory: leave explicit project paths and noninteractive jobs alone.
-if [[ -o interactive && "$PWD" = "$HOME" && -d "$HOME/code" ]]; then
-  builtin cd -- "$HOME/code"
-fi
-{{- else }}
 export RAILS_EDITOR="zed"
-{{- end }}
 
 if command -v mise >/dev/null 2>&1; then
   # Non-interactive login shells (Codex) skip .zshrc; ensure shims exist there.

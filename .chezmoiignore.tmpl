@@ -1,5 +1,3 @@
-{{- $role := get . "role" | default "workstation" -}}
-
 # Zed auto-managed
 .config/zed/prompts/**
 .config/zed/conversations/**
@@ -21,25 +19,6 @@
 {{- if ne .chezmoi.os "darwin" }}
 Brewfile
 .local/bin/disable-macos-animations
-{{- end }}
-
-# The Orbie fleet agent's timer: launchd on macOS, systemd elsewhere
-{{- if eq .chezmoi.os "darwin" }}
-.config/systemd/**
-{{- else }}
-Library/**
-{{- end }}
-
-# Workstation-only configuration
-{{- if eq $role "bb-worker" }}
-.config/atuin/**
-.config/ghostty/**
-.config/zed/**
-{{- end }}
-
-# Worker-local maintenance
-{{- if ne $role "bb-worker" }}
-.local/bin/orbi-update
 {{- end }}
 
 # Work-only files

@@ -9,43 +9,15 @@ require a separate Chezmoi installation.
 
 ### Interactive bootstrap
 
-The original command remains the default. On a fresh machine it asks for the
-machine role and whether it is a Kode machine before applying the dotfiles.
+On a fresh machine it asks whether it is a Kode machine before applying the
+dotfiles:
 
 ```bash
 sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply git@github.com:scottwater/dotfiles.git
 ```
 
-### Explicit workstation bootstrap
-
-Use this when the machine should receive the complete workstation setup without
-role prompts:
-
-```bash
-sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- \
-  init --apply \
-  --promptChoice role=workstation \
-  --promptBool kode=false \
-  git@github.com:scottwater/dotfiles.git
-```
-
-Set `kode=true` for a Kode workstation.
-
-### Explicit BB worker bootstrap
-
-Use this while preparing the reusable worker image:
-
-```bash
-sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- \
-  init --apply \
-  --promptChoice role=bb-worker \
-  --promptBool kode=false \
-  git@github.com:scottwater/dotfiles.git
-```
-
-The SSH repository URL requires GitHub access during the initial clone. An
-interactive template build can use a forwarded SSH agent; copied workers retain
-the initialized Chezmoi source and role configuration.
+Add `--promptBool kode=false` (or `kode=true` for a Kode workstation) after
+`init --apply` to skip the prompt.
 
 Next steps on macOS (local machine only):
 
@@ -60,65 +32,21 @@ Next steps on Linux (SSH-only):
 chezmoi apply
 ```
 
-## Machine roles
+## Orbie fleet
 
-Initialization asks once for a machine role and stores it in the machine-local
-Chezmoi config. `workstation` is the default and preserves the full desktop
-setup. `bb-worker` installs the terminal development and agent environment but
-omits workstation-only applications and services.
+The Orbie fleet client (the agent, the gateway key helper and the script that
+points Claude Code, Codex and Pi at the gateway) comes from the orbie
+repository, not these dotfiles; its README has the one-line install. Pi's
+`settings.json` template keeps the `defaultProvider` and `enabledModels` already
+on disk, so an apply leaves the fleet's choices alone. `ai-direct` runs Claude
+Code or Codex past the gateway for one session when it is down.
 
-The bootstrap examples above can select either role without an interactive
-prompt. The existing `kode` flag is independent of the machine role. Existing
-installs without a stored role continue to render as `workstation`. Run
-`chezmoi update --init` to persist the choice on one of those machines. Verify
-a machine before sealing a worker image with:
+## 1Password and theme
 
-```bash
-chezmoi data --format=json | jq '{role, kode}'
-```
-
-The `bb-worker` role includes the full zsh environment, Neovim, LazyGit, Hunk,
-Herdr, tmux, Yazi, Overmind, Pi, Codex, Claude Code, and Pi packages. Shared
-agent skills and authentication are the Orbie fleet's job, not the dotfiles'.
-
-After installing the coding harnesses, worker applies automatically run
-`herdr integration install pi`, `herdr integration install claude`, and
-`herdr integration install codex`. This installs Herdr's state-reporting hooks
-and extension, preserves unrelated agent hooks/settings, and refreshes the
-integrations on subsequent applies. It does not start agents, sign in, or enable
-OpenCode/other integrations. Workstation integration choices are unchanged.
-Restart already-running coding agents to load newly installed integrations;
-`herdr integration status` reports their installed versions. See
-[Herdr's integration documentation](https://herdr.dev/docs/integrations/).
-
-Mise installs the 1Password CLI (`op`) for all roles on Linux and macOS through
+Mise installs the 1Password CLI (`op`) on Linux and macOS through
 `vfox:mise-plugins/vfox-1password`, mise's preferred backend for `op`. The Aqua
 backend cannot discover releases with mise 2026.9.1. Account sign-in remains
-manual; Chezmoi does not configure
-authentication or enroll accounts. Workstations also pin Yarn Classic to
-`1.22.22` via `npm:yarn`; Rails worker profiles install that same version with
-their application Node, keeping it out of the lean base.
-
-Workers have no base app Node, Ruby, or PHP default; profiles supply app
-runtimes, mise defaults, and build dependencies. General build tools and SQLite remain.
-Coding agents use mise-installed Node 24.19.0 through
-`~/.local/share/orbi/tooling-node`, with Pi/Codex packages under
-`~/.local/share/orbi/agents`. Their launchers and updates use this private
-runtime, never generic `node`, `npm`, or `npx` links. Worker zsh shells put mise
-shims before `~/.local/bin`, including noninteractive and nonlogin shells, so
-apps use mise-selected runtimes. Workstation defaults are unchanged.
-
-Worker bootstrap creates `~/code` without modifying existing projects. Interactive
-zsh logins starting in the home directory enter `~/code`; noninteractive commands
-and logins already in a project keep their working directory. Herdr's new-terminal
-working directory is not overridden: new tabs and splits retain its normal
-follow-current-pane behavior instead of being forced back to `~/code`. Remote
-attachment does not relocate existing panes. Herdr-created worktrees live under
-`~/code/herdr-worktrees`.
-
-BB source clones need an explicit worker `--target-path` under `/home/exedev/code`
-(or register an existing checkout there). Shell defaults do not relocate BB's
-managed worktrees or personal workspaces. No BB data directories are moved.
+manual; Chezmoi does not configure authentication or enroll accounts.
 
 The managed theme is [Tokyo Night Dark](https://wixdaq.github.io/Tokyo-Night-Website/palette.html), the `night` variant with a `#1a1b26` background. TPM remains managed through `.chezmoiexternal.toml`; the private Dracula Pro external is disabled.
 
@@ -134,37 +62,11 @@ The old private theme remains available as a dormant fallback:
 
 The existing `bat/themes/alucard.tmTheme` and Pi `themes/alucard.json` files are intentionally retained for that fallback.
 
-## Worker updates
+## Tests
 
-Role `bb-worker` installs `~/.local/bin/orbi-update`. Finish active work and push
-your dotfile changes before running it on a VM:
-
-```bash
-orbi-update --dry-run
-orbi-update
-orbi-update --component agents --component herdr
-orbi-update --yes
-```
-
-The default sequence is `chezmoi update`, `update-ai-tools` (Pi, Codex, Claude),
-`mise upgrade herdr`, then a check that enrolled BB host services are active and
-configured for automatic updates. BB follows the control server; this command
-does not manually update or restart BB or Herdr. Chezmoi hooks may also update
-tools, regardless of component selection.
-
-The command checks the worker role, refuses dirty Chezmoi source changes, and
-locks against concurrent updates. Failures stop later components without rolling
-back earlier changes. Dry run prints the plan without running commands. Updates
-to the updater itself take effect on the next invocation: Python loads the
-current program before Chezmoi can replace its file.
-
-Orbie's `provisioning/bin/update-worker` invokes this installed command remotely
-for one VM or sequentially for `--all`. Workers need no control-server SSH key.
-Refresh the template's Chezmoi configuration before building new worker images.
-
-Run the updater and worker tooling tests from this source repository (template
-checks require `chezmoi`; when `herdr` is available, its local integration
-installers are tested in an isolated temporary home, never against live settings):
+The template checks require `chezmoi`; when `herdr` is available, its local
+integration installers are tested in an isolated temporary home, never against
+live settings:
 
 ```bash
 python3 -m unittest discover -s tests -q
@@ -174,14 +76,12 @@ python3 -m unittest discover -s tests -q
 
 The install scripts run automatically via `chezmoi apply`:
 
-- `run_after_install-core.sh.tmpl` - Cross-platform mise, runtime, Herdr, fnox, uv, and role-aware Atuin setup
+- `run_after_install-core.sh.tmpl` - Cross-platform mise, runtime, Herdr, fnox, uv, and Atuin setup
 - `run_after_install-linux.sh` - Ubuntu build dependencies and terminal utilities
 - `run_onchange_after_install-pi.sh` - Installs Pi, Codex, Claude Code, and managed Pi packages
 - `run_onchange_after_install-safety-guard.sh` - Installs and configures destructive_command_guard on macOS and Linux
 - `run_after_set-pi-tokyonight-theme.sh` - Selects the managed Pi theme without replacing other Pi settings
 - `run_after_install-dracula-pro-themes.sh` - Dormant Dracula Pro copy hook; requires `DRACULA_PRO_THEMES_ENABLED=1`
-- `run_after_configure-fleet-gateway.sh` - Points Claude Code, Codex and Pi at the Orbie fleet gateway when `~/.config/orbie/proxy.env` exists (written by `orbie` or the fleet agent); the key is read through `~/.local/bin/orbie-gateway-key`, and Pi's `settings.json` template selects the gateway providers on the same condition
-- `run_after_enable-orbie-agent.sh` - Starts the Orbie fleet agent (`~/.local/bin/orbie-agent`) every five minutes: a systemd user timer on Linux, the `com.orbie.agent` LaunchAgent on macOS. The agent reports metrics and tool versions to the fleet, runs jobs queued there (dotfiles, agent updates, skills), and collects the machine's gateway key once the machine is approved. `orbie-agent --dry-run` prints what it would report.
 
 ## Tools
 
@@ -227,7 +127,7 @@ The install scripts run automatically via `chezmoi apply`:
 | Source | Destination | Description |
 |--------|-------------|-------------|
 | `dot_zshrc.tmpl` | `~/.zshrc` | Zsh configuration with aliases and functions |
-| `dot_zprofile.tmpl` | `~/.zprofile` | Role-aware Zsh profile |
+| `dot_zprofile.tmpl` | `~/.zprofile` | Zsh profile |
 | `dot_gitconfig.tmpl` | `~/.gitconfig` | OS-aware Git configuration with aliases |
 | `dot_gitignore_global` | `~/.gitignore_global` | Global git ignore patterns |
 | `dot_gemrc` | `~/.gemrc` | Ruby gem configuration |

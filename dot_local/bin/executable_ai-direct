@@ -2,7 +2,7 @@
 # Runs a coding agent past the Orbie fleet gateway for one session, using the
 # machine's own login, for when the gateway is down. Only a machine with its
 # own login (the Macs) can use this; workers have none. The settings the
-# dotfiles wrote are untouched: Claude Code takes a one-session settings
+# fleet client wrote are untouched: Claude Code takes a one-session settings
 # override that clears the gateway URL and the key helper, Codex takes its
 # built-in provider. Usage: ai-direct claude [args...] | ai-direct codex [args...]
 set -euo pipefail
